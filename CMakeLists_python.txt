@@ -1,0 +1,49 @@
+
+# Cmake config for NanoShaper for Python
+project(NanoShaper) 
+cmake_minimum_required(VERSION 2.6.2)
+if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
+  if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_GREATER 2.8.3)
+    cmake_policy(VERSION 2.8.4)
+  else()
+    cmake_policy(VERSION 2.6)
+  endif()
+endif()
+
+find_package(CGAL REQUIRED)
+find_package(SWIG REQUIRED)
+find_package(Boost REQUIRED)
+find_package(PythonLibs REQUIRED)
+include(${SWIG_USE_FILE})
+
+include_directories (BEFORE include)
+include_directories(src)
+include_directories(src/ConfigFile)
+include_directories(src/jama)
+include_directories(src/tnt)
+include_directories(src/sturm)
+include_directories(src/octree)
+include_directories(${PYTHON_INCLUDE_PATH})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include( ${CGAL_USE_FILE} )
+set(CMAKE_SWIG_FLAGS "")
+
+add_definitions(-DENABLE_CGAL)
+add_definitions(-DENABLE_BOOST_THREADS)
+
+ file(GLOB SRC
+    "./src/*.h"
+    "./src/*.cpp")
+
+# this is added due to a bug of Cmake with Swig on linux
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "src")
+
+
+SET_SOURCE_FILES_PROPERTIES(src/nanoshaper.i PROPERTIES CPLUSPLUS ON)
+
+SWIG_ADD_MODULE(NanoShaper python src/nanoshaper.i 
+	${SRC} src/ply/ply.cpp src/ply/ply.h src/ConfigFile/ConfigFile.cpp src/ConfigFile/ConfigFile.h src/sturm/sturm.cpp src/sturm/util.cpp src/sturm/solve.h src/octree/octree.h )
+SWIG_LINK_LIBRARIES(NanoShaper ${PYTHON_LIBRARIES})
+
+			
+message(STATUS "C++ Release flags ${CMAKE_CXX_FLAGS_RELEASE}")

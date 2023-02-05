@@ -1,0 +1,35 @@
+Load_Balancing = true
+Print_Available_Surfaces = false
+Build_epsilon_maps  = true
+Build_status_map = true
+Smooth_Mesh = false
+Number_thread = -1 #autodetect
+Skin_Surface_Parameter = 0.45
+Blobbyness = -2.5 
+Surface_File_Name = triangulatedSurf.off
+Skin_Fast_Projection = true
+Cavity_Detection_Filling = false
+Conditional_Volume_Filling_Value = 11.4
+Keep_Water_Shaped_Cavities = false
+Probe_Radius = 1.4
+Accurate_Triangulation = false
+Triangulation = false
+Check_duplicated_vertices = false
+Save_Status_map = false
+Save_eps_maps  = false
+Save_PovRay = false
+
+Max_mesh_auxiliary_grid_size = 100
+Max_mesh_patches_per_auxiliary_grid_cell = 250;
+Max_mesh_auxiliary_grid_2d_size = 100
+Max_mesh_patches_per_auxiliary_grid_2d_cell = 250 
+
+Max_ses_patches_auxiliary_grid_size = 100
+Max_ses_patches_per_auxiliary_grid_cell = 400
+Max_ses_patches_auxiliary_grid_2d_size = 40
+Max_ses_patches_per_auxiliary_grid_2d_cell = 400
+
+Max_skin_patches_auxiliary_grid_size = 100
+Max_skin_patches_per_auxiliary_grid_cell = 400
+Max_skin_patches_auxiliary_grid_2d_size = 50
+Max_skin_patches_per_auxiliary_grid_2d_cell = 400
