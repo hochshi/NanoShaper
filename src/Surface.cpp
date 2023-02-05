@@ -6,6 +6,7 @@
 //---------------------------------------------------------
 
 #include "Surface.h"
+#include <tuple>
 
 void Surface::init()
 {
@@ -5073,7 +5074,7 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 	{
 		// save all in OFF format
 		FILE* fp;
-		sprintf(fullName,"%s.off",fileName);	
+		snprintf(fullName, sizeof(fullName), "%s.off",fileName);	
 		fp = fopen(fullName,"w");
 
 		if (fp==NULL)
@@ -5177,9 +5178,9 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 			cout << endl << INFO << "Saving in MSMS format, no patch info, no nearest atom..";
 
 		FILE *fp1,*fp2;
-		sprintf(fullName,"%s.face",fileName);
+		snprintf(fullName, sizeof(fullName), "%s.face",fileName);
 		fp1 = fopen(fullName,"w"); 
-		sprintf(fullName,"%s.vert",fileName);
+		snprintf(fullName, sizeof(fullName), "%s.vert",fileName);
 		fp2 = fopen(fullName,"w");
 
 		if (fp1==NULL || fp2==NULL)
@@ -5453,7 +5454,7 @@ void Surface::tri2Balls()
 	return;
 	#else
 
-	vector<_Weighted_point> l;
+	vector<Indexed_weighted_point> l;
 	float x,y,z;
 	float max_x=-1e6,min_x=1e6,max_y=-1e6,min_y=1e6,max_z=-1e6,min_z=1e6;
 
@@ -5467,7 +5468,8 @@ void Surface::tri2Balls()
 		y = (float)vertList[i][1];
 		z = (float)vertList[i][2];
 				
-		l.push_back(_Weighted_point(_Point3(x,y,z),0.f,i)); 
+		// l.emplace_back(_Weighted_point(_Point3(x,y,z),0.f) ,i); 
+		l.emplace_back(Weighted_point(Point(x,y,z),0.f), i); 
 		max_x = max(max_x,x);
 		max_y = max(max_y,y);
 		max_z = max(max_z,z);
@@ -5478,7 +5480,7 @@ void Surface::tri2Balls()
 	}
 	
 	// Regular Triangulation object 
-	_Rt rT;
+	Rt rT;
 
 	float mid_x = (max_x+min_x)/2.f;
 	float mid_y = (max_y+min_y)/2.f;
@@ -5493,12 +5495,13 @@ void Surface::tri2Balls()
 	max_z += fabs(mid_z-max_z)*2;
 
 	// add bounding box using -1 weights to let easy detection of these virtual points
-	l.push_back(_Weighted_point(_Point3(min_x,mid_y,mid_z),-1,(const int)vertList.size()));
-	l.push_back(_Weighted_point(_Point3(max_x,mid_y,mid_z),-1,(const int)vertList.size()+1));
-	l.push_back(_Weighted_point(_Point3(mid_x,min_y,mid_z),-1,(const int)vertList.size()+2));
-	l.push_back(_Weighted_point(_Point3(mid_x,max_y,mid_z),-1,(const int)vertList.size()+3));
-	l.push_back(_Weighted_point(_Point3(mid_x,mid_y,min_z),-1,(const int)vertList.size()+4));
-	l.push_back(_Weighted_point(_Point3(mid_x,mid_y,max_z),-1,(const int)vertList.size()+5));
+  const int vertList_size = (const int) vertList.size();
+	l.emplace_back(Weighted_point(Point(min_x,mid_y,mid_z),-1), vertList_size);
+	l.emplace_back(Weighted_point(Point(max_x,mid_y,mid_z),-1), vertList_size + 1);
+	l.emplace_back(Weighted_point(Point(mid_x,min_y,mid_z),-1), vertList_size + 2);
+	l.emplace_back(Weighted_point(Point(mid_x,max_y,mid_z),-1), vertList_size + 3);
+	l.emplace_back(Weighted_point(Point(mid_x,mid_y,min_z),-1), vertList_size + 4);
+	l.emplace_back(Weighted_point(Point(mid_x,mid_y,max_z),-1), vertList_size + 5);
 
 	//cout << endl << INFO << "Computing triangulation....";
 
@@ -5510,11 +5513,17 @@ void Surface::tri2Balls()
 	//cout << "ok!";
 	//cout << endl << INFO << "Computing voronoi points....";
 
-	_Finite_Cells_Iterator fcit = rT.finite_cells_begin(); 
+	// _Finite_Cells_Iterator fcit = rT.finite_cells_begin(); 
+	auto fcit = rT.finite_cells_begin(); 
 
 	for (;fcit!=rT.finite_cells_end();fcit++)    
 	{
-		const _Point3& p = rT.geom_traits().construct_weighted_circumcenter_3_object()(fcit->vertex(0)->point(),fcit->vertex(1)->point(),fcit->vertex(2)->point(),fcit->vertex(3)->point());
+		const Point& p = rT.geom_traits().construct_weighted_circumcenter_3_object()(
+          fcit->vertex(0)->point(),
+          fcit->vertex(1)->point(),
+          fcit->vertex(2)->point(),
+          fcit->vertex(3)->point()
+    );
 		VorPoint*& mc = (VorPoint*&)fcit->info();
 		mc = new VorPoint();
 		mc->vor[0] = p.x();
@@ -5525,17 +5534,18 @@ void Surface::tri2Balls()
 	//cout << "ok!";
 	//cout << endl << INFO << "Collecting polar balls....";
 	
-	vector<_Cell_handle> cells;
+	vector<Cell_handle> cells;
 	cells.reserve(1000);
 
 	vector<double*> polarBalls;
 	vector<double> polarDist;
 
-	_Finite_Vertex_Iterator fvit = rT.finite_vertices_begin();
+	// _Finite_Vertex_Iterator fvit = rT.finite_vertices_begin();
+	auto fvit = rT.finite_vertices_begin();
 	
 	for(;fvit!=rT.finite_vertices_end();fvit++)
 	{	  
-		const _Weight& w0 = fvit->point().weight();
+		const Weight& w0 = fvit->point().weight();
 		
 		// skip bounding box points
 		if ((w0)==-1)
@@ -5547,7 +5557,7 @@ void Surface::tri2Balls()
 			continue;
 
 		// current point id around which we are moving
-		const int& currentId = fvit->point().index();
+		const int& currentId = fvit->info();
 		
 		cells.clear();
 		rT.incident_cells(fvit,std::back_inserter(cells));
@@ -5555,7 +5565,7 @@ void Surface::tri2Balls()
 		bool infiniteCell = false;
 
 		// start check if all tetraedra are feasible
-		std::vector<_Cell_handle>::iterator it;
+		std::vector<Cell_handle>::iterator it;
 		for (it=cells.begin();it!=cells.end();it++)
 		{
 			if (rT.is_infinite((*it)))
