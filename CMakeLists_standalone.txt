@@ -18,6 +18,18 @@ include_directories(src/tnt)
 include_directories(src/sturm)
 include_directories(src/octree)
 
+find_package(Boost COMPONENTS thread)
+if (Boost_FOUND)
+  link_directories ( ${Boost_LIBRARY_DIRS} )
+  link_libraries(${Boost_LIBRARIES})
+  include_directories ( ${Boost_INCLUDE_DIRS} )
+  include_directories (BEFORE include)
+  add_definitions(-DENABLE_BOOST_THREADS)
+else (Boost_FOUND)
+  message(STATUS "Boost libs not found, Multithreading will be disabled")  
+endif (Boost_FOUND)
+	
+
 # if cgal is found, boost is automatically found
  find_package(CGAL)
 
@@ -61,16 +73,6 @@ include_directories(src/octree)
 	if (${UNIX}) 
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mtune=native") 
 	endif (${UNIX}) 
-	
-	find_package(Boost)
-	if (Boost_FOUND)
-		link_directories ( ${Boost_LIBRARY_DIRS} )
-		include_directories ( ${Boost_INCLUDE_DIRS} )
-		include_directories (BEFORE include)
-		add_definitions(-DENABLE_BOOST_THREADS)
-	else (Boost_FOUND)
-		message(STATUS "Boost libs not found, Multithreading will be disabled")  
-	endif (Boost_FOUND)
 	
 	if (MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)	
