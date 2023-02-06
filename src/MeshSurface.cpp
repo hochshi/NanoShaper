@@ -996,14 +996,14 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 		// main component
 		if (i==0)
 		{
-			sprintf(currentFace,"%s.face",baseName);			
-			sprintf(currentVert,"%s.vert",baseName);
+			snprintf(currentFace, sizeof(currentFace), "%s.face",baseName);			
+			snprintf(currentVert, sizeof(currentVert), "%s.vert",baseName);
 		}
 		// cavities
 		else
 		{
-			sprintf(currentFace,"%s_%d.face",baseName,i);			
-			sprintf(currentVert,"%s_%d.vert",baseName,i);
+			snprintf(currentFace, sizeof(currentFace), "%s_%d.face",baseName,i);			
+			snprintf(currentVert, sizeof(currentVert), "%s_%d.vert",baseName,i);
 		}
 
 		fin.open(currentVert,ios::in);
@@ -1053,14 +1053,14 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 		// main component
 		if (i==0)
 		{
-			sprintf(currentFace,"%s.face",baseName);			
-			sprintf(currentVert,"%s.vert",baseName);
+			snprintf(currentFace, sizeof(currentFace), "%s.face",baseName);			
+			snprintf(currentVert, sizeof(currentVert), "%s.vert",baseName);
 		}
 		// cavities
 		else
 		{
-			sprintf(currentFace,"%s_%d.face",baseName,i);			
-			sprintf(currentVert,"%s_%d.vert",baseName,i);
+			snprintf(currentFace, sizeof(currentFace), "%s_%d.face",baseName,i);			
+			snprintf(currentVert, sizeof(currentVert), "%s_%d.vert",baseName,i);
 		}
 
 		fin.open(currentVert,ios::in);

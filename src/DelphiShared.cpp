@@ -587,9 +587,9 @@ void DelPhiShared::saveIdebMap(char* fname)
 	
 	char f1[BUFLEN];	
 	//if (debug_stern == -1)
-		sprintf(f1,"%s.idebmap.txt",fname);
+		snprintf(f1, sizeof(f1), "%s.idebmap.txt",fname);
 	//else
-	//	sprintf(f1,"%s.idebmap.stern.txt",fname);
+	//	snprintf(f1, sizeof(f1), "%s.idebmap.stern.txt",fname);
 	FILE* fp = fopen(f1,"w");
 	for (int i=0;i<nx;i++)
 	{		
@@ -615,9 +615,9 @@ void DelPhiShared::saveEpsMaps(char* fname)
 	}
 	
 	char f1[BUFLEN],f2[BUFLEN],f3[BUFLEN];
-	sprintf(f1,"%s.epsmapx.txt",fname);
-	sprintf(f2,"%s.epsmapy.txt",fname);
-	sprintf(f3,"%s.epsmapz.txt",fname);
+	snprintf(f1, sizeof(f1), "%s.epsmapx.txt",fname);
+	snprintf(f2, sizeof(f2), "%s.epsmapy.txt",fname);
+	snprintf(f3, sizeof(f3), "%s.epsmapz.txt",fname);
 
 	FILE* fp = fopen(f1,"w");
 	for (int i=0;i<nx;i++)
@@ -727,7 +727,7 @@ void DelPhiShared::saveBGP(char* fname)
 	}
 
 	char ff[BUFLEN];
-	sprintf(ff,"%s.projections.txt",fname);		
+	snprintf(ff, sizeof(ff), "%s.projections.txt",fname);		
 	FILE* fp = fopen(ff,"w");
 	FILE* fp2 = fopen("surf.txt","w");
 	fprintf(fp,"%d\n",nbgp);
@@ -758,7 +758,7 @@ void DelPhiShared::saveStatus(char* fname)
 		return;
 	}
 	char ff[BUFLEN];
-	sprintf(ff,"%s.status.txt",fname);
+	snprintf(ff, sizeof(ff), "%s.status.txt",fname);
 	FILE* fp = fopen(ff,"w");
 	
 	for (int i=0;i<nx;i++)
@@ -902,9 +902,9 @@ int DelPhiShared::cavitiesToAtoms(double rad)
 			i--;
 			continue;
 		}
-		sprintf(buff,"cav%d.txt",i);
+		snprintf(buff, sizeof(buff), "cav%d.txt",i);
 		fp = fopen(buff,"w");
-		sprintf(buff,"all_cav%d.txt",i);
+		snprintf(buff, sizeof(buff), "all_cav%d.txt",i);
 		FILE* fp2 = fopen(buff,"w");
 		
 		vector <int* >::iterator it2;
@@ -960,7 +960,7 @@ void DelPhiShared::saveCavities2(bool onlySaveNonFilled,string sysName)
 	{
 		FILE* fp;
 		char buff[100];
-		sprintf(buff,"%s.pocket",sysName.c_str());
+		snprintf(buff, sizeof(buff), "%s.pocket",sysName.c_str());
 		fp = fopen(buff,"w");
 		int savedIndex = 1;
 		for (unsigned int i=0;i<cav2atoms.size();i++)
