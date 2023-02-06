@@ -1,7 +1,7 @@
 #ifndef JAMA_CHOLESKY_H
 #define JAMA_CHOLESKY_H
 
-#include "math.h"
+#include <math.h>
 	/* needed for sqrt() below. */
 
 

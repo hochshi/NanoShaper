@@ -22,7 +22,7 @@
 #ifndef TNT_VEC_H
 #define TNT_VEC_H
 
-#include "tnt_subscript.h"
+#include <tnt_subscript.h>
 #include <cstdlib>
 #include <cassert>
 #include <iostream>

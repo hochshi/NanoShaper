@@ -1,6 +1,6 @@
 
-#include "ConnollySurface.h"
-#include "tools.h"
+#include <ConnollySurface.h>
+#include <tools.h>
 #include <CGAL/Kernel/global_functions_3.h>
 #include <tuple>
 

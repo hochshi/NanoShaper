@@ -5,7 +5,7 @@
 *															*/
 //---------------------------------------------------------
 
-#include "Surface.h"
+#include <Surface.h>
 #include <tuple>
 
 void Surface::init()
@@ -267,7 +267,7 @@ void Surface::allocNormalsMatrices()
 /** build epsmap and compute boundary grid points by intersection
 and projection routines. The minimal number of projections is performed.
 The ray tracing part is parallelized with boost threading if enabled*/
-bool Surface::getSurf(bool fillCav,double vol)
+bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 {
 	double volPanel[3]={0,0,0};	
 	double duration = 0;
@@ -2230,7 +2230,7 @@ void Surface::floodFill(int ix,int iy,int iz,int idold,int idnew)
 	return;
 }
 
-void Surface::floodFill4(int ix,int iy,int iz, int idold, int idnew)
+void Surface::floodFill4(int ix,int iy,int iz, int idold, int idnew, int num_cores)
 {	
 	int numMoves = 0;
 	int maxMoves = 10;
@@ -4598,7 +4598,7 @@ inline double Surface::triangulationKernel(double isolevel,bool revert,int start
 	return (*localArea);
 }
 
-double Surface::triangulateSurface(double isolevel,const char* fileName,bool revert)
+double Surface::triangulateSurface(double isolevel,const char* fileName,bool revert, int num_cores)
 {
 	int NX = delphi->nx;
 	int NY = delphi->ny;

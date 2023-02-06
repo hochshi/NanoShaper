@@ -8,8 +8,8 @@
 #ifndef ConnollySurface_h
 #define ConnollySurface_h
 
-#include "Surface.h"
-#include "SurfaceFactory.h"
+#include <Surface.h>
+#include <SurfaceFactory.h>
 
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC

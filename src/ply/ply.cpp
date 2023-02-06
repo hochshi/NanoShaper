@@ -25,8 +25,8 @@
 *                                                                           *
 ****************************************************************************/
 
-#include "../globals.h"
-#include "ply.h"
+#include <globals.h>
+#include <ply/ply.h>
 
 // Swap endian-ness for four-byte elements
 

@@ -11,7 +11,7 @@ from "Graphics Gems", Academic Press, 1990
  */
 #include <stdio.h>
 #include <math.h>
-#include "solve.h"
+#include <solve.h>
 
 /*
  * a driver program for a root solver.

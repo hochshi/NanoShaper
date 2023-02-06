@@ -8,7 +8,7 @@
 #ifndef ExternalSurface_h
 #define ExternalSurface_h
 
-#include "Surface.h"
+#include <Surface.h>
 
 
 /** @brief This class is wrapper and loads an external surface using the files epsmapx.txt, epsmapy.txt,

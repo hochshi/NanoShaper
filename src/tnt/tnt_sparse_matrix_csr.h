@@ -21,7 +21,7 @@
 #ifndef TNT_SPARSE_MATRIX_CSR_H
 #define TNT_SPARSE_MATRIX_CSR_H
 
-#include "tnt_array1d.h"
+#include <tnt_array1d.h>
 
 namespace TNT
 {

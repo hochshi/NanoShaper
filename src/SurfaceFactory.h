@@ -5,8 +5,8 @@
 #include <map>
 #include <string>
 #include <iostream>
-#include "ConfigFile.h"
-#include "globals.h"
+#include <ConfigFile.h>
+#include <globals.h>
 
 class Surface;
 class DelPhiShared;

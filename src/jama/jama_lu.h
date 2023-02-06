@@ -1,7 +1,7 @@
 #ifndef JAMA_LU_H
 #define JAMA_LU_H
 
-#include "tnt.h"
+#include <tnt.h>
 #include <algorithm>
 //for min(), max() below
 

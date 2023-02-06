@@ -1,4 +1,4 @@
-#include "SkinSurface.h"
+#include <SkinSurface.h>
 
 void SkinSurface::clear() {
   if (gridMixedCellMap != NULL)

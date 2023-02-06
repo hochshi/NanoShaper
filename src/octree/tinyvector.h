@@ -18,7 +18,7 @@
 #ifndef TINYVECTOR_H
 #define TINYVECTOR_H
 
-#include "numtraits.h"
+#include <numtraits.h>
 
 template< typename T, int N >
 class TinyVector

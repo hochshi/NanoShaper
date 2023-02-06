@@ -9,10 +9,10 @@
 #ifndef Surface_h
 #define Surface_h
 
-#include "ConfigFile.h"
-#include "SurfaceFactory.h"
-#include "globals.h"
-#include "octree.h"
+#include <ConfigFile.h>
+#include <SurfaceFactory.h>
+#include <globals.h>
+#include <octree.h>
 
 #ifdef ENABLE_CGAL
 //////////////////////// CGAL
@@ -81,8 +81,8 @@ public:
 #define _CRTDBG_MAP_ALLOC_NEW
 #endif
 
-#include "DelphiShared.h"
-#include "tools.h"
+#include <DelphiShared.h>
+#include <tools.h>
 
 // ids for rays directions
 #define X_DIR 0
@@ -342,7 +342,7 @@ protected:
   void floodFill2(int ix, int iy, int iz, int idold, int idnew);
 
   /** parallel version with scaline */
-  void floodFill4(int ix, int iy, int iz, int idold, int idnew);
+  void floodFill4(int ix, int iy, int iz, int idold, int idnew, int num_cores = 0);
 
   /** inner routine for scanline */
   void floodFill3(pair<pair<int, int>, int> ind, pair<int, int> z_limits,
@@ -510,7 +510,7 @@ public:
   and getProjection primitives. If requested one can fill cavities by fill flag.
   In order to use parallel execution ray-tracing is performed using the
   itersectionFunctor*/
-  virtual bool getSurf(bool fill = false, double vol = 0);
+  virtual bool getSurf(bool fill = false, double vol = 0, int num_cores = 0);
 
   /** Returns the volume computed during Surface::getSurf computations. This
   function can be overload to implement a custom volume computation method*/
@@ -547,7 +547,8 @@ public:
   surface is saved in off format*/
   virtual double triangulateSurface(double iso = 0.0,
                                     const char *fileName = "triangulatedSurf",
-                                    bool revert = false);
+                                    bool revert = false,
+                                    int num_cores = 0);
 
   /** save mesh in a prescribed format, revert triangles (change plane sign) if
    * requested*/

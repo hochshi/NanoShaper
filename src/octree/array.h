@@ -18,8 +18,8 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
-#include "shareddata.h"
-#include "tinyvector.h"
+#include <shareddata.h>
+#include <tinyvector.h>
 
 template< typename T, int N >
 class Array

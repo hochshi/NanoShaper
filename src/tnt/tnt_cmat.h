@@ -24,8 +24,8 @@
 #ifndef TNT_CMAT_H
 #define TNT_CMAT_H
 
-#include "tnt_subscript.h"
-#include "tnt_vec.h"
+#include <tnt_subscript.h>
+#include <tnt_vec.h>
 #include <cstdlib>
 #include <cassert>
 #include <iostream>

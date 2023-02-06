@@ -6,8 +6,8 @@
  */
 #include <math.h>
 #include <stdio.h>
-#include "solve.h"
-#include "globals.h"
+#include <solve.h>
+#include <globals.h>
 
 /*
  * modp

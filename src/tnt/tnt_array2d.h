@@ -28,7 +28,7 @@
 #include <assert.h>
 #endif
 
-#include "tnt_array1d.h"
+#include <tnt_array1d.h>
 
 namespace TNT
 {

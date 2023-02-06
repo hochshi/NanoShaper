@@ -7,7 +7,7 @@
 #ifndef ExampleSurface_h
 #define ExampleSurface_h
 
-#include "Surface.h"
+#include <Surface.h>
 
 // 1 Angstrom default radius
 #define DEFAULT_RADIUS 1.0

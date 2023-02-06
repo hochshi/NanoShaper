@@ -8,17 +8,18 @@
 #ifndef tools_h
 #define tools_h
 
-#include "globals.h"
+#include <globals.h>
 
 #ifdef DBGMEM_CRT
 	#define _CRTDBG_MAP_ALLOC
 	#define _CRTDBG_MAP_ALLOC_NEW
 #endif
 
-#include "./sturm/solve.h"
+// #include <./sturm/solve.h>
+#include <sturm/solve.h>
 #include <string>
 
-#include "jama_eig.h"
+#include <jama_eig.h>
 
 using namespace TNT;
 using namespace JAMA;

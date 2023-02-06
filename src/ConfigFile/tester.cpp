@@ -3,8 +3,8 @@
 
 #include <string>
 #include <iostream>
-#include "ConfigFile.h"
-#include "Triplet.h"
+#include <ConfigFile.h>
+#include <Triplet.h>
 
 using std::string;
 using std::cout;

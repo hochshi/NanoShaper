@@ -28,8 +28,8 @@
 #include <assert.h>
 #endif
 
-#include "tnt_array1d.h"
-#include "tnt_array2d.h"
+#include <tnt_array1d.h>
+#include <tnt_array2d.h>
 
 namespace TNT
 {

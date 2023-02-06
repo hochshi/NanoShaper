@@ -8,8 +8,8 @@
 #ifndef BlobbySurface_h
 #define BlobbySurface_h
 
-#include "Surface.h"
-#include "MeshSurface.h"
+#include <Surface.h>
+#include <MeshSurface.h>
 
 #ifdef DBGMEM_CRT
 	#define _CRTDBG_MAP_ALLOC

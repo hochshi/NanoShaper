@@ -1,4 +1,4 @@
-#include "octree.h"
+#include <octree.h>
 
 #ifdef WIN32
 #include <tchar.h>

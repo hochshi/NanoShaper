@@ -7,7 +7,7 @@
  */
 #include <math.h>
 #include <stdio.h>
-#include "solve.h"
+#include <solve.h>
 
 /*
  * evalpoly

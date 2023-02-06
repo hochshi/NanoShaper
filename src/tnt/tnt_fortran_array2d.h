@@ -29,7 +29,7 @@
 #include <assert.h>
 #endif
 
-#include "tnt_i_refvec.h"
+#include <tnt_i_refvec.h>
 
 namespace TNT
 {

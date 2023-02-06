@@ -18,8 +18,8 @@
 #ifndef OCTREE_H
 #define OCTREE_H
 
-#include "array2d.h"
-#include "point3d.h"
+#include <array2d.h>
+#include <point3d.h>
 
 #include <algorithm>
 #include <cassert>
@@ -176,6 +176,6 @@ private:
     int size_;
 };
 
-#include "octree.tcc"
+#include <octree.tcc>
 
 #endif

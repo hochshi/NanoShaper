@@ -48,7 +48,7 @@
 #include<time.h>
 #include<queue>
 #include<limits>
-#include "ConfigFile.h"
+#include <ConfigFile.h>
 ///////////////////////////////////////////////////
 
 using namespace std;

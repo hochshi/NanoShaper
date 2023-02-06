@@ -18,7 +18,7 @@
 #ifndef POINT3D_H
 #define POINT3D_H
 
-#include "tinyvector.h"
+#include <tinyvector.h>
 
 template< typename T >
 class Point3D : public TinyVector<T,3>

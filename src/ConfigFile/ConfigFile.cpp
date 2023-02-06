@@ -1,6 +1,6 @@
 // ConfigFile.cpp
 
-#include "ConfigFile.h"
+#include <ConfigFile.h>
 
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW

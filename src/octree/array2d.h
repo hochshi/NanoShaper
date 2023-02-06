@@ -18,7 +18,7 @@
 #ifndef _ARRAY2D_H
 #define _ARRAY2D_H
 
-#include "array.h"
+#include <array.h>
 
 template< typename T >
 class _Array2D : public Array<T,2>

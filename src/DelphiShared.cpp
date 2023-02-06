@@ -1,5 +1,5 @@
 
-#include "DelphiShared.h"
+#include <DelphiShared.h>
 
 void DelPhiShared::init()
 {

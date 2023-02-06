@@ -8,7 +8,7 @@
 #ifndef SkinSurface_h
 #define SkinSurface_h
 
-#include "Surface.h"
+#include <Surface.h>
 
 // #define DEBUG_SKIN
 

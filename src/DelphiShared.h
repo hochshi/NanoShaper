@@ -2,14 +2,14 @@
 #ifndef  DelphiShared_h
 #define  DelphiShared_h
 
-#include "globals.h"
+#include <globals.h>
 
 #ifdef DBGMEM_CRT
 	#define _CRTDBG_MAP_ALLOC
 	#define _CRTDBG_MAP_ALLOC_NEW
 #endif
 
-#include "tools.h"
+#include <tools.h>
 
 #define DEFAULT_PERFIL 80
 #define DEFAULT_SCALE 2.0
