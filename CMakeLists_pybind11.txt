@@ -1,0 +1,76 @@
+
+# Cmake config for NanoShaper for Python
+project(NanoShaper) 
+cmake_minimum_required(VERSION 2.6.2)
+if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
+  if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_GREATER 2.8.3)
+    cmake_policy(VERSION 2.8.4)
+  else()
+    cmake_policy(VERSION 2.6)
+  endif()
+endif()
+
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+find_package(CGAL REQUIRED)
+
+find_package(Boost REQUIRED COMPONENTS thread)
+if (Boost_FOUND)
+  link_directories ( ${Boost_LIBRARY_DIRS} )
+  link_libraries(${Boost_LIBRARIES})
+  include_directories ( ${Boost_INCLUDE_DIRS} )
+  include_directories (BEFORE include)
+  add_definitions(-DENABLE_BOOST_THREADS)
+else (Boost_FOUND)
+  message(STATUS "Boost libs not found, Multithreading will be disabled")  
+endif (Boost_FOUND)
+
+SET(Python_FIND_STRATEGY LOCATION)
+find_package(Python 3.9 COMPONENTS Interpreter Development.Module REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
+# find_package(pybind11 REQUIRED)
+
+include_directories (BEFORE include)
+include_directories(src)
+include_directories(src/ConfigFile)
+include_directories(src/jama)
+include_directories(src/tnt)
+include_directories(src/sturm)
+include_directories(src/octree)
+# include_directories(${PYTHON_INCLUDE_PATH})
+include_directories(${Python_INCLUDE_DIRS})
+link_directories(${Python_LIBRARY_DIRS})
+link_libraries(${Python_LIBRARIES})
+include_directories(${pybind11_INCLUDE_DIRS})
+link_libraries(${pybind11_LIBRARIES})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include( ${CGAL_USE_FILE} )
+
+message(STATUS "Using python ${Python_EXECUTABLE} ${Python_INCLUDE_DIRS} ${Python_LIBRARY_DIRS} ${Python_LIBRARIES} ${pybind11_INCLUDE_DIRS} ${pybind11_LIBRARIES}")
+
+add_definitions(-DENABLE_CGAL)
+add_definitions(-DENABLE_BOOST_THREADS)
+
+ file(GLOB SRC
+    "./src/*.h"
+    "./src/*.cpp")
+  
+# pybind11_add_module(NanoShaper src/nanoshaper_pybind.cpp)
+add_library(NanoShaper MODULE
+  ./src/nanoshaper_pybind.cpp
+  ./src/main_functions.h
+  ./src/sturm/sturm.cpp
+  ./src/sturm/util.cpp
+  ./src/sturm/solve.h
+  ${SRC}
+  ./src/ply/ply.cpp
+  ./src/ply/ply.h
+  ./src/ConfigFile/ConfigFile.cpp
+  ./src/ConfigFile/ConfigFile.h 
+  ./src/octree/octree.h 
+  )
+target_link_options(NanoShaper PUBLIC -undefined dynamic_lookup)
+target_link_libraries(NanoShaper pybind11::headers)
+pybind11_extension(NanoShaper)
+
+message(STATUS "C++ Release flags ${CMAKE_CXX_FLAGS_RELEASE}")
