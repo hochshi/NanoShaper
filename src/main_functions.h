@@ -7,11 +7,11 @@
 #ifndef main_functions_h
 #define main_functions_h
 
+#include <globals.h>
 #include <DelphiShared.h>
 #include <Surface.h>
-#include <globals.h>
 
-ConfigFile* init(string argv);
+ConfigFile* init(std::string argv);
 void dispose(ConfigFile* cf);
 void stopDebug();
 void restartDebug();

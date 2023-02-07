@@ -7,7 +7,7 @@
 // #include "ConfigFile.h"
 
 // init streams, check configuration file for errors and read variables
-ConfigFile* init(string confFile)
+ConfigFile* init(std::string confFile)
 {
 	cout << endl << endl << INFO << "Starting " << PROGNAME << " " << VERSION;
 			
