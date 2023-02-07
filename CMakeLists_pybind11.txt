@@ -55,9 +55,8 @@ add_definitions(-DENABLE_BOOST_THREADS)
     "./src/*.h"
     "./src/*.cpp")
   
-# pybind11_add_module(NanoShaper src/nanoshaper_pybind.cpp)
+# pybind11_add_module(NanoShaper src/python/nanoshaper_pybind.cpp)
 add_library(NanoShaper MODULE
-  ./src/nanoshaper_pybind.cpp
   ./src/main_functions.h
   ./src/sturm/sturm.cpp
   ./src/sturm/util.cpp

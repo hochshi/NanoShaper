@@ -45,6 +45,7 @@
 #ifndef CONFIGFILE_H
 #define CONFIGFILE_H
 
+#include <memory>
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
 
@@ -246,6 +247,8 @@ void ConfigFile::add( string key, const T& value )
 	myContents[key] = v;
 	return;
 }
+
+using ConfigFileOP = std::shared_ptr<ConfigFile>;
 
 #endif  // CONFIGFILE_H
 

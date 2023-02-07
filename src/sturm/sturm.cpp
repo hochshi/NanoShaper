@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <solve.h>
 #include <globals.h>
+#include <spdlog/spdlog.h>
 
 /*
  * modp
@@ -233,7 +234,7 @@ void sbisect(int np,poly* sseq,double min,double max,int atmin,int atmax,double*
 			}
 
 		if (its == MAXIT) {
-				(*errorStream) << endl  << "sbisect: overflow" ;
+      spdlog::error("sbisect: overflow");
 			roots[0] = mid;
 		}
 
@@ -274,7 +275,7 @@ void sbisect(int np,poly* sseq,double min,double max,int atmin,int atmax,double*
 	}
 
 	if (its == MAXIT) {
-			(*errorStream) << endl  << "sbisect: overflow" ;
+      spdlog::error("sbisect: overflow");
 			for (n1 = atmax; n1 < atmin; n1++)
 			roots[n1 - atmax] = mid;
 	}

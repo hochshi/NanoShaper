@@ -39,10 +39,10 @@ public:
 
 	void print()
 	{
-		cout << endl << INFO << "Available surfaces:";
+		cout << endl << INFO_STR << "Available surfaces:";
 		for (it=surfRegister.begin();it!=surfRegister.end();it++)
 		{
-			cout << endl << INFO << "\t" << (*it).first;
+			cout << endl << INFO_STR << "\t" << (*it).first;
 		}
 	}
 };

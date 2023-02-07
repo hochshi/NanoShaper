@@ -1,4 +1,5 @@
 #include <SkinSurface.h>
+#include <spdlog/spdlog.h>
 
 void SkinSurface::clear() {
   if (gridMixedCellMap != NULL)
@@ -159,7 +160,7 @@ bool SkinSurface::buildSkinCGAL() {
   time_t start, end;
   time(&start);
 
-  cout << endl << INFO << "Building skin surface..";
+  cout << endl << INFO_STR << "Building skin surface..";
 
   for (int i = 0; i < delphi->numAtoms; i++) {
     delphi->atoms[i]->pos[0] =
@@ -217,7 +218,7 @@ bool SkinSurface::buildSkinCGAL() {
   l.emplace_back(Weighted_point(Point(mid_x, mid_y, max_z), -1),
                  delphi->numAtoms + 5);
 
-  cout << endl << INFO << "Regular triangulation....";
+  cout << endl << INFO_STR << "Regular triangulation....";
 
   rT.insert(l.begin(), l.end());
 
@@ -226,7 +227,7 @@ bool SkinSurface::buildSkinCGAL() {
 
   cout << "ok!";
 
-  cout << endl << INFO << "Computing 3-Delaunay patches...";
+  cout << endl << INFO_STR << "Computing 3-Delaunay patches...";
 
   int currentCell = 0;
   int num_d3_v0_patches = 0;
@@ -363,7 +364,7 @@ bool SkinSurface::buildSkinCGAL() {
   ///(Skin) //////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  cout << endl << INFO << "Computing 0-Delaunay patches...";
+  cout << endl << INFO_STR << "Computing 0-Delaunay patches...";
 
   vector<Cell_handle> cells;
   cells.reserve(1000);
@@ -443,7 +444,7 @@ bool SkinSurface::buildSkinCGAL() {
   ////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  cout << endl << INFO << "Computing 1-Delaunay patches...";
+  cout << endl << INFO_STR << "Computing 1-Delaunay patches...";
 
   // Skin Surface needs the remaining solids
   int num_d1_v2_patches = 0;
@@ -779,7 +780,7 @@ bool SkinSurface::buildSkinCGAL() {
   cout << "ok!";
   int num_d2_v1_patches = 0;
 
-  cout << endl << INFO << "Computing 2-Delaunay patches...";
+  cout << endl << INFO_STR << "Computing 2-Delaunay patches...";
 
   upperPoints.reserve(3);
   lowerPoints.reserve(3);
@@ -1085,14 +1086,14 @@ bool SkinSurface::buildSkinCGAL() {
   double duration;
   time(&end);
   duration = difftime(end, start);
-  cout << endl << INFO << "Surface build-up time.. " << duration << " [s]";
+  cout << endl << INFO_STR << "Surface build-up time.. " << duration << " [s]";
 
   // remove references to atom patches
   free(atomPatches);
 
   if (savePovRay) {
     ofstream of;
-    cout << endl << INFO << "Saving surface in Pov-Ray in skin.pov...";
+    cout << endl << INFO_STR << "Saving surface in Pov-Ray in skin.pov...";
     cout.flush();
     of.open("skin.pov");
     of << "#include \"shapes.inc\" ";
@@ -1462,7 +1463,7 @@ void SkinSurface::preProcessPanel() {
   // auxiliary scale
   scale_2d = delphi->scale / ((double)gridMul);
 
-  // cout << endl << INFO << "Auxiliary grid is " << igrid;
+  // cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
 
   xmin_2d = delphi->baricenter[0] - (igrid - 1) / (2 * scale_2d);
   ymin_2d = delphi->baricenter[1] - (igrid - 1) / (2 * scale_2d);
@@ -1709,7 +1710,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
   // auxiliary scale
   scale = delphi->scale / ((double)gridMul);
 
-  cout << endl << INFO << "Auxiliary grid is " << igrid;
+  cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
 
   xmin = delphi->baricenter[0] - (igrid - 1) / (2 * scale);
   ymin = delphi->baricenter[1] - (igrid - 1) / (2 * scale);
@@ -1745,7 +1746,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
     deleteVector<int>(gridMixedCellMap);
 
   cout << endl
-       << INFO << "Allocating "
+       << INFO_STR << "Allocating "
        << (nx * ny * nz * MAX_MIXEDCELLS) * sizeof(int) / 1024.0 / 1024.0
        << " MB"
        << " for the auxiliary grid...";
@@ -1778,7 +1779,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
   // the auxiliary grid
   int max_t = 0;
 
-  cout << endl << INFO << "Mapping auxiliary grid...";
+  cout << endl << INFO_STR << "Mapping auxiliary grid...";
 
   for (int it = 0; it < numMixedCells; it++) {
     // mixed cell points
@@ -1893,7 +1894,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
   }
 
   cout << "ok!";
-  cout << endl << INFO << "Max mixed cells per auxiliary cell -> " << max_t;
+  cout << endl << INFO_STR << "Max mixed cells per auxiliary cell -> " << max_t;
 
   return true;
 }
@@ -1904,7 +1905,7 @@ bool SkinSurface::save(char *fileName) {
   fout.open(fileName, ios::out);
 
   cout << endl
-       << INFO << "Writing skin in .skin file format in " << fileName << "...";
+       << INFO_STR << "Writing skin in .skin file format in " << fileName << "...";
 
   if (fout.fail()) {
     cout << endl << WARN << "Cannot write file " << fileName;
@@ -1927,7 +1928,7 @@ bool SkinSurface::load(char *fileName) {
     return false;
   }
 
-  // cout << endl << INFO << "Loading Skin Surface in file " << fileName <<
+  // cout << endl << INFO_STR << "Loading Skin Surface in file " << fileName <<
   // "...";
 
   // TODO LOAD
@@ -1935,23 +1936,21 @@ bool SkinSurface::load(char *fileName) {
 }
 
 void SkinSurface::printSummary() {
-  cout << endl << INFO << "Shrinking value " << getShrinking();
+  cout << endl << INFO_STR << "Shrinking value " << getShrinking();
   if (mixedComplex == NULL) {
     cout << endl << WARN << "Skin surface not loaded!";
   } else {
-    cout << endl << INFO << "Number of mixed cells -> " << numMixedCells;
-    cout << endl << INFO << "Number of del_point/vor_cell -> " << type[0];
-    cout << endl << INFO << "Number of del_edge/vor_facet -> " << type[1];
-    cout << endl << INFO << "Number of del_facet/vor_edge -> " << type[2];
-    cout << endl << INFO << "Number of del_cell/vor_point -> " << type[3];
+    cout << endl << INFO_STR << "Number of mixed cells -> " << numMixedCells;
+    cout << endl << INFO_STR << "Number of del_point/vor_cell -> " << type[0];
+    cout << endl << INFO_STR << "Number of del_edge/vor_facet -> " << type[1];
+    cout << endl << INFO_STR << "Number of del_facet/vor_edge -> " << type[2];
+    cout << endl << INFO_STR << "Number of del_cell/vor_point -> " << type[3];
 
-    if (internals != NULL) {
-      *internals << endl << "mixedcells " << numMixedCells;
-      *internals << endl << "del_point " << type[0];
-      *internals << endl << "del_edge " << type[1];
-      *internals << endl << "del_facet " << type[2];
-      *internals << endl << "del_cell " << type[3];
-    }
+    spdlog::info("mixedcells {}", numMixedCells);
+    spdlog::info("del_point {}", type[0]);
+    spdlog::info("del_edge {}", type[1]);
+    spdlog::info("del_facet {}", type[2]);
+    spdlog::info("del_cell {}", type[3]);
   }
 }
 
@@ -2543,7 +2542,7 @@ bool SkinSurface::getProjection(double p[3], double *proj1, double *proj2,
 #ifdef ENABLE_BOOST_THREADS
       boost::mutex::scoped_lock scopedLock(mutex);
 #endif
-      (*errorStream) << endl << WARN << "Approximating bgp with grid point";
+      spdlog::warn("Approximating bgp with grid point");
     }
     (*proj1) = p[0];
     (*proj2) = p[1];

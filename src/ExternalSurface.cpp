@@ -54,7 +54,7 @@ bool ExternalSurface::load(char* fileName)
 
 bool ExternalSurface::save(char* fileName)
 {
-	cout << endl << INFO << "Saving externally loaded surface by saving DelphiShared Object";
+	cout << endl << INFO_STR << "Saving externally loaded surface by saving DelphiShared Object";
 	delphi->saveEpsMaps(fileName);
 	delphi->saveStatus(fileName);
 	delphi->saveBGP(fileName);
@@ -123,7 +123,7 @@ double ExternalSurface::getVolume()
 
 bool ExternalSurface::getSurf(bool fillCav,double vol)
 {
-	cout << endl << INFO << "Loading external surface...";
+	cout << endl << INFO_STR << "Loading external surface...";
 
 	FILE *fepsx,*fepsy,*fepsz,*fproj,*fstatus;
 	fepsx = fopen("epsmapx.txt","r");
@@ -298,14 +298,14 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 	}
 
 	fclose(fstatus);
-	cout << endl << INFO << "Number bgps..." << delphi->nbgp;		
+	cout << endl << INFO_STR << "Number bgps..." << delphi->nbgp;		
 
 	if (fillCav)
 	{
 		int cav = getCavities();
-		cout << endl << INFO << "Detected " << cav << " cavitiy[ies]";		
+		cout << endl << INFO_STR << "Detected " << cav << " cavitiy[ies]";		
 		fillCavities(vol);
-		cout << endl << INFO << "Filtering bgps...";		
+		cout << endl << INFO_STR << "Filtering bgps...";		
 	
 		// remove false bgp from bgp list; this filter is due to conditional filling
 		// of the cavity detector
@@ -371,7 +371,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 		delphi->scsnor = (double*)realloc(delphi->scsnor,3*sizeof(double)*index);
 
 		delphi->nbgp = index;
-		cout << endl << INFO << "Number bgps after conditional filling..." << delphi->nbgp;		
+		cout << endl << INFO_STR << "Number bgps after conditional filling..." << delphi->nbgp;		
 	}
 
 	/** TODO salt for now not supported, always false*/

@@ -1,5 +1,7 @@
 
 #include <MeshSurface.h>
+#include <spdlog/spdlog.h>
+
 
 void MeshSurface::clear()
 {
@@ -173,7 +175,7 @@ void MeshSurface::preProcessPanel()
 	// auxiliary scale
 	scale_2d = delphi->scale/((double)gridMul);
 
-	//cout << endl << INFO << "Auxiliary grid is " << igrid;
+	//cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
 	
 	xmin_2d = delphi->baricenter[0]-(igrid-1)/(2*scale_2d);
 	ymin_2d = delphi->baricenter[1]-(igrid-1)/(2*scale_2d);
@@ -490,7 +492,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 	// auxiliary scale
 	scale = delphi->scale/((double)gridMul);
 	
-	cout << endl << INFO << "Auxiliary grid is " << igrid << " auxiliary scale is " << scale << " grid mul " << gridMul;
+	cout << endl << INFO_STR << "Auxiliary grid is " << igrid << " auxiliary scale is " << scale << " grid mul " << gridMul;
 	
 	xmin = delphi->baricenter[0]-(igrid-1)/(2*scale);
 	ymin = delphi->baricenter[1]-(igrid-1)/(2*scale);
@@ -541,7 +543,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 	if (gridTriangleMap!=NULL)
 		free(gridTriangleMap);
 	
-	cout << endl << INFO << "Allocating " << (nx*ny*nz*MAX_TRIANGLES)*sizeof(int)/1024.0/1024.0 << " MB" << " for the auxiliary grid...";
+	cout << endl << INFO_STR << "Allocating " << (nx*ny*nz*MAX_TRIANGLES)*sizeof(int)/1024.0/1024.0 << " MB" << " for the auxiliary grid...";
 	gridTriangleMap = (int*)malloc(sizeof(int)*nx*ny*nz*MAX_TRIANGLES);
 
 	//////////////////////////////////////////////////////////////////////////
@@ -622,7 +624,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 			cout << endl << ERR << "Not assigned triangle!";
 	}    	
 
-	cout << endl << INFO << "Max triangles per cell -> " << max_t;
+	cout << endl << INFO_STR << "Max triangles per cell -> " << max_t;
 
 	return true;
 }
@@ -633,7 +635,7 @@ bool MeshSurface::save(char* fileName)
 	ofstream fout;
     fout.open(fileName,ios::out);
 
-	cout << endl << INFO << "Writing mesh in OFF file format in " << fileName << "...";
+	cout << endl << INFO_STR << "Writing mesh in OFF file format in " << fileName << "...";
 
 	if (fout.fail())
 	{
@@ -673,7 +675,7 @@ bool MeshSurface::load(char* fileName)
 	ss = toLowerCase(ss);
 	found = ss.find(".off");
 
-	cout << endl << INFO << "Loading mesh in file " << fileName << "...";
+	cout << endl << INFO_STR << "Loading mesh in file " << fileName << "...";
 
 	bool exit = true;
 
@@ -880,7 +882,7 @@ bool MeshSurface::loadOFF(char* fileName)
 
 		if (buffer[0]=='#')
 		{
-			cout << endl << INFO << "Mesh comment line: " << buffer;
+			cout << endl << INFO_STR << "Mesh comment line: " << buffer;
 			continue;
 		}
 
@@ -1008,7 +1010,7 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 
 		fin.open(currentVert,ios::in);
 		fin2.open(currentFace,ios::in);	
-		cout << endl << INFO << "Getting num vertices and triangles in MSMS mesh files " << currentFace << "," << currentVert << "...";
+		cout << endl << INFO_STR << "Getting num vertices and triangles in MSMS mesh files " << currentFace << "," << currentVert << "...";
 		if (fin.fail() || fin2.fail())
 		{
 			cout << WARN << "One or both MSMS files don't exist";
@@ -1040,8 +1042,8 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 		fin2.close();
 	}
 	
-	cout << endl << INFO << "Total number of triangles " << numTriangles;
-	cout << endl << INFO << "Total number of vertices " << numVertexes;
+	cout << endl << INFO_STR << "Total number of triangles " << numTriangles;
+	cout << endl << INFO_STR << "Total number of vertices " << numVertexes;
 
 	vertMatrix = allocateMatrix2D<double>(numVertexes,3);	
 	vertNormals = allocateMatrix2D<double>(numVertexes,3);
@@ -1065,7 +1067,7 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 
 		fin.open(currentVert,ios::in);
 		fin2.open(currentFace,ios::in);	
-		cout << endl << INFO << "Loading MSMS mesh files " << currentFace << "," << currentVert << "...";
+		cout << endl << INFO_STR << "Loading MSMS mesh files " << currentFace << "," << currentVert << "...";
 
 		if (fin.fail() || fin2.fail())
 		{
@@ -1214,15 +1216,15 @@ bool MeshSurface::checkDuplicates()
 
 void MeshSurface::printSummary()
 {
-	//cout << endl << INFO << "Summary of the triangulated mesh:";	
+	//cout << endl << INFO_STR << "Summary of the triangulated mesh:";	
 	if (faceMatrix == NULL || vertMatrix == NULL)
 	{
 		cout << endl << WARN << "Mesh not loaded!";
 	}
 	else
 	{
-		cout << endl << INFO << "Number of loaded vertices -> " << numVertexes;
-		cout << endl << INFO << "Number of loaded triangles -> " << numTriangles;
+		cout << endl << INFO_STR << "Number of loaded vertices -> " << numVertexes;
+		cout << endl << INFO_STR << "Number of loaded triangles -> " << numTriangles;
 	}
 }
 	
@@ -1667,7 +1669,7 @@ bool MeshSurface::getProjection(double p[3],double* proj1,double* proj2,
 			#ifdef ENABLE_BOOST_THREADS
 				boost::mutex::scoped_lock scopedLock(mutex);
 			#endif
-			(*errorStream) << endl << WARN << "Approximating bgp with grid point";
+      spdlog::warn("Approximating bgp with grid point");
 		}
 		
 		(*proj1)=p[0];

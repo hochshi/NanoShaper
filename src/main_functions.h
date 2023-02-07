@@ -1,22 +1,25 @@
 //---------------------------------------------------------
 /*    @file		main_functions.h
-*     @brief	main_functions.h Includes functions used in main.cpp
-*							    							*/
+ *     @brief	main_functions.h Includes functions used in main.cpp
+ *							    							*/
 //---------------------------------------------------------
 
 #ifndef main_functions_h
 #define main_functions_h
 
-#include <globals.h>
+#include <ConfigFile.h>
 #include <DelphiShared.h>
 #include <Surface.h>
+#include <globals.h>
+#include <memory>
 
-ConfigFile* init(std::string argv);
-void dispose(ConfigFile* cf);
-void stopDebug();
-void restartDebug();
+ConfigFileOP load(std::string argv);
+ConfigurationOP parse(ConfigFileOP cf);
+// void dispose(ConfigFileOP cf);
+// void stopDebug();
+// void restartDebug();
 void cite();
-void normalMode(Surface* surf,DelPhiShared* dg);
-void pocketMode(bool hasAtomInfo,ConfigFile* cf);
+void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf);
+void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf);
 
 #endif

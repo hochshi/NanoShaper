@@ -68,7 +68,7 @@ bool BlobbySurface::build()
 	// disable cutoff
 	//numgrid = delphi->nx;
 
-	cout << endl << INFO << "Using cut-off " << cutoff << " num neighbour grid points " << numgrid;
+	cout << endl << INFO_STR << "Using cut-off " << cutoff << " num neighbour grid points " << numgrid;
 
 	if (scalarField!=NULL)
 		deleteMatrix3D<double>(last_nx,last_ny,scalarField);
@@ -92,7 +92,7 @@ bool BlobbySurface::build()
 	// fill surface class structures
 	for (int i=0;i<na;i++)
 	{
-		printf("\r%sBlobby %.2f%%        ",INFO,((float)i+1)/na*100.0);
+		printf("\r%sBlobby %.2f%%        ",INFO_STR,((float)i+1)/na*100.0);
 		double* pos = atoms[i]->pos;
 		double r = atoms[i]->radius;
 		double r2 = r*r;
@@ -144,7 +144,7 @@ bool BlobbySurface::build()
 
 	triangulateSurface(1.0,"blobby");
 
-	cout << endl << INFO << "Smoothing blobby surface...";
+	cout << endl << INFO_STR << "Smoothing blobby surface...";
 	smoothSurface("blobby");
 	
 	setSaveMSMS(old_saveMSMS);
@@ -196,6 +196,6 @@ bool BlobbySurface::build()
 
 void  BlobbySurface::printSummary()
 {
-	cout << endl << INFO << "Blobbyness value " << getBlobbyness();
-	cout << endl << INFO << "Cut-off distance " << cutoff << " [A]";
+	cout << endl << INFO_STR << "Blobbyness value " << getBlobbyness();
+	cout << endl << INFO_STR << "Cut-off distance " << cutoff << " [A]";
 }

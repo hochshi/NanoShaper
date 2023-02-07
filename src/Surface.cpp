@@ -7,6 +7,7 @@
 
 #include <Surface.h>
 #include <tuple>
+#include <spdlog/spdlog.h>
 
 void Surface::init()
 {
@@ -298,17 +299,17 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	{
 		#ifdef ENABLE_BOOST_THREADS
 
-		cout << endl << INFO << "Use load balancing: " << useLoadBalancing;
+		cout << endl << INFO_STR << "Use load balancing: " << useLoadBalancing;
 
 		if (num_cores<=0)
 		{
-			cout << endl << INFO << "Detected " << (int)boost::thread::hardware_concurrency() << " logical cores";
+			cout << endl << INFO_STR << "Detected " << (int)boost::thread::hardware_concurrency() << " logical cores";
 			num_thd = MIN(MIN(MIN(delphi->nx,delphi->ny),delphi->nz), (int)boost::thread::hardware_concurrency());
-			cout << endl << INFO << "Setting " << num_thd << " threads";
+			cout << endl << INFO_STR << "Setting " << num_thd << " threads";
 		}
 		else
 		{
-			cout << endl << INFO << "User selected num threads " << num_cores;
+			cout << endl << INFO_STR << "User selected num threads " << num_cores;
 			num_thd = num_cores;
 		}
 
@@ -354,7 +355,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 		int na,nb;
 				
 		if (!delphi->getMultiDiel())
-			cout << endl << INFO << "Inside id value is " << inside;
+			cout << endl << INFO_STR << "Inside id value is " << inside;
 		
 		#ifdef DEBUG_SURFACE
 			// force 1 thread for debug
@@ -401,7 +402,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 
 			preProcessPanel();
 			cout.flush();
-			cout << endl << INFO << "Ray-tracing panel " << panel << "...";
+			cout << endl << INFO_STR << "Ray-tracing panel " << panel << "...";
 			volPanel[panel]=0;
 		
 			// left y,z panel
@@ -502,13 +503,13 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 		}       
 
 		double ray_time = chrono_ray.stop();
-		cout << endl << INFO << "Ray-tracing computation time.. " << ray_time << " [s]"; 	
+		cout << endl << INFO_STR << "Ray-tracing computation time.. " << ray_time << " [s]"; 	
 		
 		// assuming squared grid for this stat
 		if (accurateTriangulation && !isAvailableScalarField)
-			printf("\n%sApproximated %d rays (%.5f %%)",INFO,numint,numint/(6*(float)delphi->nx*delphi->ny)*100);
+			printf("\n%sApproximated %d rays (%.5f %%)",INFO_STR,numint,numint/(6*(float)delphi->nx*delphi->ny)*100);
 		else
-			printf("\n%sApproximated %d rays (%.5f %%)",INFO,numint,numint/(3*(float)delphi->nx*delphi->ny)*100);
+			printf("\n%sApproximated %d rays (%.5f %%)",INFO_STR,numint,numint/(3*(float)delphi->nx*delphi->ny)*100);
 	}
 
 	Timer chrono_cav;
@@ -517,27 +518,27 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	// before bgp identification and vertices storage, cavities are filled if requested
 	if (fillCav)
 	{
-		cout << endl << INFO << "Performing cavity detection and conditional filling...";
+		cout << endl << INFO_STR << "Performing cavity detection and conditional filling...";
 		cout.flush();
 		int cav = getCavities();
 		cout << "ok!";
-		cout << endl << INFO << "Detected " << cav << " cavitiy[ies]";		
+		cout << endl << INFO_STR << "Detected " << cav << " cavitiy[ies]";		
 		cout.flush();
 		fillCavities(vol);
 		if (wellShaped)
 		{
-			cout << endl << INFO << "Performing cavities shape filtering..";
+			cout << endl << INFO_STR << "Performing cavities shape filtering..";
 			cout.flush();
 			filterCavities();
 		}
-		cout << endl << INFO << "Recovering cavities atoms....";
+		cout << endl << INFO_STR << "Recovering cavities atoms....";
 		cout.flush();
 		getCavitiesAtoms();
 		cout << "ok!";
 	}
 
 	duration = chrono_cav.stop();
-	cout << endl << INFO << "Cavity detection time is " << duration <<  " [s]";
+	cout << endl << INFO_STR << "Cavity detection time is " << duration <<  " [s]";
 
 	vector<int*> bgp;
 	vector<int> bgp_type_temp;
@@ -545,7 +546,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	// after cavity detection assemble Octree, such that vertices that are switched off, can be removed now
 	if (isRCbased)
 	{
-		cout << endl << INFO << "Assembling octrees..";
+		cout << endl << INFO_STR << "Assembling octrees..";
 		
 		// clean if required
 		
@@ -771,7 +772,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	
 	if (delphi->buildEpsMap && delphi->buildStatus)
 	{
-		cout << endl << INFO << "Writing idebmap...";
+		cout << endl << INFO_STR << "Writing idebmap...";
 		int NX = delphi->nx;
 		int NY = delphi->ny;
 		int NZ = delphi->nz;
@@ -806,7 +807,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	// TODO if (sternLayer>0 && (delphi->buildEpsMap or getDelphiBinding()))
 	if (sternLayer>0 && delphi->buildEpsMap)
 	{
-		cout << endl << INFO << "Computing Stern Layer...";	
+		cout << endl << INFO_STR << "Computing Stern Layer...";	
 		buildSternLayer();
 		cout << "ok!";
 	}
@@ -834,7 +835,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 		}
 		else
 		{
-			cout << endl << INFO << "Applying multiple dielectric correction..";
+			cout << endl << INFO_STR << "Applying multiple dielectric correction..";
 			buildAtomsMap();
 			applyMultidielectric();
 			cout << "ok!";
@@ -848,7 +849,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	if (projBGP)
 	{
 		preBoundaryProjection();
-		cout << endl << INFO << "Detecting boundary grid points...";
+		cout << endl << INFO_STR << "Detecting boundary grid points...";
 		for (int iz=0;iz<NZ;iz++)	
 		{
 			for (int iy=0;iy<NY;iy++)
@@ -949,9 +950,9 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 			bgp_type[l]=bgp_type_temp[l];
 
 		cout << "ok!";
-		cout << endl << INFO << "Detected " << delphi->nbgp << " boundary grid points (bgp)";
-		cout << endl << INFO << "Detected " << external_bgps << " external bgps, and " << internal_bgps << " internal bgps";
-		cout << endl << INFO << "Scaling bgps...";
+		cout << endl << INFO_STR << "Detected " << delphi->nbgp << " boundary grid points (bgp)";
+		cout << endl << INFO_STR << "Detected " << external_bgps << " external bgps, and " << internal_bgps << " internal bgps";
+		cout << endl << INFO_STR << "Scaling bgps...";
 
 		#ifdef ENABLE_BOOST_THREADS
 			boost::thread_group thdGroup; 
@@ -964,11 +965,11 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 				// convenient to dispatch as thread as possible in order both
 				// to saturate all cores and to minimize their unbalancing 
 				num_thd = MIN(64,MAX(1,delphi->nbgp));
-				//cout << endl << INFO << "Automatically dispatching " << num_thd << " threads";
+				//cout << endl << INFO_STR << "Automatically dispatching " << num_thd << " threads";
 			}
 			else
 			{
-				//cout << endl << INFO << "User selected num threads " << num_cores;
+				//cout << endl << INFO_STR << "User selected num threads " << num_cores;
 				num_thd = num_cores;
 			}
 		#else
@@ -1020,7 +1021,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 		// setting atsurf = NULL it is a way to avoid this computation
 		if (delphi->getDelphiBinding() && atsurf!=NULL)
 		{
-			cout << endl << INFO << "Linking boundary grid points to nearest atom";
+			cout << endl << INFO_STR << "Linking boundary grid points to nearest atom";
 			// if multi-diel is enabled the atoms map is already available
 			// if not we have to build it
 			if (!delphi->getMultiDiel())
@@ -1511,22 +1512,19 @@ void Surface::fillCavities(double vol,bool silent)
 
 	if (!silent)
 	{
-		cout << endl << INFO << "Threshold volume is " << vol;
-		cout << endl << INFO << "Tot num cavities is " << delphi->cavitiesVec->size();
+		cout << endl << INFO_STR << "Threshold volume is " << vol;
+		cout << endl << INFO_STR << "Tot num cavities is " << delphi->cavitiesVec->size();
 	}
 	for (it=delphi->cavitiesVec->begin();it!=delphi->cavitiesVec->end();it++)
 	{
 		if (!silent)
-			cout << endl << INFO << "Cavity " << i ;
+			cout << endl << INFO_STR << "Cavity " << i ;
 		
 		double cavVol = (*it)->size()*cubeVol;
 		if (!silent)
 			printf("\tvol is %.4lf [A^3] \t",cavVol);
 
-		if (internals!=NULL)
-		{
-			*internals << endl << "cav " << cavVol;
-		}
+    spdlog::info("cav {}", cavVol);
 
 		delphi->cavitiesSize[i]=cavVol;
 		delphi->cavitiesFlag[i]=false;
@@ -1639,7 +1637,7 @@ void Surface::filterCavities()
 	// analyze each cavity
 	for (it=delphi->cavitiesVec->begin();it!=delphi->cavitiesVec->end();it++,i++)
 	{
-		cout << endl << INFO << "Cavity " << i ;
+		cout << endl << INFO_STR << "Cavity " << i ;
 		if (delphi->cavitiesFlag[i])
 		{
 			cout << " already filled";
@@ -2136,7 +2134,7 @@ void Surface::floodFill(int ix,int iy,int iz,int idold,int idnew)
 				// first time this cavity is encountered
 				if (delphi->cavitiesVec->size()<((unsigned)(idnew-4+1)))
 				{
-					//cout << endl << INFO << "Detected cavity " << idnew-4;
+					//cout << endl << INFO_STR << "Detected cavity " << idnew-4;
 					vec = new vector<int*>();
 					if (vec==NULL)
 					{
@@ -2247,7 +2245,7 @@ void Surface::floodFill4(int ix,int iy,int iz, int idold, int idnew, int num_cor
 	int iy_or = iy;
 	int iz_or = iz;
 
-	cout << endl << INFO << "Z-percolation...";
+	cout << endl << INFO_STR << "Z-percolation...";
 	cout.flush();
 
 	/////////////////////////////////
@@ -2512,7 +2510,7 @@ void Surface::floodFill4(int ix,int iy,int iz, int idold, int idnew, int num_cor
 	if (num_cores<=0 || num_cores>=num_z/2)
 	{
 		num_thd = 4;
-		cout << endl << INFO << "Setting " << num_thd << " threads for floodfill";		
+		cout << endl << INFO_STR << "Setting " << num_thd << " threads for floodfill";		
 	}
 
 	#ifdef ENABLE_BOOST_THREADS
@@ -2751,7 +2749,7 @@ void Surface::floodFill3(	pair<pair<int,int>,int > ind,
 						// first time this cavity is encountered
 						if (delphi->cavitiesVec->size()<((unsigned)(idnew-4+1)))
 						{
-							//cout << endl << INFO << "Detected cavity " << idnew-4;
+							//cout << endl << INFO_STR << "Detected cavity " << idnew-4;
 							vec = new vector<int*>();
 							if (vec==NULL)
 							{
@@ -2898,7 +2896,7 @@ void Surface::floodFill2(int ix,int iy,int iz,int idold,int idnew)
 						// first time this cavity is encountered
 						if (delphi->cavitiesVec->size()<((unsigned)(idnew-4+1)))
 						{
-							//cout << endl << INFO << "Detected cavity " << idnew-4;
+							//cout << endl << INFO_STR << "Detected cavity " << idnew-4;
 							vec = new vector<int*>();
 							if (vec==NULL)
 							{
@@ -3032,7 +3030,7 @@ void Surface::floodFill2(int ix,int iy,int iz,int idold,int idnew)
 					// first time this cavity is encountered
 					if (delphi->cavitiesVec->size()<((unsigned)(idnew-4+1)))
 					{
-						//cout << endl << INFO << "Detected cavity " << idnew-4;
+						//cout << endl << INFO_STR << "Detected cavity " << idnew-4;
 						vec = new vector<int*>();
 						if (vec==NULL)
 						{
@@ -4620,11 +4618,11 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 		#ifdef ENABLE_BOOST_THREADS
 			num_thd = (int)boost::thread::hardware_concurrency();		
 		#endif
-		cout << endl << INFO << "Setting " << num_thd << " threads";
+		cout << endl << INFO_STR << "Setting " << num_thd << " threads";
 	}
 	else
 	{
-		cout << endl << INFO << "User selected num threads " << num_cores;
+		cout << endl << INFO_STR << "User selected num threads " << num_cores;
 		num_thd = num_cores;
 	}
 
@@ -4663,7 +4661,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	// differently, in case of analytical intersections, this step will be very fast
 	// and only used to repair variations done by the cavity filling or by rays that missed the target
 
-	cout << endl << INFO << "Generating MC vertices...";
+	cout << endl << INFO_STR << "Generating MC vertices...";
 	cout.flush();
 
 	// load balanced and cache friendly thread dispatch
@@ -4743,7 +4741,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	cout << "ok!";
 	cout.flush();
 
-	cout << endl << INFO << "MC added "<< addedVertices << " non analytical vertices";
+	cout << endl << INFO_STR << "MC added "<< addedVertices << " non analytical vertices";
 	/*
 	int orphans2 = 0;
 	int orphans1 = 0;
@@ -4829,7 +4827,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 		// join
 		thdGroup.join_all();
 
-		cout << endl << INFO << "Triangles done";
+		cout << endl << INFO_STR << "Triangles done";
 		cout.flush();
 
 		// reduce
@@ -4860,9 +4858,9 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	}
 
 	double duration = chrono.stop();
-	cout << endl << INFO << "MC time is " << duration << " [s]";
+	cout << endl << INFO_STR << "MC time is " << duration << " [s]";
 
-	cout << endl << INFO << "Total, grid conformant, surface area is " << totalSurfaceArea << " [A^2]";
+	cout << endl << INFO_STR << "Total, grid conformant, surface area is " << totalSurfaceArea << " [A^2]";
 	
 	int numVertexes = (int)vertList.size();
 	int numTriangles = (int)triList.size();
@@ -4889,7 +4887,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	cout << endl << "dangling " << dang;	
 	*/
 
-	cout << endl << INFO << "Number of vertices " << numVertexes << " number of triangles " << numTriangles;
+	cout << endl << INFO_STR << "Number of vertices " << numVertexes << " number of triangles " << numTriangles;
 
 	if (vertexAtomsMapFlag && vertexAtomsMap!=NULL)
 		deleteVector<int>(vertexAtomsMap);
@@ -4899,7 +4897,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	{	
 		vertexAtomsMap = allocateVector<int>(numVertexes);
 		buildAtomsMap();
-		cout << endl << INFO << "Connecting vertices to atoms..";
+		cout << endl << INFO_STR << "Connecting vertices to atoms..";
 		cout.flush();
 		for (int i=0;i<numVertexes;i++)			
 		{			
@@ -4938,13 +4936,13 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 		//cout << endl << appNormals.size();
 		if (appNormals.size()!=0)
 		{
-			cout << endl << INFO << "Some analytical normals will be approximated...";		
+			cout << endl << INFO_STR << "Some analytical normals will be approximated...";		
 			approximateNormals(appNormals,true);
 		}
 	}	
 	else if (computeNormals && !providesAnalyticalNormals)
 	{
-		cout << endl << INFO << "Approximating vertices normals by triangulation...";
+		cout << endl << INFO_STR << "Approximating vertices normals by triangulation...";
 		approximateNormals(appNormals,false);
 	}
 
@@ -5092,7 +5090,7 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 				return false;
 			}
 			fprintf(fp,"OFF+A\n");
-			cout << endl << INFO << "Writing triangulated surface in OFF+A file format in " << fileName << "...";
+			cout << endl << INFO_STR << "Writing triangulated surface in OFF+A file format in " << fileName << "...";
 		}
 		else if (format==OFF_N)
 		{			
@@ -5103,7 +5101,7 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 				return false;
 			}
 			fprintf(fp,"OFF+N\n");
-			cout << endl << INFO << "Writing triangulated surface in OFF+N file format in " << fileName << "...";
+			cout << endl << INFO_STR << "Writing triangulated surface in OFF+N file format in " << fileName << "...";
 		}
 		else if (format==OFF_N_A)
 		{		
@@ -5122,12 +5120,12 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 			}
 
 			fprintf(fp,"OFF+N+A\n");
-			cout << endl << INFO << "Writing triangulated surface in OFF+N+A file format in " << fileName << "...";
+			cout << endl << INFO_STR << "Writing triangulated surface in OFF+N+A file format in " << fileName << "...";
 		}
 		else
 		{
 			fprintf(fp,"OFF\n");
-			cout << endl << INFO << "Writing triangulated surface in OFF file format in " << fileName << "...";
+			cout << endl << INFO_STR << "Writing triangulated surface in OFF file format in " << fileName << "...";
 		}
 
 		cout.flush();
@@ -5167,7 +5165,7 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 
 		if (format==MSMS)
 		{
-			cout << endl << INFO << "Saving in MSMS format, no patch info...";
+			cout << endl << INFO_STR << "Saving in MSMS format, no patch info...";
 			if (vertexAtomsMap==NULL)
 			{
 				cout << endl << ERR << "Cannot save in MSMS format if nearest atom info is not available";
@@ -5175,7 +5173,7 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 			}
 		}
 		else if (format == MSMS_NO_A)
-			cout << endl << INFO << "Saving in MSMS format, no patch info, no nearest atom..";
+			cout << endl << INFO_STR << "Saving in MSMS format, no patch info, no nearest atom..";
 
 		FILE *fp1,*fp2;
 		snprintf(fullName, sizeof(fullName), "%s.face",fileName);
@@ -5460,7 +5458,7 @@ void Surface::tri2Balls()
 
 	l.reserve(vertList.size()+6);
 
-	//cout << endl << INFO << "Converting triangulation to set of balls..";
+	//cout << endl << INFO_STR << "Converting triangulation to set of balls..";
 			
 	for (unsigned int i=0;i<vertList.size();i++)
 	{
@@ -5503,7 +5501,7 @@ void Surface::tri2Balls()
 	l.emplace_back(Weighted_point(Point(mid_x,mid_y,min_z),-1), vertList_size + 4);
 	l.emplace_back(Weighted_point(Point(mid_x,mid_y,max_z),-1), vertList_size + 5);
 
-	//cout << endl << INFO << "Computing triangulation....";
+	//cout << endl << INFO_STR << "Computing triangulation....";
 
 	rT.insert (l.begin(), l.end());
 
@@ -5511,7 +5509,7 @@ void Surface::tri2Balls()
 	assert( rT.dimension() == 3 );
 
 	//cout << "ok!";
-	//cout << endl << INFO << "Computing voronoi points....";
+	//cout << endl << INFO_STR << "Computing voronoi points....";
 
 	// _Finite_Cells_Iterator fcit = rT.finite_cells_begin(); 
 	auto fcit = rT.finite_cells_begin(); 
@@ -5532,7 +5530,7 @@ void Surface::tri2Balls()
 	}
 
 	//cout << "ok!";
-	//cout << endl << INFO << "Collecting polar balls....";
+	//cout << endl << INFO_STR << "Collecting polar balls....";
 	
 	vector<Cell_handle> cells;
 	cells.reserve(1000);
@@ -7137,7 +7135,7 @@ int Surface::linkCavities()
 			// because they were linked before filtering
 			if (oldCavityId==oldCavityId2)
 			{
-				//printf("\n%sLinking cavities (%d,%d)",INFO,checkCavId-STATUS_FIRST_CAV,cavityId-STATUS_FIRST_CAV);
+				//printf("\n%sLinking cavities (%d,%d)",INFO_STR,checkCavId-STATUS_FIRST_CAV,cavityId-STATUS_FIRST_CAV);
 				//printf("\n old value %d",oldCavityId);
 				//getchar();
 					
@@ -7243,7 +7241,7 @@ Surface& Surface::operator-=(Surface& surf2)
 	difference(&surf2);
 	
 	duration = chrono.stop();
-	cout << endl << INFO << "Diff. Step 1 " << duration << " [s]";
+	cout << endl << INFO_STR << "Diff. Step 1 " << duration << " [s]";
 	
 	///////////////////// connolly filter /////////////////////////////////
 	setProbeRadius(1.4);			
@@ -7256,7 +7254,7 @@ Surface& Surface::operator-=(Surface& surf2)
 
 	duration = chrono2.stop();
 	
-	cout << endl << INFO << "Diff. Step 2 " << duration << " [s]";
+	cout << endl << INFO_STR << "Diff. Step 2 " << duration << " [s]";
 	cout.flush();
 	
 	chrono2.start();	
@@ -7270,7 +7268,7 @@ Surface& Surface::operator-=(Surface& surf2)
 	}
 
 	duration = chrono2.stop();
-	cout << endl << INFO << "Diff. Step 3 " << duration << " [s]";
+	cout << endl << INFO_STR << "Diff. Step 3 " << duration << " [s]";
 	
 
 	cout.flush();

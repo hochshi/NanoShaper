@@ -10,6 +10,9 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
   endif()
 endif()
 
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+
 include_directories (BEFORE include)
 include_directories(src)
 include_directories(src/ConfigFile)
@@ -29,6 +32,7 @@ else (Boost_FOUND)
   message(STATUS "Boost libs not found, Multithreading will be disabled")  
 endif (Boost_FOUND)
 	
+add_subdirectory(src/spdlog)
 
 # if cgal is found, boost is automatically found
  find_package(CGAL)
@@ -60,7 +64,8 @@ endif (Boost_FOUND)
 								./src/ConfigFile/ConfigFile.h 
 								./src/octree/octree.h 
 								)    
-		
+  target_link_libraries(NanoShaper PRIVATE spdlog::spdlog_header_only)
+  
 	if (MSVC)
 		set_target_properties(NanoShaper PROPERTIES COMPILE_FLAGS "/wd4503")	
 		#message(STATUS "Adding optimizations for processor ${CMAKE_SYSTEM_PROCESSOR}")
@@ -98,5 +103,5 @@ endif (Boost_FOUND)
 								./src/sturm/solve.h
 								./src/octree/octree.h 
 								)    
-	
- endif(CGAL_FOUND)
+
+endif(CGAL_FOUND)

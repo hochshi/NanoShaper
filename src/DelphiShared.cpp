@@ -36,7 +36,7 @@ void DelPhiShared::init(double scale,double perfill, string fn,bool eps_flag,boo
 	multi_diel = multi;
 	isAvailableAtomInfo = atinfo;
 	
-	cout << endl << INFO << "Loading atoms....";
+	cout << endl << INFO_STR << "Loading atoms....";
 
 	bool flag = loadAtoms(fn);
 
@@ -52,7 +52,7 @@ void DelPhiShared::init(double scale,double perfill, string fn,bool eps_flag,boo
 		cout << endl << ERR << "Initialization failed";
 		exit(-1);
 	}
-	cout << endl << INFO << "Initialization completed";
+	cout << endl << INFO_STR << "Initialization completed";
 }
 
 DelPhiShared::DelPhiShared(double scale,double perfill, string fn,bool eps_flag,bool stat_flag,bool multi,bool atinfo)
@@ -69,7 +69,7 @@ void DelPhiShared::DelPhiBinding(	double xmin,double ymin,double zmin,
 									bool* local_i_idebmap,int* local_i_ibgp,int maxbgp,
 									bool bstatus,int* _atsurf)
 {
-	cout << endl << INFO << "DelPhi Binding...";	
+	cout << endl << INFO_STR << "DelPhi Binding...";	
 	delphiBinding = true;
 	buildStatus = bstatus;
 	atsurf = _atsurf;
@@ -157,7 +157,7 @@ void DelPhiShared::DelPhiBinding(	double xmin,double ymin,double zmin,
 	this->maxbgp = maxbgp;
 	
 	cout << "ok!";
-	cout << endl << INFO << "Max number of bgps was set from DelPhi to " << maxbgp;
+	cout << endl << INFO_STR << "Max number of bgps was set from DelPhi to " << maxbgp;
 }
 
 
@@ -196,10 +196,10 @@ bool DelPhiShared::loadAtoms(string fn)
 	double max_rad = 0;
 
 	if (multi_diel)
-		cout << endl << INFO << "Atom dielectric info is available..";
+		cout << endl << INFO_STR << "Atom dielectric info is available..";
 
 	if (isAvailableAtomInfo)
-		cout << endl << INFO << "Atom Info is available..";
+		cout << endl << INFO_STR << "Atom Info is available..";
 
     if (fin.fail())
 	{
@@ -284,7 +284,7 @@ bool DelPhiShared::loadAtoms(string fn)
 		atoms[i] = (*it);
 
 	numAtoms = (int)list.size();
-	cout << endl << INFO << "Read " << numAtoms << " atoms";
+	cout << endl << INFO_STR << "Read " << numAtoms << " atoms";
 	list.clear();
 
 	if (numAtoms<4)
@@ -307,7 +307,7 @@ bool DelPhiShared::loadAtoms(string fn)
 
 bool DelPhiShared::loadAtoms(int na,double* x,double* r,double* q,int* d,char* atinf)
 {
-	cout << endl << INFO << "Read " << na << " atoms";
+	cout << endl << INFO_STR << "Read " << na << " atoms";
 	if (atoms!=NULL)
 	{
 		for (int i=0;i<numAtoms;i++)
@@ -406,7 +406,7 @@ bool DelPhiShared::buildGrid(double scale,double perfill)
 	oldmid[1]=(cmax[1]+cmin[1])/2.;
 	oldmid[2]=(cmax[2]+cmin[2])/2.;
 
-	cout << endl << INFO << "Geometric baricenter ->  " << oldmid[0] << 
+	cout << endl << INFO_STR << "Geometric baricenter ->  " << oldmid[0] << 
 		" " << oldmid[1] << " " << oldmid[2];
 
 	double v[6];
@@ -431,7 +431,7 @@ bool DelPhiShared::buildGrid(double scale,double perfill)
 	if ((igrid%2)==0)
 		igrid++;
 	
-	cout << endl << INFO << "Grid is " << igrid;
+	cout << endl << INFO_STR << "Grid is " << igrid;
 
 	baricenter[0] = oldmid[0];
 	baricenter[1] = oldmid[1];
@@ -445,12 +445,12 @@ bool DelPhiShared::buildGrid(double scale,double perfill)
 	ymax = oldmid[1]+(igrid-1)/(2*scale);
 	zmax = oldmid[2]+(igrid-1)/(2*scale);
 
-	cout << endl << INFO << "MAX " << xmax << " " << ymax << " " << zmax;
-	cout << endl << INFO << "MIN " << xmin << " " << ymin << " "  << zmin;
-	cout << endl << INFO << "Perfil " << perfill << " %";
-	cout << endl << INFO << "Rmaxdim " << rmaxdim;
+	cout << endl << INFO_STR << "MAX " << xmax << " " << ymax << " " << zmax;
+	cout << endl << INFO_STR << "MIN " << xmin << " " << ymin << " "  << zmin;
+	cout << endl << INFO_STR << "Perfil " << perfill << " %";
+	cout << endl << INFO_STR << "Rmaxdim " << rmaxdim;
 
-	cout << endl << INFO << "Allocating memory...";
+	cout << endl << INFO_STR << "Allocating memory...";
 	cout.flush();
 
 	if (x!=NULL)
@@ -1068,7 +1068,7 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled)
 	if (isAvailableAtomInfo)
 	{
 		FILE* fp3;
-		//cout << endl << INFO << "Atoms info is available I am saving also residues";
+		//cout << endl << INFO_STR << "Atoms info is available I am saving also residues";
 		fp2 = fopen("residues.txt","w");
 		fp3 = fopen("residues_vmd.txt","w");
 

@@ -185,7 +185,7 @@ bool ExampleSurface::getProjection(double p[3],double* proj1,double* proj2,
 
 void ExampleSurface::printSummary()
 {
-	cout << endl << INFO << "Example surface has a radius of " << radius;
+	cout << endl << INFO_STR << "Example surface has a radius of " << radius;
 }
 
 void ExampleSurface::preProcessPanel()

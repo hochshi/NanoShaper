@@ -3,6 +3,7 @@
 #include <tools.h>
 #include <CGAL/Kernel/global_functions_3.h>
 #include <tuple>
+#include <spdlog/spdlog.h>
 
 void ConnollySurface::init() {
   gridConnollyCellMap = NULL;
@@ -103,7 +104,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
   // auxiliary scale
   scale = delphi->scale / ((double)gridMul);
 
-  cout << endl << INFO << "Auxiliary grid is " << igrid;
+  cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
 
   xmin = delphi->baricenter[0] - (igrid - 1) / (2 * scale);
   ymin = delphi->baricenter[1] - (igrid - 1) / (2 * scale);
@@ -137,7 +138,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
   nz = igrid;
 
   cout << endl
-       << INFO << "Allocating "
+       << INFO_STR << "Allocating "
        << (nx * ny * nz * MAX_CONNOLLY_CELLS) * sizeof(int) / 1024.0 / 1024.0
        << " MB"
        << " for the auxiliary grid...";
@@ -169,7 +170,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
   // the auxiliary grid
   int max_t = 0;
 
-  cout << endl << INFO << "Mapping auxiliary grid...";
+  cout << endl << INFO_STR << "Mapping auxiliary grid...";
 
   for (unsigned int it = 0; it < sesComplex.size(); it++) {
     // map connolly cell
@@ -275,7 +276,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
   }
 
   cout << "ok!";
-  cout << endl << INFO << "Max Connolly cells per auxiliary cell -> " << max_t;
+  cout << endl << INFO_STR << "Max Connolly cells per auxiliary cell -> " << max_t;
 
   return true;
 }
@@ -399,7 +400,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
   unsigned int ggrid = 1;
 
-  cout << endl << INFO << "Adjusting self intersection grid ";
+  cout << endl << INFO_STR << "Adjusting self intersection grid ";
   while (1) {
     ggrid = (unsigned int)floor(gscale * si_perfil * delphi->rmaxdim);
     // cout << ggrid << ",";
@@ -420,7 +421,7 @@ bool ConnollySurface::buildConnollyCGAL() {
   double gymin = delphi->baricenter[1] - (ggrid - 1) / (2 * gscale);
   double gzmin = delphi->baricenter[2] - (ggrid - 1) / (2 * gscale);
 
-  cout << endl << INFO << "Allocating self intersection grid....";
+  cout << endl << INFO_STR << "Allocating self intersection grid....";
   FacetCell **gridProbesMap =
       allocateVector<FacetCell *>(MAX_PROBES * ggrid * ggrid * ggrid);
   for (unsigned int i = 0; i < ggrid; i++)
@@ -435,7 +436,7 @@ bool ConnollySurface::buildConnollyCGAL() {
   time_t start, end;
   time(&start);
 
-  cout << endl << INFO << "Computing alpha shape complex....";
+  cout << endl << INFO_STR << "Computing alpha shape complex....";
 
   Fixed_alpha_shape_3 alpha_shape(l.begin(), l.end(), 0.0);
 
@@ -1562,7 +1563,7 @@ bool ConnollySurface::buildConnollyCGAL() {
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << endl
-       << INFO << "Checking " << checkList.size()
+       << INFO_STR << "Checking " << checkList.size()
        << " probes for self intersections...";
 
   // remove self intersections
@@ -1650,7 +1651,7 @@ bool ConnollySurface::buildConnollyCGAL() {
   cout << "ok!";
 
   if (savePovRay) {
-    cout << endl << INFO << "Saving surface in Pov-Ray in connolly.pov...";
+    cout << endl << INFO_STR << "Saving surface in Pov-Ray in connolly.pov...";
     cout.flush();
     for (unsigned int i = 0; i < sesComplex.size(); i++) {
       ConnollyCell *cp = sesComplex[i];
@@ -1676,7 +1677,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
   time(&end);
   double duration = difftime(end, start);
-  cout << endl << INFO << "Surface build-up time.. " << duration << " [s]";
+  cout << endl << INFO_STR << "Surface build-up time.. " << duration << " [s]";
 
   printSummary();
   // free memory
@@ -1690,31 +1691,29 @@ bool ConnollySurface::save(char *fileName) { return false; }
 bool ConnollySurface::load(char *fileName) { return false; }
 
 void ConnollySurface::printSummary() {
-  cout << endl << INFO << "Probe Radius value " << getProbeRadius();
+  cout << endl << INFO_STR << "Probe Radius value " << getProbeRadius();
   {
-    cout << endl << INFO << "Number of ses cells -> " << sesComplex.size();
-    cout << endl << INFO << "Number of del_point cells -> " << type[POINT_CELL];
+    cout << endl << INFO_STR << "Number of ses cells -> " << sesComplex.size();
+    cout << endl << INFO_STR << "Number of del_point cells -> " << type[POINT_CELL];
     cout << endl
-         << INFO << "Number of regular del_edge cells -> "
+         << INFO_STR << "Number of regular del_edge cells -> "
          << type[REGULAR_EDGE_CELL];
     cout << endl
-         << INFO << "Number of singular del_edge cells -> "
+         << INFO_STR << "Number of singular del_edge cells -> "
          << type[SINGULAR_EDGE_CELL];
     cout << endl
-         << INFO << "Number of regular del_facet cells -> "
+         << INFO_STR << "Number of regular del_facet cells -> "
          << type[REGULAR_FACE_CELL];
     cout << endl
-         << INFO << "Number of singular del_facet cells -> "
+         << INFO_STR << "Number of singular del_facet cells -> "
          << type[SINGULAR_FACE_CELL];
 
-    if (internals != NULL) {
-      *internals << endl << "cells " << sesComplex.size();
-      *internals << endl << "del_point " << type[POINT_CELL];
-      *internals << endl << "rdel_edge " << type[REGULAR_EDGE_CELL];
-      *internals << endl << "sdel_edge " << type[SINGULAR_EDGE_CELL];
-      *internals << endl << "rdel_facet " << type[REGULAR_FACE_CELL];
-      *internals << endl << "sdel_facet " << type[SINGULAR_FACE_CELL];
-    }
+    spdlog::info("cells {}", sesComplex.size());
+    spdlog::info("del_point {}", type[POINT_CELL]);
+    spdlog::info("rdel_edge {}", type[REGULAR_EDGE_CELL]);
+    spdlog::info("sdel_edge {}", type[SINGULAR_EDGE_CELL]);
+    spdlog::info("rdel_facet {}", type[REGULAR_FACE_CELL]);
+    spdlog::info("sdel_facet {}", type[SINGULAR_FACE_CELL]);
   }
 }
 
@@ -1832,7 +1831,7 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
 #ifdef ENABLE_BOOST_THREADS
               boost::mutex::scoped_lock scopedLock(mutex);
 #endif
-              (*errorStream) << endl << WARN << "Singular edge projection";
+              spdlog::warn("Singular edge projection");
             }
           }
 
@@ -1909,7 +1908,7 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
 #ifdef ENABLE_BOOST_THREADS
         boost::mutex::scoped_lock scopedLock(mutex);
 #endif
-        (*errorStream) << endl << WARN << "Approximating bgp with grid point ";
+        spdlog::warn("Approximating bgp with grid point ");
       }
     } else {
       // non tangent continuity has been properly managed.
@@ -1945,7 +1944,7 @@ void ConnollySurface::preProcessPanel() {
   // auxiliary scale
   scale_2d = delphi->scale / ((double)gridMul);
 
-  // cout << endl << INFO << "Auxiliary grid is " << igrid;
+  // cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
 
   xmin_2d = delphi->baricenter[0] - (igrid - 1) / (2 * scale_2d);
   ymin_2d = delphi->baricenter[1] - (igrid - 1) / (2 * scale_2d);
@@ -1990,7 +1989,7 @@ void ConnollySurface::preProcessPanel() {
   // the auxiliary grid
   unsigned int max_t = 0;
 
-  // cout << endl << INFO << "Mapping auxiliary grid...";
+  // cout << endl << INFO_STR << "Mapping auxiliary grid...";
 
   for (unsigned int it = 0; it < sesComplex.size(); it++) {
     // map connolly cell
