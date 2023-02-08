@@ -9,6 +9,7 @@
 #define MeshSurface_h
 
 #include <Surface.h>
+#include <memory>
 
 #ifdef DBGMEM_CRT
 	#define _CRTDBG_MAP_ALLOC
@@ -182,14 +183,14 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class MeshSurfaceRegister{ 
-	static Surface* createSurface(ConfigFile* conf,DelPhiShared* ds) 
+	static SurfaceOP createSurface(ConfigFile* conf,DelPhiShared* ds) 
 	{ 
-		return new MeshSurface(conf,ds); 
+    return std::make_shared<MeshSurface>(conf,ds); 
 	} 
 	public: 
 		MeshSurfaceRegister() 
 		{ 
-			surfaceFactory().add("mesh",createSurface); 
+			surfaceFactory().register_instantiator("mesh",createSurface); 
 		} 
 } MeshSurfaceRegisterObject;
 

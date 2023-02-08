@@ -3,6 +3,7 @@
 #define SurfaceFactory_h
 
 #include <map>
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
@@ -11,10 +12,12 @@
 #include <globals.h>
 
 class Surface;
+using SurfaceOP = std::shared_ptr<Surface>;
 class DelPhiShared;
+using DelPhiSharedOP = std::shared_ptr<DelPhiShared>;
 using namespace std;
 
-typedef Surface* (*surface_instantiator)(ConfigFile* conf,DelPhiShared* ds);
+typedef SurfaceOP (*surface_instantiator)(ConfigFile* conf,DelPhiShared* ds);
 
 class SurfaceFactory{
 	
@@ -23,20 +26,20 @@ private:
 	map<string,surface_instantiator>::iterator it;
 public:
 	
-	void add(string surfaceName,surface_instantiator si)
+	void register_instantiator(string surfaceName,surface_instantiator si)
 	{
 		surfRegister.insert(pair<string,surface_instantiator>(surfaceName,si));
 	}
 	
-	Surface* create(ConfigFile* conf,DelPhiShared* ds)
+	SurfaceOP create(ConfigFileOP conf,DelPhiSharedOP ds)
 	{		
 		string surfName = conf->read<string>("Surface");
 		if (!surfRegister.count(surfName))
 		{
-      spdlog::info("{} type is not registered!", surfName);
+      spdlog::error("{} type is not registered!", surfName);
 			return NULL;
 		}		
-		return surfRegister[surfName](conf,ds);
+		return surfRegister[surfName](conf.get(),ds.get());
 	}
 
 	void print()
@@ -59,12 +62,12 @@ template<class T> class SurfaceRecorder
 public:	
     SurfaceRecorder(string surface)
     {
-		surfaceFactory().add(surface,createSurface);
+		surfaceFactory().register_instantiator(surface,createSurface);
     }
 
-	static Surface* createSurface(ConfigFile* conf,DelPhiShared* ds) 
+	static SurfaceOP createSurface(ConfigFile* conf,DelPhiShared* ds) 
 	{ 
-		return new T(conf,ds); 
+    return std::make_shared<T>(conf, ds);
 	} 
 };
 

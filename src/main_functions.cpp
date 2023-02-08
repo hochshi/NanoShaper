@@ -1,5 +1,7 @@
+#include "DelphiShared.h"
 #include <globals.h>
 #include <main_functions.h>
+#include <memory>
 
 #ifdef SPDLOG
 #include <spdlog/spdlog.h>
@@ -129,7 +131,7 @@ void cite() {
 
 /** the set of operations in the usual mode of usage. This function is not
 responsible for Surface or grid memory. The caller is the responsible.*/
-void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
+void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
   if (conf->printAvailSurf)
     surfaceFactory().print();
 
@@ -240,7 +242,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   Timer chrono;
   chrono.start();
 
-  Surface *surf1, *surf2, *surf3;
+  SurfaceOP surf1, surf2, surf3;
   double areaSurf = 0, volSurf = 0;
 
   char mol[100] = "temp.txt", refName[100] = "mol";
@@ -249,13 +251,12 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   // Set up Surface 1 (fat probe)
   
   spdlog::info( "Step 1 -> fat probe");
-  DelPhiShared *dg1 =
-      new DelPhiShared(conf->scale, conf->perfill, conf->molFile, localEpsMap,
+  DelPhiSharedOP dg1 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile, localEpsMap,
                        localStatusMap, localMulti, hasAtomInfo);
   int natom = dg1->getNumAtoms();
   cf->remove(string("Surface"));
   cf->add<string>("Surface", "ses");
-  surf1 = surfaceFactory().create(cf.get(), dg1);
+  surf1 = surfaceFactory().create(cf, dg1);
   surf1->setInsideCode(5);
   surf1->setProbeRadius(conf->pocketRadiusBig);
   surf1->setProjBGP(false);
@@ -281,10 +282,9 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   
   spdlog::info( "Step 2 -> small probe");
 
-  DelPhiShared *dg2 =
-      new DelPhiShared(conf->scale, conf->perfill, conf->molFile, localEpsMap,
+  DelPhiSharedOP dg2 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile, localEpsMap,
                        localStatusMap, localMulti, false);
-  surf2 = surfaceFactory().create(cf.get(), dg2);
+  surf2 = surfaceFactory().create(cf, dg2);
   surf2->setInsideCode(10);
   surf2->setProjBGP(false);
   surf2->setProbeRadius(conf->pocketRadiusSmall);
@@ -331,12 +331,12 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   //////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////////////////
-  DelPhiShared *dg3 = NULL;
+  DelPhiSharedOP dg3;
   if (conf->linkPockets) {
     // Set up Surface 3 (accessibility probe)
-    dg3 = new DelPhiShared(conf->scale, conf->perfill, conf->molFile,
+    dg3 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile,
                            localEpsMap, localStatusMap, localMulti, false);
-    surf3 = surfaceFactory().create(cf.get(), dg3);
+    surf3 = surfaceFactory().create(cf, dg3);
     surf2->setProjBGP(false);
     surf2->setProbeRadius(conf->pocketRadiusSmall);
     surf2->setKeepWellShapedCavities(false);
@@ -381,8 +381,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     duration1 = chrono1.stop();
     spdlog::info( "Diff. Step 4 {} [s]", duration1);
 
-    delete surf3;
-    delete dg3;
+    // delete surf3;
+    // delete dg3;
   }
   ///////////////////////////////////////////////////////////////////
 
@@ -439,10 +439,10 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     char mol[100], tri_[100];
     snprintf(mol, sizeof(mol), "cav%d.txt", i);
     snprintf(tri_, sizeof(tri_), "cav_tri%d", i);
-    DelPhiShared *dg_temp = new DelPhiShared(2.0, 50, mol, false, false, false);
+    DelPhiSharedOP dg_temp = std::make_shared<DelPhiShared>(2.0, 50, mol, false, false, false);
     // reset seed
     srand(conf->currentSeed);
-    Surface *cs_temp = surfaceFactory().create(cf.get(), dg_temp);
+    SurfaceOP cs_temp = surfaceFactory().create(cf, dg_temp);
     // relatively big such that non degenerate configurations are avoided
     // due to the high packing of atoms. this has a minimal impact
     // on the estimation of the pocket/surface volume
@@ -474,7 +474,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
           // is a pocket, we can identify the entrance
           // true means that it is part of the entrance
           vector<bool> results;
-          cs_temp->triangulationPointsAreCompletelyOut(surf2, results);
+          cs_temp->triangulationPointsAreCompletelyOut(surf2.get(), results);
 
           // the points that are completely out are those that are represent the
           // entrance together with them we must save the normals
@@ -503,8 +503,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
         }
       }
     }
-    delete cs_temp;
-    delete dg_temp;
+    // delete cs_temp;
+    // delete dg_temp;
   }
 
   duration = chrono.stop();
@@ -631,9 +631,9 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   spdlog::info( "Pocket detection time.. {} [s]", duration);
   spdlog::info( "Cleaning memory...");
 
-  delete surf1;
-  delete dg1;
-  delete surf2;
-  delete dg2;
+  // delete surf1;
+  // delete dg1;
+  // delete surf2;
+  // delete dg2;
   spdlog::info("ok!");
 }

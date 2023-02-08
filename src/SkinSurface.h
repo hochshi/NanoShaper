@@ -9,6 +9,7 @@
 #define SkinSurface_h
 
 #include <Surface.h>
+#include <memory>
 #include <spdlog/spdlog.h>
 
 // #define DEBUG_SKIN
@@ -337,12 +338,12 @@ private:
 };
 
 static class SkinSurfaceRegister {
-  static Surface *createSurface(ConfigFile *conf, DelPhiShared *ds) {
-    return new SkinSurface(conf, ds);
+  static SurfaceOP createSurface(ConfigFile *conf, DelPhiShared *ds) {
+    return std::make_shared<SkinSurface>(conf, ds);
   }
 
 public:
-  SkinSurfaceRegister() { surfaceFactory().add("skin", createSurface); }
+  SkinSurfaceRegister() { surfaceFactory().register_instantiator("skin", createSurface); }
 } SkinSurfaceRegisterObject;
 
 // static SurfaceRecorder<SkinSurface> skinRecorder("skin");

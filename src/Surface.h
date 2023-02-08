@@ -189,26 +189,6 @@ ray/projections routine) thus providing all the necessary info to DelPhi solver.
 class Surface {
 #ifdef ENABLE_CGAL
 private:
-  //  typedef CGAL::Regular_triangulation_euclidean_traits_3<_K> _Traits;
-  // typedef CGAL::Regular_triangulation_filtered_traits_3<_K>    _Traits;
-  // typedef CGAL::Triangulation_cell_base_with_info_3< VorPoint*,_Traits>
-  // _Cell_with_info; typedef
-  // CGAL::Regular_triangulation_cell_base_3<_Traits,_Cell_with_info>
-  // _RT_Cell_with_info; typedef CGAL::Triangulation_vertex_base_3<_Traits>
-  // _Vertex; typedef
-  // CGAL::Triangulation_data_structure_3<_Vertex,_RT_Cell_with_info> _tds;
-  // typedef _Traits::RT                                          _Weight;
-  // typedef _Traits::Bare_point                                  _Point3;
-  // typedef _Traits::Weighted_point _Weighted_point; typedef
-  // CGAL::Regular_triangulation_3<_Traits,_tds>			 _Rt;
-  // typedef _Rt::Vertex_iterator _Vertex_iterator; typedef
-  // _Rt::Finite_vertices_iterator _Finite_Vertex_Iterator; typedef
-  // _Rt::Finite_cells_iterator
-  // _Finite_Cells_Iterator; typedef _Rt::Vertex_handle _Vertex_handle; typedef
-  // _tds::Cell_circulator
-  // _Cell_circulator; typedef _tds::Cell_handle
-  // _Cell_handle;
-  // typedef IndexedPoint<_K, _Weight> _IndexedPoint;
   typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
   typedef K::FT Weight;
   typedef K::Point_3 Point;
@@ -685,5 +665,7 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
+
+using SurfaceOP = std::shared_ptr<Surface>;
 
 #endif

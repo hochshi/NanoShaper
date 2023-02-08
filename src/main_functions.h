@@ -19,7 +19,7 @@ ConfigurationOP parse(ConfigFileOP cf);
 // void stopDebug();
 // void restartDebug();
 void cite();
-void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf);
+void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf);
 void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf);
 
 #endif

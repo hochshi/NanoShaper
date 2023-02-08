@@ -10,6 +10,7 @@
 
 #include <Surface.h>
 #include <SurfaceFactory.h>
+#include <memory>
 
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
@@ -391,12 +392,12 @@ private:
 
 // expand it explicitly because Swig is not able to expand it
 static class ConnollySurfaceRegister {
-  static Surface *createSurface(ConfigFile *conf, DelPhiShared *ds) {
-    return new ConnollySurface(conf, ds);
+  static SurfaceOP createSurface(ConfigFile *conf, DelPhiShared *ds) {
+    return std::make_shared<ConnollySurface>(conf, ds);
   }
 
 public:
-  ConnollySurfaceRegister() { surfaceFactory().add("ses", createSurface); }
+  ConnollySurfaceRegister() { surfaceFactory().register_instantiator("ses", createSurface); }
 } ConnollySurfaceRegisterObject;
 
 // static SurfaceRecorder<ConnollySurface> sesRecorder("ses");

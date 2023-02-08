@@ -3,6 +3,7 @@
 #define  DelphiShared_h
 
 #include <globals.h>
+#include <memory>
 
 #ifdef DBGMEM_CRT
 	#define _CRTDBG_MAP_ALLOC
@@ -177,5 +178,7 @@ public:
 	/** dynamical vector whose index is the cavity and contains the set of atoms that produce that cavity*/
 	vector< set<int>* > cav2atoms;	
 }; 
+
+using DelPhiSharedOP = std::shared_ptr<DelPhiShared>;
 
 #endif

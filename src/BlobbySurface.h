@@ -10,6 +10,7 @@
 
 #include <Surface.h>
 #include <MeshSurface.h>
+#include <memory>
 
 #ifdef DBGMEM_CRT
 	#define _CRTDBG_MAP_ALLOC
@@ -63,14 +64,14 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class BlobbySurfaceRegister{ 
-	static Surface* createSurface(ConfigFile* conf,DelPhiShared* ds) 
+	static SurfaceOP createSurface(ConfigFile* conf,DelPhiShared* ds) 
 	{ 
-		return new BlobbySurface(conf,ds); 
+    return std::make_shared<BlobbySurface>(conf, ds);
 	} 
 	public: 
 		BlobbySurfaceRegister() 
 		{ 
-			surfaceFactory().add("blobby",createSurface); 
+			surfaceFactory().register_instantiator("blobby",createSurface); 
 		} 
 } BlobbySurfaceRegisterObject;
 

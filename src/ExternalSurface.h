@@ -9,6 +9,7 @@
 #define ExternalSurface_h
 
 #include <Surface.h>
+#include <memory>
 
 
 /** @brief This class is wrapper and loads an external surface using the files epsmapx.txt, epsmapy.txt,
@@ -67,14 +68,14 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class ExternalSurfaceRegister{ 
-	static Surface* createSurface(ConfigFile* conf,DelPhiShared* ds) 
+	static SurfaceOP createSurface(ConfigFile* conf,DelPhiShared* ds) 
 	{ 
-		return new ExternalSurface(conf,ds); 
+    return std::make_shared<ExternalSurface>(conf,ds); 
 	} 
 	public: 
 		ExternalSurfaceRegister() 
 		{ 
-			surfaceFactory().add("external",createSurface); 
+			surfaceFactory().register_instantiator("external",createSurface); 
 		} 
 } ExternalSurfaceRegisterObject;
 

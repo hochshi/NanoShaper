@@ -1,5 +1,7 @@
 
+#include "DelphiShared.h"
 #include <main_functions.h>
+#include <memory>
 #include <spdlog/spdlog.h>
 
 #ifdef DBGMEM_CRT
@@ -146,7 +148,7 @@ int main(int argc, char *argv[]) {
     strcpy(confFile, argv[1]);
 
   if (numargs > 1)
-    spdlog::warn( "Ignoring additional non required parameters");
+    spdlog::warn("Ignoring additional non required parameters");
 
   // check configuration consistency, init error stream, get configuration
   ConfigFileOP cf = load(string(confFile));
@@ -157,23 +159,28 @@ int main(int argc, char *argv[]) {
   // just build the surface
   if (!conf->operativeMode.compare("normal")) {
     // Set up DelPhi-like environment
-    DelPhiShared *dg = new DelPhiShared(conf->scale, conf->perfill,
-                                        conf->molFile, conf->buildEpsmaps,
-                                        conf->buildStatus, conf->multi_diel);
+    // DelPhiShared *dg = new DelPhiShared(conf->scale, conf->perfill,
+    //                                     conf->molFile, conf->buildEpsmaps,
+    //                                     conf->buildStatus, conf->multi_diel);
+    DelPhiSharedOP dg = std::make_shared<DelPhiShared>(
+        conf->scale, conf->perfill, conf->molFile, conf->buildEpsmaps,
+        conf->buildStatus, conf->multi_diel);
     // Get surface
-    Surface *surf = surfaceFactory().create(cf.get(), dg);
-    normalMode(surf, dg, conf);
-    spdlog::info( "Cleaning memory...");
-    
-    delete surf;
-    delete dg;
+    SurfaceOP surf = surfaceFactory().create(cf, dg);
+    if (surf != NULL) {
+      normalMode(surf, dg, conf);
+    }
+    spdlog::info("Cleaning memory...");
+
+    // delete surf;
+    // delete dg;
     spdlog::info("ok!");
   }
   // detect pockets
   else if (!conf->operativeMode.compare("pockets")) {
     pocketMode(false, cf, conf);
   } else {
-    spdlog::info( "Unknown operative mode");
+    spdlog::info("Unknown operative mode");
     return -1;
   }
 
