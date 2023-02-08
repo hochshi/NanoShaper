@@ -71,7 +71,7 @@ ConnollySurface::ConnollySurface(ConfigFile *cf, DelPhiShared *ds)
 
 bool ConnollySurface::buildAuxiliaryGrid() {
   if (sesComplex.size() == 0) {
-    cout << endl << WARN << "Cannot get surface with an empty SES complex!";
+    spdlog::warn( "Cannot get surface with an empty SES complex!");
     return false;
   }
 
@@ -107,7 +107,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
   // auxiliary scale
   scale = delphi->scale / ((double)gridMul);
 
-  cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
+  spdlog::info("Auxiliary grid is {}", igrid);
 
   xmin = delphi->baricenter[0] - (igrid - 1) / (2 * scale);
   ymin = delphi->baricenter[1] - (igrid - 1) / (2 * scale);
@@ -140,11 +140,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
   ny = igrid;
   nz = igrid;
 
-  cout << endl
-       << INFO_STR << "Allocating "
-       << (nx * ny * nz * MAX_CONNOLLY_CELLS) * sizeof(int) / 1024.0 / 1024.0
-       << " MB"
-       << " for the auxiliary grid...";
+  spdlog::info("Allocating {} MB for the auxiliary grid...", (nx * ny * nz * MAX_CONNOLLY_CELLS) * sizeof(int) / 1024.0 / 1024.0);
 
   if (gridConnollyCellMap != NULL)
     deleteVector<int>(gridConnollyCellMap);
@@ -167,13 +163,13 @@ bool ConnollySurface::buildAuxiliaryGrid() {
   for (unsigned int i = 0; i < nz; i++)
     z[i] = zmin + i * side;
 
-  cout << "ok!";
+  spdlog::info("ok!");
 
   // build a bounding box for cell and map it to
   // the auxiliary grid
   int max_t = 0;
 
-  cout << endl << INFO_STR << "Mapping auxiliary grid...";
+  spdlog::info("Mapping auxiliary grid...");
 
   for (unsigned int it = 0; it < sesComplex.size(); it++) {
     // map connolly cell
@@ -263,11 +259,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
             max_t = ind[ix][iy][iz];
 
           if (ind[ix][iy][iz] >= MAX_CONNOLLY_CELLS) {
-            cout
-                << endl
-                << ERR
-                << "Number of connolly cells is superior to maximum allowed, "
-                   "please increase Max_ses_patches_per_auxiliary_grid_2d_cell";
+            spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
             exit(-1);
           }
           GRID_CONNOLLY_CELL_MAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) =
@@ -278,8 +270,8 @@ bool ConnollySurface::buildAuxiliaryGrid() {
     // printf(" out");
   }
 
-  cout << "ok!";
-  cout << endl << INFO_STR << "Max Connolly cells per auxiliary cell -> " << max_t;
+  spdlog::info("ok!");
+  spdlog::info("Max Connolly cells per auxiliary cell -> {}", max_t);
 
   return true;
 }
@@ -288,12 +280,12 @@ bool ConnollySurface::build() {
 #ifdef ENABLE_CGAL
   flag = buildConnollyCGAL();
 #else
-  cout << endl << WARN << "Connolly surface requires CGAL lib";
+  spdlog::warn( "Connolly surface requires CGAL lib");
   return false;
 #endif
 
   if (!flag) {
-    cout << endl << ERR << "Connolly surface construction failed";
+    spdlog::error( "Connolly surface construction failed");
     return flag;
   }
   return flag;
@@ -318,7 +310,7 @@ bool ConnollySurface::preBoundaryProjection() {
   if (projBGP) {
     flag = buildAuxiliaryGrid();
     if (!flag) {
-      cout << endl << ERR << "Cannot build 3D auxiliary grid";
+      spdlog::error( "Cannot build 3D auxiliary grid");
       return flag;
     }
   }
@@ -403,10 +395,9 @@ bool ConnollySurface::buildConnollyCGAL() {
 
   unsigned int ggrid = 1;
 
-  cout << endl << INFO_STR << "Adjusting self intersection grid ";
+  spdlog::info("Adjusting self intersection grid ");
   while (1) {
     ggrid = (unsigned int)floor(gscale * si_perfil * delphi->rmaxdim);
-    // cout << ggrid << ",";
 
     if (ggrid <= 100) {
       if (ggrid <= 0) {
@@ -424,7 +415,7 @@ bool ConnollySurface::buildConnollyCGAL() {
   double gymin = delphi->baricenter[1] - (ggrid - 1) / (2 * gscale);
   double gzmin = delphi->baricenter[2] - (ggrid - 1) / (2 * gscale);
 
-  cout << endl << INFO_STR << "Allocating self intersection grid....";
+  spdlog::info("Allocating self intersection grid....");
   FacetCell **gridProbesMap =
       allocateVector<FacetCell *>(MAX_PROBES * ggrid * ggrid * ggrid);
   for (unsigned int i = 0; i < ggrid; i++)
@@ -434,16 +425,16 @@ bool ConnollySurface::buildConnollyCGAL() {
         // number)
         SELF_MAP(i, j, k, 0, ggrid, ggrid, ggrid) = 0;
 
-  cout << "ok!";
+  spdlog::info("ok!");
 
   time_t start, end;
   time(&start);
 
-  cout << endl << INFO_STR << "Computing alpha shape complex....";
+  spdlog::info("Computing alpha shape complex....");
 
   Fixed_alpha_shape_3 alpha_shape(l.begin(), l.end(), 0.0);
 
-  cout << "ok!";
+  spdlog::info("ok!");
 
   for (int i = 0; i < 5; i++)
     type[i] = 0;
@@ -472,7 +463,6 @@ bool ConnollySurface::buildConnollyCGAL() {
         ctype == Fixed_alpha_shape_3::SINGULAR) {
       type[POINT_CELL]++;
       // retrieve atom index
-      // cout << endl << fvit->point().index();
 
       PointCell *pc = new PointCell();
       sesComplex.push_back(pc);
@@ -599,10 +589,7 @@ bool ConnollySurface::buildConnollyCGAL() {
         }
       }
 
-      // cout << endl << pc->buried_neighbours.size();
     }
-    // else
-    //	cout << endl << "buried";
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1027,17 +1014,14 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           if (ix >= (int)ggrid || iy >= (int)ggrid || iz >= (int)ggrid ||
               ix <= 0 || iy <= 0 || iz <= 0) {
-            cout << endl
-                 << ERR
-                 << "Too big probe, to support this probe increase "
-                    "Self_Intersections_Grid_Coefficient\n";
+            spdlog::error( "Too big probe, to support this probe increase " "Self_Intersections_Grid_Coefficient\n");
             exit(-1);
           }
 
           size_t max_ind = (size_t)SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid);
           max_ind++;
           if ((int)max_ind >= MAX_PROBES) {
-            cout << endl << ERR << "Increase MAX_PROBES";
+            spdlog::error( "Increase MAX_PROBES");
             exit(-1);
           }
           SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid) = (FacetCell *)max_ind;
@@ -1092,9 +1076,7 @@ bool ConnollySurface::buildConnollyCGAL() {
       double bigR2 = sqrt(v2->point().weight() - ratio2 * ratio2);
 
       if (fabs(bigR - bigR2) > 1e-6)
-        cout << endl
-             << WARN << "Non precise torus inner radius " << bigR << " "
-             << bigR2;
+        spdlog::warn( "Non precise torus inner radius {} {}", bigR, bigR2);
 
       EdgeCell *ec = new EdgeCell();
       sesComplex.push_back(ec);
@@ -1264,9 +1246,8 @@ bool ConnollySurface::buildConnollyCGAL() {
         }
 
         if (fcv[0] == NULL || fcv[1] == NULL) {
-          cout << endl
-               << ERR << "Error at atoms " << ec->id[0] << "," << ec->id[1];
-          cout << endl << ERR << "Regular edge with no probe stations?";
+          spdlog::error( "Error at atoms {},{}", ec->id[0], ec->id[1]);
+          spdlog::error( "Regular edge with no probe stations?");
           exit(-1);
         }
 
@@ -1293,15 +1274,12 @@ bool ConnollySurface::buildConnollyCGAL() {
               ec->cutting_planes[0][1] = -fcv[0]->planes[ii + 1][1];
               ec->cutting_planes[0][2] = -fcv[0]->planes[ii + 1][2];
               ec->cutting_planes[0][3] = -fcv[0]->planes[ii + 1][3];
-              // cout << endl << ec->cutting_planes[0][0] << "," <<
-              // ec->cutting_planes[0][1] << "," << ec->cutting_planes[0][2] <<
-              // "," << ec->cutting_planes[0][3];
               break;
             }
           }
 
           if (!found) {
-            cout << endl << ERR << "Cannot detect correct plane!";
+            spdlog::error( "Cannot detect correct plane!");
             exit(-1);
           }
 
@@ -1321,15 +1299,12 @@ bool ConnollySurface::buildConnollyCGAL() {
               ec->cutting_planes[1][1] = -fcv[1]->planes[ii + 1][1];
               ec->cutting_planes[1][2] = -fcv[1]->planes[ii + 1][2];
               ec->cutting_planes[1][3] = -fcv[1]->planes[ii + 1][3];
-              // cout << endl << ec->cutting_planes[1][0] << "," <<
-              // ec->cutting_planes[1][1] << "," << ec->cutting_planes[1][2] <<
-              // "," << ec->cutting_planes[1][3];
               break;
             }
           }
 
           if (!found) {
-            cout << endl << ERR << "Cannot detect correct plane!";
+            spdlog::error( "Cannot detect correct plane!");
             exit(-1);
           }
 
@@ -1350,8 +1325,7 @@ bool ConnollySurface::buildConnollyCGAL() {
           int sorted[MAX_INCIDENT_PROBES];
 
           if ((index % 2) != 0) {
-            cout << endl
-                 << ERR << "Torus circulator gives an odd number of probes!";
+            spdlog::error( "Torus circulator gives an odd number of probes!");
             exit(-1);
           }
 
@@ -1378,7 +1352,7 @@ bool ConnollySurface::buildConnollyCGAL() {
               else if (fcv[sorted[u]]->mirrorCell == fcv[sorted[prev]])
                 direction = +2;
               else {
-                cout << endl << ERR << "Incosistency in torus circulator";
+                spdlog::error( "Incosistency in torus circulator");
                 exit(-1);
               }
 
@@ -1407,14 +1381,11 @@ bool ConnollySurface::buildConnollyCGAL() {
                 plane[0] = -fcv[sorted[0]]->planes[ii + 1][0];
                 plane[1] = -fcv[sorted[0]]->planes[ii + 1][1];
                 plane[2] = -fcv[sorted[0]]->planes[ii + 1][2];
-                // cout << endl << ec->cutting_planes[0][0] << "," <<
-                // ec->cutting_planes[0][1] << "," << ec->cutting_planes[0][2]
-                // << "," << ec->cutting_planes[0][3];
                 break;
               }
             }
             if (!found) {
-              cout << endl << ERR << "Cannot identify plane!";
+              spdlog::error( "Cannot identify plane!");
               exit(-1);
             }
 
@@ -1428,8 +1399,6 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           int currentProbe1 = start_index;
           int currentProbe2 = (index + start_index + direction / 2) % index;
-
-          // cout << endl << "Choosen direction "<<direction;
 
           // get all needed planes
           while (1) {
@@ -1456,15 +1425,12 @@ bool ConnollySurface::buildConnollyCGAL() {
                 plane[1] = -fc1->planes[ii + 1][1];
                 plane[2] = -fc1->planes[ii + 1][2];
                 plane[3] = -fc1->planes[ii + 1][3];
-                // cout << endl << ec->cutting_planes[0][0] << "," <<
-                // ec->cutting_planes[0][1] << "," << ec->cutting_planes[0][2]
-                // << "," << ec->cutting_planes[0][3];
                 break;
               }
             }
 
             if (!found) {
-              cout << endl << ERR << "Cannot detect correct plane!";
+              spdlog::error( "Cannot detect correct plane!");
               exit(-1);
             }
 
@@ -1487,15 +1453,12 @@ bool ConnollySurface::buildConnollyCGAL() {
                 plane[1] = -fc2->planes[ii + 1][1];
                 plane[2] = -fc2->planes[ii + 1][2];
                 plane[3] = -fc2->planes[ii + 1][3];
-                // cout << endl << ec->cutting_planes[1][0] << "," <<
-                // ec->cutting_planes[1][1] << "," << ec->cutting_planes[1][2]
-                // << "," << ec->cutting_planes[1][3];
                 break;
               }
             }
 
             if (!found) {
-              cout << endl << ERR << "Cannot detect correct plane!";
+              spdlog::error( "Cannot detect correct plane!");
               exit(-1);
             }
 
@@ -1509,8 +1472,6 @@ bool ConnollySurface::buildConnollyCGAL() {
             // bool flag =
             // orientation(vref1,vref2,ec,fc1->center,fc2->center,plane1,plane2);
             bool flag = orientation(fc1->center, fc2->center, plane1, plane2);
-            // cout << endl << "Direction " << direction;
-            // cout << endl << "Orientation " << flag;
             ec->flags.push_back(flag);
 
             // go the next pair using the correct direction
@@ -1565,9 +1526,7 @@ bool ConnollySurface::buildConnollyCGAL() {
     }
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
-  cout << endl
-       << INFO_STR << "Checking " << checkList.size()
-       << " probes for self intersections...";
+  spdlog::info("Checking {} probes for self intersections...", checkList.size());
 
   // remove self intersections
   for (unsigned int i = 0; i < sesComplex.size(); i++) {
@@ -1578,8 +1537,6 @@ bool ConnollySurface::buildConnollyCGAL() {
       int ix = (int)rintp((fc1->center[0] - gxmin) / gside);
       int iy = (int)rintp((fc1->center[1] - gymin) / gside);
       int iz = (int)rintp((fc1->center[2] - gzmin) / gside);
-
-      // cout << endl << ix << " " << iy << " " << iz;
 
       for (int k = 0; k < 27; k++) {
         unsigned int cx = ix + shift_map[k][0];
@@ -1592,8 +1549,6 @@ bool ConnollySurface::buildConnollyCGAL() {
 
         size_t max_ind = (size_t)SELF_MAP(cx, cy, cz, 0, ggrid, ggrid, ggrid);
 
-        // cout << " mi " << max_ind << endl;
-
         for (size_t j = 0; j < max_ind; j++) {
           FacetCell *fc2 = SELF_MAP(cx, cy, cz, j + 1, ggrid, ggrid, ggrid);
 
@@ -1604,7 +1559,6 @@ bool ConnollySurface::buildConnollyCGAL() {
           double *c2 = fc2->center;
           double dist2;
           DIST2(dist2, c1, c2)
-          // cout << endl << dist2 << " " << 4*probe_radius2;
           //  there is a self intersection, must clip
           if (dist2 < (4 * probe_radius2)) {
             // a reference point is the mid point
@@ -1651,11 +1605,10 @@ bool ConnollySurface::buildConnollyCGAL() {
       }
     }
   }
-  cout << "ok!";
+  spdlog::info("ok!");
 
   if (savePovRay) {
-    cout << endl << INFO_STR << "Saving surface in Pov-Ray in connolly.pov...";
-    cout.flush();
+    spdlog::info("Saving surface in Pov-Ray in connolly.pov...");
     for (unsigned int i = 0; i < sesComplex.size(); i++) {
       ConnollyCell *cp = sesComplex[i];
       if (cp->patch_type == REGULAR_FACE_CELL ||
@@ -1672,7 +1625,7 @@ bool ConnollySurface::buildConnollyCGAL() {
         saveAtomPatch(of, pc);
       }
     }
-    cout << "ok!";
+    spdlog::info("ok!");
   }
 
   if (savePovRay)
@@ -1680,7 +1633,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
   time(&end);
   double duration = difftime(end, start);
-  cout << endl << INFO_STR << "Surface build-up time.. " << duration << " [s]";
+  spdlog::info("Surface build-up time.. {} [s]", duration);
 
   printSummary();
   // free memory
@@ -1694,22 +1647,14 @@ bool ConnollySurface::save(char *fileName) { return false; }
 bool ConnollySurface::load(char *fileName) { return false; }
 
 void ConnollySurface::printSummary() {
-  cout << endl << INFO_STR << "Probe Radius value " << getProbeRadius();
+  spdlog::info("Probe Radius value {}", getProbeRadius());
   {
-    cout << endl << INFO_STR << "Number of ses cells -> " << sesComplex.size();
-    cout << endl << INFO_STR << "Number of del_point cells -> " << type[POINT_CELL];
-    cout << endl
-         << INFO_STR << "Number of regular del_edge cells -> "
-         << type[REGULAR_EDGE_CELL];
-    cout << endl
-         << INFO_STR << "Number of singular del_edge cells -> "
-         << type[SINGULAR_EDGE_CELL];
-    cout << endl
-         << INFO_STR << "Number of regular del_facet cells -> "
-         << type[REGULAR_FACE_CELL];
-    cout << endl
-         << INFO_STR << "Number of singular del_facet cells -> "
-         << type[SINGULAR_FACE_CELL];
+    spdlog::info("Number of ses cells -> {}", sesComplex.size());
+    spdlog::info("Number of del_point cells -> {}", type[POINT_CELL]);
+    spdlog::info("Number of regular del_edge cells -> {}", type[REGULAR_EDGE_CELL]);
+    spdlog::info("Number of singular del_edge cells -> {}", type[SINGULAR_EDGE_CELL]);
+    spdlog::info("Number of regular del_facet cells -> {}", type[REGULAR_FACE_CELL]);
+    spdlog::info("Number of singular del_facet cells -> {}", type[SINGULAR_FACE_CELL]);
 
     #ifdef SPDLOG
       spdlog::info("cells {}", sesComplex.size());
@@ -1800,7 +1745,7 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
   }
 
   if (cells.size() == 0) {
-    cout << endl << WARN << "Empty cell in getProjection!";
+    spdlog::warn( "Empty cell in getProjection!");
     return false;
   }
 
@@ -1953,8 +1898,6 @@ void ConnollySurface::preProcessPanel() {
   // auxiliary scale
   scale_2d = delphi->scale / ((double)gridMul);
 
-  // cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
-
   xmin_2d = delphi->baricenter[0] - (igrid - 1) / (2 * scale_2d);
   ymin_2d = delphi->baricenter[1] - (igrid - 1) / (2 * scale_2d);
   zmin_2d = delphi->baricenter[2] - (igrid - 1) / (2 * scale_2d);
@@ -1997,8 +1940,6 @@ void ConnollySurface::preProcessPanel() {
   // build a bounding box for cell and map it to
   // the auxiliary grid
   unsigned int max_t = 0;
-
-  // cout << endl << INFO_STR << "Mapping auxiliary grid...";
 
   for (unsigned int it = 0; it < sesComplex.size(); it++) {
     // map connolly cell
@@ -2089,11 +2030,7 @@ void ConnollySurface::preProcessPanel() {
             max_t = ind_2d[iy][iz];
 
           if (ind_2d[iy][iz] >= MAX_CONNOLLY_CELLS_2D) {
-            cout
-                << endl
-                << ERR
-                << "Number of connolly cells is superior to maximum allowed, "
-                   "please increase Max_ses_patches_per_auxiliary_grid_2d_cell";
+            spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
             exit(-1);
           }
           GRID_CONNOLLY_CELL_MAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) =
@@ -2111,11 +2048,7 @@ void ConnollySurface::preProcessPanel() {
             max_t = ind_2d[ix][iy];
 
           if (ind_2d[ix][iy] >= MAX_CONNOLLY_CELLS_2D) {
-            cout
-                << endl
-                << ERR
-                << "Number of connolly cells is superior to maximum allowed, "
-                   "please increase Max_ses_patches_per_auxiliary_grid_2d_cell";
+            spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
             exit(-1);
           }
           GRID_CONNOLLY_CELL_MAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) =
@@ -2131,10 +2064,7 @@ void ConnollySurface::preProcessPanel() {
             max_t = ind_2d[ix][iz];
 
           if (ind_2d[ix][iz] >= MAX_CONNOLLY_CELLS_2D) {
-            cout << endl
-                 << ERR
-                 << "Number of connolly cells is superior to maximum allowed, "
-                    "please increase Max_ses_patches_per_auxiliary_grid_cell";
+            spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_cell");
             exit(-1);
           }
           GRID_CONNOLLY_CELL_MAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) =
@@ -2595,7 +2525,7 @@ bool ConnollySurface::rayConnollyCellIntersection(double *orig, double *dir,
     sphere_center = delphi->atoms[pc->id]->pos;
     sphere_radius = delphi->atoms[pc->id]->radius;
   } else
-    cout << endl << ERR << "Cannot get patch type in intersection test";
+    spdlog::error( "Cannot get patch type in intersection test");
 
   bool det = raySphere(orig, dir, sphere_center, sphere_radius, t1, t2);
 
@@ -2853,7 +2783,7 @@ bool ConnollySurface::isFeasible(ConnollyCell *cc, double *point) {
     return true;
   }
 
-  cout << endl << ERR << "Cannot get an answer in feasibility test";
+  spdlog::error( "Cannot get an answer in feasibility test");
   return false;
 }
 
@@ -2972,13 +2902,9 @@ void ConnollySurface::saveConcaveSpherePatch(ofstream &of, FacetCell *fc,
     of << endl << temp;
   }
 
-  // cout << endl << "Num " << fc->numSelfIntersections;
   if (fc->isSelfIntersecting) {
     of << endl << "// self intersection planes" << endl;
     for (unsigned int l = 0; l < fc->self_intersection_planes.size(); l++) {
-      // cout << endl << fc->self_intersection_planes[l][0] << " " <<
-      // fc->self_intersection_planes[l][1] <<" "<<
-      // fc->self_intersection_planes[l][2]
       snprintf(temp, sizeof(temp), "plane{<%f,%f,%f>,%f}",
                fc->self_intersection_planes[l][0],
                fc->self_intersection_planes[l][1],
@@ -2989,7 +2915,6 @@ void ConnollySurface::saveConcaveSpherePatch(ofstream &of, FacetCell *fc,
       of << endl << temp;
     }
   }
-  // cout << endl << "-------";
 
   of << "\n}";
   // save the sphere with its radius
@@ -3209,7 +3134,6 @@ bool ConnollySurface::orientation(double *pb_center1, double *pb_center2,
   //  only sign
   double sc = (b * e - c * d);
 
-  // cout << endl << "sc param " << sc;
   if (sc < 0)
     return true;
   else
@@ -3239,17 +3163,14 @@ void ConnollySurface::sortProbes(EdgeCell *ec, FacetCell **fcv, int np,
     // [0,2pi]
     if (angle < 0)
       angle = TWO_PI + angle;
-    // cout << endl << "Angle " << angle;
     angles.push_back(indexed_double(angle, i));
   }
   // remember indexing and sort
   sort(angles.begin(), angles.end(), index_double_comparator);
   // save
   sorted[0] = 0;
-  // cout << endl << "Ordered";
   for (int i = 1; i < np; i++) {
     sorted[i] = angles[i - 1].second;
-    // cout << endl << "\t" << sorted[i];
   }
   return;
 }

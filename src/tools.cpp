@@ -1,5 +1,6 @@
 
 #include <tools.h>
+#include <spdlog/spdlog.h>
 
 /**@brief ascending on first double of pair<double,double*> comparator*/
 bool compKeepIndex(pair<double,double*> a, pair<double,double*> b)
@@ -54,7 +55,7 @@ string toLowerCase(string str)
 
 void cleanLine()
 {
-	printf("\r                                                                          ");
+	spdlog::info("--------------------------------------------------------------------------");
 }
 
 
@@ -174,7 +175,6 @@ void getRealRootsCompanion(double *const poly,const int degree,double *const roo
 	for (i=0;i<final;i++)
 	{
 		// identify real roots by using a prescribed tollerance
-		//printf("\n re %lf img %lf",real[i],img[i]);
 		if (fabs(img[i])<1e-1)
 		{
 			roots[numroots]=real[i];
@@ -227,7 +227,7 @@ void getRealRootsSturm(const double *const polyy,const int degree,double *const 
 
 	if (nchanges != atmin) 
 	{
-		printf("solve: unable to bracket all negative roots\n");
+		spdlog::info("solve: unable to bracket all negative roots");
 		atmin = nchanges;
 	}
 
@@ -241,7 +241,7 @@ void getRealRootsSturm(const double *const polyy,const int degree,double *const 
 
 	if (nchanges != atmax) 
 	{
-		printf("solve: unable to bracket all positive roots\n");
+		spdlog::info("solve: unable to bracket all positive roots");
 		atmax = nchanges;
 	}
 
@@ -321,7 +321,7 @@ void inplace_invert4x4(double M[4][4])
         M[3][0] /=D; M[3][1] /=D; M[3][2] /=D; M[3][3] /=D;
     }
 	else
-		cout << endl << "Singular 4x4 matrix inversion!";
+    spdlog::info("Singular 4x4 matrix inversion!");
 }
 
 /** unrolled 4x4 matrix multiply*/

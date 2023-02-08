@@ -123,13 +123,11 @@ bool SkinSurface::build() {
 #ifdef ENABLE_CGAL
   f = buildSkinCGAL();
 #else
-  cout << endl
-       << ERR
-       << "Skin surface cannot be used, please install CGAL and rebuild\n";
+  spdlog::error("Skin surface cannot be used, please install CGAL and rebuild\n");
   exit(-1);
 #endif
   if (!f) {
-    cout << endl << ERR << "Error during skin build-up";
+    spdlog::error("Error during skin build-up");
   }
   return f;
 }
@@ -163,7 +161,7 @@ bool SkinSurface::buildSkinCGAL() {
   time_t start, end;
   time(&start);
 
-  cout << endl << INFO_STR << "Building skin surface..";
+  spdlog::info("Building skin surface..");
 
   for (int i = 0; i < delphi->numAtoms; i++) {
     delphi->atoms[i]->pos[0] =
@@ -221,16 +219,16 @@ bool SkinSurface::buildSkinCGAL() {
   l.emplace_back(Weighted_point(Point(mid_x, mid_y, max_z), -1),
                  delphi->numAtoms + 5);
 
-  cout << endl << INFO_STR << "Regular triangulation....";
+  spdlog::info("Regular triangulation....");
 
   rT.insert(l.begin(), l.end());
 
   assert(rT.is_valid());
   assert(rT.dimension() == 3);
 
-  cout << "ok!";
+  spdlog::info("ok!");
 
-  cout << endl << INFO_STR << "Computing 3-Delaunay patches...";
+  spdlog::info("Computing 3-Delaunay patches...");
 
   int currentCell = 0;
   int num_d3_v0_patches = 0;
@@ -358,7 +356,7 @@ bool SkinSurface::buildSkinCGAL() {
     ///////////////////////////////////////////////
   }
 
-  cout << "ok!";
+  spdlog::info("ok!");
   currentCell--;
   type[DELAUNAY_TETRA_CELL] = currentCell;
 
@@ -367,7 +365,7 @@ bool SkinSurface::buildSkinCGAL() {
   ///(Skin) //////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  cout << endl << INFO_STR << "Computing 0-Delaunay patches...";
+  spdlog::info("Computing 0-Delaunay patches...");
 
   vector<Cell_handle> cells;
   cells.reserve(1000);
@@ -439,7 +437,7 @@ bool SkinSurface::buildSkinCGAL() {
     numPoints = 0;
   }
 
-  cout << "ok!";
+  spdlog::info("ok!");
   type[DELAUNAY_POINT_CELL] = cellCount;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -447,7 +445,7 @@ bool SkinSurface::buildSkinCGAL() {
   ////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  cout << endl << INFO_STR << "Computing 1-Delaunay patches...";
+  spdlog::info("Computing 1-Delaunay patches...");
 
   // Skin Surface needs the remaining solids
   int num_d1_v2_patches = 0;
@@ -513,10 +511,10 @@ bool SkinSurface::buildSkinCGAL() {
 
       if (p1 == NULL) {
         for (int j = 0; j < 4; j++)
-          cout << endl << ERR << ci->ids[j];
+          spdlog::error(ci->ids[j]);
 
-        cout << endl << ERR << "Index not found";
-        cout << endl << ERR << refAtom1;
+        spdlog::error("Index not found");
+        spdlog::error(refAtom1);
 
         for (unsigned int i = 0; i < tempMixedComplex.size(); i++)
           delete tempMixedComplex[i];
@@ -548,10 +546,10 @@ bool SkinSurface::buildSkinCGAL() {
 
       if (p2 == NULL) {
         for (int j = 0; j < 4; j++)
-          cout << endl << ERR << ci->ids[j];
+          spdlog::error(ci->ids[j]);
 
-        cout << endl << ERR << "Index not found";
-        cout << endl << ERR << refAtom2;
+        spdlog::error("Index not found");
+        spdlog::error(refAtom2);
         for (unsigned int i = 0; i < tempMixedComplex.size(); i++)
           delete tempMixedComplex[i];
         return false;
@@ -780,10 +778,10 @@ bool SkinSurface::buildSkinCGAL() {
   ////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  cout << "ok!";
+  spdlog::info("ok!");
   int num_d2_v1_patches = 0;
 
-  cout << endl << INFO_STR << "Computing 2-Delaunay patches...";
+  spdlog::info("Computing 2-Delaunay patches...");
 
   upperPoints.reserve(3);
   lowerPoints.reserve(3);
@@ -860,9 +858,7 @@ bool SkinSurface::buildSkinCGAL() {
 
       // weird..
       if (p2 == NULL || p1 == NULL) {
-        cout << endl
-             << ERR
-             << "Two adjacent tethraedra does not share the same 3 atoms!";
+        spdlog::error("Two adjacent tethraedra does not share the same 3 atoms!");
         for (unsigned int i = 0; i < tempMixedComplex.size(); i++)
           delete tempMixedComplex[i];
         return false;
@@ -1085,19 +1081,18 @@ bool SkinSurface::buildSkinCGAL() {
        tempMixedComplex.end() != it; it++, k++)
     mixedComplex[k] = (*it);
 
-  cout << "ok!";
+  spdlog::info("ok!");
   double duration;
   time(&end);
   duration = difftime(end, start);
-  cout << endl << INFO_STR << "Surface build-up time.. " << duration << " [s]";
+  spdlog::info("Surface build-up time.. {} [s]", duration);
 
   // remove references to atom patches
   free(atomPatches);
 
   if (savePovRay) {
     ofstream of;
-    cout << endl << INFO_STR << "Saving surface in Pov-Ray in skin.pov...";
-    cout.flush();
+    spdlog::info("Saving surface in Pov-Ray in skin.pov...");
     of.open("skin.pov");
     of << "#include \"shapes.inc\" ";
     of << "\n#include \"colors.inc\" ";
@@ -1118,7 +1113,7 @@ bool SkinSurface::buildSkinCGAL() {
       MixedCell *mc = mixedComplex[k];
       saveSkinPatch(of, mc, k, l);
     }
-    cout << "ok!";
+    spdlog::info("ok!");
     of.close();
   }
 
@@ -1466,8 +1461,6 @@ void SkinSurface::preProcessPanel() {
   // auxiliary scale
   scale_2d = delphi->scale / ((double)gridMul);
 
-  // cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
-
   xmin_2d = delphi->baricenter[0] - (igrid - 1) / (2 * scale_2d);
   ymin_2d = delphi->baricenter[1] - (igrid - 1) / (2 * scale_2d);
   zmin_2d = delphi->baricenter[2] - (igrid - 1) / (2 * scale_2d);
@@ -1511,22 +1504,13 @@ void SkinSurface::preProcessPanel() {
   unsigned int max_t = 0;
 
   if (mixedComplex == NULL) {
-    cout << endl
-         << WARN << "Cannot get surface without a computed mixed complex!";
+    spdlog::warn("Cannot get surface without a computed mixed complex!");
     return;
   }
 
   for (int it = 0; it < numMixedCells; it++) {
     // mixed cell points
     vector<double *> &ll = mixedComplex[it]->mc_points;
-
-    /*
-    if (ll.size()==0)
-    {
-            cout << endl << ERR << "Empty mixed cell!";
-            exit(-1);
-    }
-    */
 
     // compute bounding box object
     double downx = INFINITY;
@@ -1617,11 +1601,7 @@ void SkinSurface::preProcessPanel() {
             max_t = ind_2d[iy][iz];
 
           if (ind_2d[iy][iz] >= MAX_MIXEDCELLS_2D) {
-            cout << endl
-                 << ERR
-                 << "Number of mixed cells is superior to maximum allowed, "
-                    "please increase "
-                    "Max_skin_patches_per_auxiliary_grid_2d_cell";
+            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
             exit(-1);
           }
           GRID_MIXEDCELLMAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) = it;
@@ -1638,11 +1618,7 @@ void SkinSurface::preProcessPanel() {
             max_t = ind_2d[ix][iy];
 
           if (ind_2d[ix][iy] >= MAX_MIXEDCELLS_2D) {
-            cout << endl
-                 << ERR
-                 << "Number of mixed cells is superior to maximum allowed, "
-                    "please increase "
-                    "Max_skin_patches_per_auxiliary_grid_2d_cell";
+            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
             exit(-1);
           }
           GRID_MIXEDCELLMAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) = it;
@@ -1657,11 +1633,7 @@ void SkinSurface::preProcessPanel() {
             max_t = ind_2d[ix][iz];
 
           if (ind_2d[ix][iz] >= MAX_MIXEDCELLS_2D) {
-            cout << endl
-                 << ERR
-                 << "Number of mixed cells is superior to maximum allowed, "
-                    "please increase "
-                    "Max_skin_patches_per_auxiliary_grid_2d_cell";
+            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
             exit(-1);
           }
           GRID_MIXEDCELLMAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) = it;
@@ -1713,7 +1685,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
   // auxiliary scale
   scale = delphi->scale / ((double)gridMul);
 
-  cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
+  spdlog::info("Auxiliary grid is {}", igrid);
 
   xmin = delphi->baricenter[0] - (igrid - 1) / (2 * scale);
   ymin = delphi->baricenter[1] - (igrid - 1) / (2 * scale);
@@ -1748,11 +1720,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
   if (gridMixedCellMap != NULL)
     deleteVector<int>(gridMixedCellMap);
 
-  cout << endl
-       << INFO_STR << "Allocating "
-       << (nx * ny * nz * MAX_MIXEDCELLS) * sizeof(int) / 1024.0 / 1024.0
-       << " MB"
-       << " for the auxiliary grid...";
+  spdlog::info("Allocating {} MB for the auxiliary grid...", (nx * ny * nz * MAX_MIXEDCELLS) * sizeof(int) / 1024.0 / 1024.0);
   gridMixedCellMap = allocateVector<int>(nx * ny * nz * MAX_MIXEDCELLS);
 
   ind = allocateMatrix3D<unsigned short>(nx, ny, nz);
@@ -1770,31 +1738,22 @@ bool SkinSurface::buildAuxiliaryGrid() {
   for (int i = 0; i < nz; i++)
     z[i] = zmin + i * side;
 
-  cout << "ok!";
+  spdlog::info("ok!");
   //////////////////////////////////////////////////////////////////////////
 
   if (mixedComplex == NULL) {
-    cout << endl
-         << WARN << "Cannot get surface without a computed mixed complex!";
+    spdlog::warn("Cannot get surface without a computed mixed complex!");
     return false;
   }
   // build a bounding box for each mixed cell and map it to
   // the auxiliary grid
   int max_t = 0;
 
-  cout << endl << INFO_STR << "Mapping auxiliary grid...";
+  spdlog::info("Mapping auxiliary grid...");
 
   for (int it = 0; it < numMixedCells; it++) {
     // mixed cell points
     vector<double *> &ll = mixedComplex[it]->mc_points;
-
-    /*
-    if (ll.size()==0)
-    {
-            cout << endl << ERR << "Empty mixed cell!";
-            exit(-1);
-    }
-    */
 
     // compute bounding box object
     double downx = INFINITY;
@@ -1883,10 +1842,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
             max_t = ind[ix][iy][iz];
 
           if (ind[ix][iy][iz] >= MAX_MIXEDCELLS) {
-            cout << endl
-                 << ERR
-                 << "Number of mixed cells is superior to maximum allowed, "
-                    "please increase Max_skin_patches_per_auxiliary_grid_cell";
+            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase Max_skin_patches_per_auxiliary_grid_cell");
             exit(-1);
           }
           GRIDMIXEDCELLMAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) = it;
@@ -1896,8 +1852,8 @@ bool SkinSurface::buildAuxiliaryGrid() {
     // printf(" out");
   }
 
-  cout << "ok!";
-  cout << endl << INFO_STR << "Max mixed cells per auxiliary cell -> " << max_t;
+  spdlog::info("ok!");
+  spdlog::info("Max mixed cells per auxiliary cell -> {}", max_t);
 
   return true;
 }
@@ -1907,17 +1863,15 @@ bool SkinSurface::save(char *fileName) {
   ofstream fout;
   fout.open(fileName, ios::out);
 
-  cout << endl
-       << INFO_STR << "Writing skin in .skin file format in " << fileName
-       << "...";
+  spdlog::info("Writing skin in .skin file format in {}", fileName);
 
   if (fout.fail()) {
-    cout << endl << WARN << "Cannot write file " << fileName;
+    spdlog::warn("Cannot write file {}", fileName);
     return false;
   }
 
   if (mixedComplex == NULL) {
-    cout << endl << WARN << "Cannot write null mesh!";
+    spdlog::warn("Cannot write null mesh!");
     return false;
   }
 
@@ -1928,27 +1882,24 @@ bool SkinSurface::save(char *fileName) {
 bool SkinSurface::load(char *fileName) {
   int len = (int)strlen(fileName);
   if (len == 0) {
-    cout << WARN << "Cannot load with empty file name!";
+    spdlog::warn("Cannot load with empty file name!");
     return false;
   }
-
-  // cout << endl << INFO_STR << "Loading Skin Surface in file " << fileName <<
-  // "...";
 
   // TODO LOAD
   return true;
 }
 
 void SkinSurface::printSummary() {
-  cout << endl << INFO_STR << "Shrinking value " << getShrinking();
+  spdlog::info("Shrinking value {}", getShrinking());
   if (mixedComplex == NULL) {
-    cout << endl << WARN << "Skin surface not loaded!";
+    spdlog::warn("Skin surface not loaded!");
   } else {
-    cout << endl << INFO_STR << "Number of mixed cells -> " << numMixedCells;
-    cout << endl << INFO_STR << "Number of del_point/vor_cell -> " << type[0];
-    cout << endl << INFO_STR << "Number of del_edge/vor_facet -> " << type[1];
-    cout << endl << INFO_STR << "Number of del_facet/vor_edge -> " << type[2];
-    cout << endl << INFO_STR << "Number of del_cell/vor_point -> " << type[3];
+    spdlog::info("Number of mixed cells -> {}", numMixedCells);
+    spdlog::info("Number of del_point/vor_cell -> {}", type[0]);
+    spdlog::info("Number of del_edge/vor_facet -> {}", type[1]);
+    spdlog::info("Number of del_facet/vor_edge -> {}", type[2]);
+    spdlog::info("Number of del_cell/vor_point -> {}", type[3]);
 
 #ifdef SPDLOG
     spdlog::info("mixedcells {}", numMixedCells);
@@ -2022,7 +1973,7 @@ bool SkinSurface::isFeasible(MixedCell *mc, double *point) {
 
     return true;
   } else {
-    cout << endl << ERR << "Unrecognized patch type!";
+    spdlog::error("Unrecognized patch type!");
     return false;
   }
 }

@@ -13,6 +13,7 @@
 #include <SurfaceFactory.h>
 #include <globals.h>
 #include <octree.h>
+#include <spdlog/spdlog.h>
 
 #ifdef ENABLE_CGAL
 //////////////////////// CGAL
@@ -629,7 +630,7 @@ public:
   double getSternLayer() { return sternLayer; }
   void setSternLayer(double l) {
     if (l < 0) {
-      cout << endl << WARN << "Cannot set a negative Stern Layer";
+      spdlog::warn("Cannot set a negative Stern Layer");
       return;
     } else
       sternLayer = l;

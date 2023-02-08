@@ -7,7 +7,7 @@
 
 // init streams, check configuration file for errors and read variables
 ConfigFileOP load(std::string confFile) {
-  cout << endl << endl << INFO_STR << "Starting " << PROGNAME << " " << VERSION;
+  spdlog::info("Starting {} {}", PROGNAME, VERSION);
 
   ConfigFileOP cf = std::make_shared<ConfigFile>();
 
@@ -15,7 +15,7 @@ ConfigFileOP load(std::string confFile) {
   try {
     cf = std::make_shared<ConfigFile>(confFile.c_str());
   } catch (...) {
-    cout << endl << ERR << "Cannot read " << confFile;
+    spdlog::error( "Cannot read {}", confFile);
     exit(-1);
   }
 
@@ -47,53 +47,41 @@ ConfigurationOP parse(ConfigFileOP cf) {
 
   if (cf != NULL) {
     if (!conf->buildEpsmaps && conf->saveEpsmaps) {
-      cout << endl << ERR << "Asked to save epsmap without builiding it";
-      cout << endl << REMARK << "Please set Build_epsilon_maps = true";
-      cout << endl;
+      spdlog::error( "Asked to save epsmap without builiding it");
+      spdlog::info("{} Please set Build_epsilon_maps = true", REMARK);
       exit(-1);
     }
 
     if (!conf->buildEpsmaps && conf->projBGP) {
-      cout << endl
-           << ERR
-           << "Cannot project boundary grid points without an epsilon map.";
-      cout << endl << REMARK << "Please set Build_epsilon_maps = true";
-      cout << endl;
+      spdlog::error("Cannot project boundary grid points without an epsilon map.");
+      spdlog::info("{} Please set Build_epsilon_maps = true", REMARK);
       exit(-1);
     }
 
     if (!conf->accTri && !conf->buildStatus && conf->tri) {
       // status map is needed to deduced in/out vertices
-      cout
-          << endl
-          << ERR
-          << "If non analytical triangulation is enabled status map is needed.";
-      cout << endl << REMARK << "Please set Build_status_map = true";
-      cout << endl;
+      spdlog::error("If non analytical triangulation is enabled status map is needed.");
+      spdlog::info("{} Please set Build_status_map = true", REMARK);
       exit(-1);
     }
 
     if (conf->fillCavities && !conf->buildStatus) {
       // status map is needed to search cavities
-      cout << endl
-           << ERR << "If cavity detection is enabled status map is needed.";
-      cout << endl << REMARK << "Please set Build_status_map = true";
-      cout << endl;
+      spdlog::error( "If cavity detection is enabled status map is needed.");
+      spdlog::info("{} Please set Build_status_map = true", REMARK);
       exit(-1);
     }
 
     if (conf->saveIdebmap && !conf->buildEpsmaps) {
-      cout << endl
-           << ERR << "Idebmap is computed only if epsilon map is enabled";
-      cout << endl << REMARK << "Please set Build_epsilon_maps = true";
-      cout << endl;
+      spdlog::error( "Idebmap is computed only if epsilon map is enabled");
+      spdlog::info("{} Please set Build_epsilon_maps = true", REMARK);
       exit(-1);
     }
 
     if (!conf->operativeMode.compare("pockets") && !conf->buildStatus) {
-      cout << endl << WARN << "Cannot do pocket detection without status map";
-      cout << endl << REMARK << "Please set Build_status_map = true";
-      cout << endl;
+      spdlog::warn( "Cannot do pocket detection without status map");
+      spdlog::info("{} Please set Build_status_map = true", REMARK);
+      
       exit(-1);
     }
   }
@@ -133,19 +121,10 @@ ConfigurationOP parse(ConfigFileOP cf) {
 }
 
 void cite() {
-  cout << endl;
-  cout << endl << INFO_STR << "If you use NanoShaper please cite these works:";
-  cout
-      << endl
-      << CITE
-      << "\tS. Decherchi, W. Rocchia, \"A general and Robust Ray-Casting-Based "
-         "Algorithm for Triangulating Surfaces at the Nanoscale\"; PlosOne";
-  cout << endl
-       << CITE
-       << "\tlink: "
-          "http://www.plosone.org/article/metrics/"
-          "info%3Adoi%2F10.1371%2Fjournal.pone.0059744";
-  cout << endl;
+  spdlog::info( "If you use NanoShaper please cite these works:");
+  spdlog::info("\tS. Decherchi, W. Rocchia, \"A general and Robust Ray-Casting-Based Algorithm for Triangulating Surfaces at the Nanoscale\"; PlosOne");
+  spdlog::info("\tlink: http://www.plosone.org/article/metrics/info%3Adoi%2F10.1371%2Fjournal.pone.0059744");
+  
 }
 
 /** the set of operations in the usual mode of usage. This function is not
@@ -164,7 +143,7 @@ void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
   bool outsurf = surf->build();
 
   if (!outsurf) {
-    cout << endl << ERR << "Surface construction failed!";
+    spdlog::error( "Surface construction failed!");
     exit(-1);
   }
 
@@ -173,10 +152,8 @@ void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
 
   double duration = chrono.stop();
 
-  cout << endl
-       << INFO_STR << "Surface computation time.. " << duration << " [s]";
-  cout << endl
-       << INFO_STR << "Estimated volume " << surf->getVolume() << " [A^3]";
+  spdlog::info( "Surface computation time.. {} [s]", duration);
+  spdlog::info( "Estimated volume {} [A^3]", surf->getVolume());
 
   if (conf->debugStatus)
 #ifdef SPDLOG
@@ -184,7 +161,7 @@ void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
 #endif // SPDLOG
 
   if (conf->tri) {
-    cout << endl << INFO_STR << "Triangulating Surface...";
+    spdlog::info( "Triangulating Surface...");
 
     Timer chrono;
     chrono.start();
@@ -200,52 +177,51 @@ void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
     }
 
     if (conf->smoothing) {
-      cout << endl << INFO_STR << "Smoothing surface...";
+      spdlog::info( "Smoothing surface...");
       surf->smoothSurface();
     }
 
     double duration = chrono.stop();
-    cout << "ok!";
+    spdlog::info("ok!");
 
-    cout << endl
-         << INFO_STR << "Total Triangulation time " << duration << " [s]";
+    spdlog::info( "Total Triangulation time {} [s]", duration);
   }
 
   if (conf->tri2balls) {
-    cout << endl << INFO_STR << "Converting triangulation to balls...";
+    spdlog::info( "Converting triangulation to balls...");
     surf->tri2Balls();
-    cout << "ok!";
+    spdlog::info("ok!");
   }
 
   if (conf->saveEpsmaps) {
-    cout << endl << INFO_STR << "Saving epsmaps...";
+    spdlog::info( "Saving epsmaps...");
     // Save epsmap
     dg->saveEpsMaps(refName);
-    cout << "ok!";
+    spdlog::info("ok!");
   }
 
   if (conf->saveBgps) {
-    cout << endl << INFO_STR << "Saving bgpmap...";
+    spdlog::info( "Saving bgpmap...");
     dg->saveBGP(refName);
-    cout << "ok!";
+    spdlog::info("ok!");
   }
 
   if (conf->saveStatusMap) {
-    cout << endl << INFO_STR << "Saving statusmap and cavities...";
+    spdlog::info( "Saving statusmap and cavities...");
     dg->saveStatus(refName);
-    cout << "ok!";
+    spdlog::info("ok!");
   }
 
   if (conf->saveCavities) {
-    cout << endl << INFO_STR << "Saving cavities...";
+    spdlog::info( "Saving cavities...");
     dg->saveCavities(false);
-    cout << "ok!";
+    spdlog::info("ok!");
   }
 
   if (conf->saveIdebmap) {
-    cout << endl << INFO_STR << "Saving idebmap...";
+    spdlog::info( "Saving idebmap...");
     dg->saveIdebMap(refName);
-    cout << "ok!";
+    spdlog::info("ok!");
   }
 }
 
@@ -271,8 +247,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
 
   /////////////////////////////////////////////////////////////////////////////////////////
   // Set up Surface 1 (fat probe)
-  cout << endl;
-  cout << endl << INFO_STR << "Step 1 -> fat probe";
+  
+  spdlog::info( "Step 1 -> fat probe");
   DelPhiShared *dg1 =
       new DelPhiShared(conf->scale, conf->perfill, conf->molFile, localEpsMap,
                        localStatusMap, localMulti, hasAtomInfo);
@@ -289,7 +265,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   bool outsurf = surf1->build();
 
   if (!outsurf) {
-    cout << endl << ERR << "Surface 1 construction failed!";
+    spdlog::error( "Surface 1 construction failed!");
     exit(-1);
   }
 
@@ -302,8 +278,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
 
   // Set up Surface 2 (regular probe 1.4)
   // Set up DelPhi grid  2
-  cout << endl;
-  cout << endl << INFO_STR << "Step 2 -> small probe";
+  
+  spdlog::info( "Step 2 -> small probe");
 
   DelPhiShared *dg2 =
       new DelPhiShared(conf->scale, conf->perfill, conf->molFile, localEpsMap,
@@ -327,7 +303,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   outsurf = surf2->build();
 
   if (!outsurf) {
-    cout << endl << ERR << "Surface 2 construction failed!";
+    spdlog::error( "Surface 2 construction failed!");
     exit(-1);
   }
 
@@ -370,17 +346,17 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     outsurf = surf3->build();
 
     if (!outsurf) {
-      cout << endl << ERR << "Surface 3 construction failed!";
+      spdlog::error( "Surface 3 construction failed!");
       exit(-1);
     }
     // keep original surface
     surf3->getSurf(false);
   }
 
-  cout << endl;
-  cout << endl << INFO_STR << "Step 3 -> differential map";
+  
+  spdlog::info( "Step 3 -> differential map");
 
-  cout << endl << INFO_STR << "Building pockets by difference map...";
+  spdlog::info( "Building pockets by difference map...");
   (*surf1) -= (*surf2);
 
   ////////////////////// recover split cavities links ///////////////
@@ -391,34 +367,32 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     Timer chrono1;
     chrono1.start();
 
-    cout << endl;
-    cout << endl << INFO_STR << "Step 3.1 -> linking";
+    
+    spdlog::info( "Step 3.1 -> linking");
 
-    cout << endl << INFO_STR << "Linking cavities/pockets...";
-    cout.flush();
+    spdlog::info( "Linking cavities/pockets...");
     while (nr != 0) {
       // check cavities links, use the link status map as reference map
       // to check accessibility
       nr = surf1->linkCavities(dg2->status, dg3->status);
-      cout << endl << INFO_STR << "Merged " << nr << " cavities";
-      cout.flush();
+      spdlog::info( "Merged {} cavities", nr);
     }
 
     duration1 = chrono1.stop();
-    cout << endl << INFO_STR << "Diff. Step 4 " << duration1 << " [s]";
+    spdlog::info( "Diff. Step 4 {} [s]", duration1);
 
     delete surf3;
     delete dg3;
   }
   ///////////////////////////////////////////////////////////////////
 
-  cout << endl;
-  cout << endl << INFO_STR << "Step 4 -> filtering, envelope building";
+  
+  spdlog::info( "Step 4 -> filtering, envelope building");
 
   ///////////////////// volume filter ///////////////////////////////
   surf1->fillCavities(11.4 * conf->numMol, false);
   surf1->getCavitiesAtoms();
-  cout << endl << INFO_STR << "Saving cavities info..";
+  spdlog::info( "Saving cavities info..");
 
   if (hasAtomInfo) {
     // save cavities in ProShape format
@@ -444,17 +418,16 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   vector<bool> isPocket;
 
   if (conf->cavAndPockets) {
-    cout << endl;
+    
     // do cavity detection to recover which is cavity in the reference
-    cout << endl << INFO_STR << "Recovering cavity/pocket distinction..";
-    cout.flush();
+    spdlog::info( "Recovering cavity/pocket distinction..");
     surf2->getCavities();
     // mark which are pockets and which are cavities
     dg1->markPockets(dg2->status, isPocket);
   }
 
-  cout << endl << INFO_STR << "Build the envelope of each cavity/pocket";
-  cout.flush();
+  spdlog::info( "Build the envelope of each cavity/pocket");
+  
 
   cf->remove("Surface");
   cf->add<string>("Surface", "skin");
@@ -480,8 +453,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     cs_temp->getSurf(false);
     volumes.push_back(cs_temp->getVolume());
     if (conf->tri) {
-      cout << endl
-           << INFO_STR << "Triangulating enveloped cavity/pockets " << i;
+      spdlog::info( "Triangulating enveloped cavity/pockets {} ", i);
       cs_temp->triangulateSurface(0.0, tri_);
       areas.push_back(cs_temp->getArea());
 
@@ -492,13 +464,10 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
       // the pocket
       if (saveEntranceInfo) {
         if (!isPocket[i]) {
-          // cout << endl << ERR << "Cannot find the entrance of a cavity; it
+          // spdlog::error( "Cannot find the entrance of a cavity; it
           // must be a pocket.";
           if (!conf->cavAndPockets) {
-            cout << endl
-                 << REMARK
-                 << "You have to enable Cavities and pockets flag to do a "
-                    "distinction between a pocket and a cavity";
+            spdlog::info("{} You have to enable Cavities and pockets flag to do a distinction between a pocket and a cavity", REMARK);
             exit(-1);
           }
         } else {
@@ -594,35 +563,25 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     fprintf(fp, "\nTot\t\t%.4f\t\t%.4f", sumA, sumV);
     fclose(fp);
   } else {
-    cout << endl << INFO_STR;
-    cout << endl << INFO_STR << "------------------------------------";
-    cout << endl << INFO_STR << "     Pocket Detection Summary       ";
-    cout << endl << INFO_STR << "------------------------------------";
-    cout << endl << INFO_STR;
-    cout << endl
-         << INFO_STR << "Detected a total of " << nc
-         << " pockets/cavities having at least the volume of " << conf->numMol
-         << " water molecules";
+    spdlog::info( "------------------------------------");
+    spdlog::info( "     Pocket Detection Summary       ");
+    spdlog::info( "------------------------------------");
+    spdlog::info( "Detected a total of {} pockets/cavities having at least the volume of {} water molecules", nc, conf->numMol);;
 
     for (int i = 0, ii = 0; i < nc; i++) {
       if (conf->cavAndPockets) {
         if (conf->tri) {
           if (isPocket[i]) {
-            cout << endl
-                 << INFO_STR << "Pocket " << i << " vol " << volumes[i]
-                 << " area " << areas[i] << " body area " << areas2[ii];
+            spdlog::info( "Pocket {} vol {} area {} body area {}", i, volumes[i], areas[i], areas2[ii]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("pocket_vol {}", volumes[i]);
-              spdlog::debug("pocket_area {} pocket_body_area {}", areas[i],
-                            areas2[i]);
+              spdlog::debug("pocket_area {} pocket_body_area {}", areas[i], areas2[i]);
 #endif // SPDLOG
             }
             ii++;
           } else {
-            cout << endl
-                 << INFO_STR << "Cavity " << i << " vol " << volumes[i]
-                 << " area " << areas[i];
+            spdlog::info( "Cavity {} vol {} area {}", i, volumes[i], areas[i]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("cav_vol {}", volumes[i]);
@@ -632,14 +591,14 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
           }
         } else {
           if (isPocket[i]) {
-            cout << endl << INFO_STR << "Pocket " << i << " vol " << volumes[i];
+            spdlog::info( "Pocket {} vol {}", i, volumes[i]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("pocket_vol {}", volumes[i]);
 #endif // SPDLOG
             }
           } else {
-            cout << endl << INFO_STR << "Cavity " << i << " vol " << volumes[i];
+            spdlog::info( "Cavity {} vol {}", i, volumes[i]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("cav_vol {}", volumes[i]);
@@ -649,9 +608,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
         }
       } else {
         if (conf->tri) {
-          cout << endl
-               << INFO_STR << "Pocket " << i << " vol " << volumes[i]
-               << " area " << areas[i] << " body area " << areas2[ii];
+          spdlog::info( "Pocket {} vol {} area {} body area {}", i, volumes[i], areas[i], areas2[ii]);
           if (conf->debugStatus) {
 #ifdef SPDLOG
             spdlog::debug("pocket_vol {}", volumes[i]);
@@ -660,7 +617,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
           }
           ii++;
         } else {
-          cout << endl << INFO_STR << "Pocket " << i << " vol " << volumes[i];
+          spdlog::info( "Pocket {} vol {}", i, volumes[i]);
           if (conf->debugStatus) {
 #ifdef SPDLOG
             spdlog::debug("pocket_vol {}", volumes[i]);
@@ -671,13 +628,12 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     }
   }
 
-  cout << endl << INFO_STR << "Pocket detection time.. " << duration << " [s]";
-  cout << endl << INFO_STR << "Cleaning memory...";
-  cout.flush();
+  spdlog::info( "Pocket detection time.. {} [s]", duration);
+  spdlog::info( "Cleaning memory...");
 
   delete surf1;
   delete dg1;
   delete surf2;
   delete dg2;
-  cout << "ok!";
+  spdlog::info("ok!");
 }

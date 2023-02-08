@@ -54,7 +54,7 @@ bool ExternalSurface::load(char* fileName)
 
 bool ExternalSurface::save(char* fileName)
 {
-	cout << endl << INFO_STR << "Saving externally loaded surface by saving DelphiShared Object";
+	spdlog::info("Saving externally loaded surface by saving DelphiShared Object");
 	delphi->saveEpsMaps(fileName);
 	delphi->saveStatus(fileName);
 	delphi->saveBGP(fileName);
@@ -68,13 +68,13 @@ void ExternalSurface::printSummary()
 
 void ExternalSurface::getLocalArea(double gridPoint[3],double* area)
 {
-	cout << endl << WARN << "Cannot compute area in an external surface!";
+	spdlog::warn( "Cannot compute area in an external surface!");
 	(*area)=0;
 }
 	
 double ExternalSurface::getSurfaceArea()
 {
-	cout << endl << WARN << "Cannot compute area in an external surface!";
+	spdlog::warn( "Cannot compute area in an external surface!");
 	return 0.0;
 }
 
@@ -123,7 +123,7 @@ double ExternalSurface::getVolume()
 
 bool ExternalSurface::getSurf(bool fillCav,double vol)
 {
-	cout << endl << INFO_STR << "Loading external surface...";
+	spdlog::info("Loading external surface...");
 
 	FILE *fepsx,*fepsy,*fepsz,*fproj,*fstatus;
 	fepsx = fopen("epsmapx.txt","r");
@@ -134,7 +134,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 
 	if (fepsx==NULL || fepsy==NULL || fepsz==NULL || fproj==NULL || fstatus==NULL)
 	{	
-		cout << endl << WARN << "Cannot open one of the external surface file";
+		spdlog::warn( "Cannot open one of the external surface file");
 		return false;
 	}
 
@@ -152,7 +152,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				int check = fscanf(fepsx,"%d",&tempint);
 				if (check<=0)
 				{
-					cout << endl << ERR << "Error in reading from external surface";
+					spdlog::error( "Error in reading from external surface");
 					exit(-1);
 				}
 				if (tempint)
@@ -164,7 +164,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 	
 	if (ix!=NX)
 	{
-		cout << endl << WARN << "Error reading epsmapx!";
+		spdlog::warn( "Error reading epsmapx!");
 		return false;
 	}
 	fclose(fepsx);
@@ -176,7 +176,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				int check = fscanf(fepsy,"%d",&tempint);
 				if (check<=0)
 				{
-					cout << endl << ERR << "Error in reading from external surface";
+					spdlog::error( "Error in reading from external surface");
 					exit(-1);
 				}
 				//delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ)=tempint;
@@ -185,7 +185,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 	
 	if (ix!=NX)
 	{
-		cout << endl << WARN << "Error reading epsmapy!";
+		spdlog::warn( "Error reading epsmapy!");
 		return false;
 	}
 	fclose(fepsy);
@@ -198,7 +198,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				int check = fscanf(fepsz,"%d",&tempint);
 				if (check<=0)
 				{
-					cout << endl << ERR << "Error in reading from external surface";
+					spdlog::error( "Error in reading from external surface");
 					exit(-1);
 				}
 				//delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ)=tempint;
@@ -207,7 +207,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 	
 	if (ix!=NX)
 	{
-		cout << endl << WARN << "Error reading epsmapz!";
+		spdlog::warn( "Error reading epsmapz!");
 		return false;
 	}
 	fclose(fepsz);
@@ -215,13 +215,13 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 	int check = fscanf(fproj,"%d",&nbgp);
 	if (check<=0)
 	{
-		cout << endl << ERR << "Error in reading from external surface";
+		spdlog::error( "Error in reading from external surface");
 		exit(-1);
 	}
 
 	if (nbgp<=0)
 	{
-		cout << endl << WARN << "Null number of bgps!";
+		spdlog::warn( "Null number of bgps!");
 		return false;
 	}
 
@@ -243,7 +243,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 
 		if (check<=0)
 		{
-			cout << endl << ERR << "Error in reading from external surface";
+			spdlog::error( "Error in reading from external surface");
 			exit(-1);
 		}
 
@@ -253,7 +253,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 
 		if (ind[0]<0 || ind[1]<0 || ind[2]<0)
 		{
-			cout << endl << WARN << "Wrong bgp indexing!";
+			spdlog::warn( "Wrong bgp indexing!");
 			return false;
 		}
 
@@ -281,7 +281,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				int check = fscanf(fstatus,"%d",&tempint);
 				if (check<=0)
 				{
-					cout << endl << ERR << "Error in reading from external surface";
+					spdlog::error( "Error in reading from external surface");
 					exit(-1);
 				}
 				//delphi->status[ix][iy][iz]=((char)tempint);
@@ -293,19 +293,19 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 	
 	if (ix!=NX)
 	{
-		cout << endl << WARN << "Error reading status map!";
+		spdlog::warn( "Error reading status map!");
 		return false;
 	}
 
 	fclose(fstatus);
-	cout << endl << INFO_STR << "Number bgps..." << delphi->nbgp;		
+	spdlog::info("Number bgps... {}", delphi->nbgp);		
 
 	if (fillCav)
 	{
 		int cav = getCavities();
-		cout << endl << INFO_STR << "Detected " << cav << " cavitiy[ies]";		
+		spdlog::info("Detected {} cavitiy[ies]", cav);		
 		fillCavities(vol);
-		cout << endl << INFO_STR << "Filtering bgps...";		
+		spdlog::info("Filtering bgps...");		
 	
 		// remove false bgp from bgp list; this filter is due to conditional filling
 		// of the cavity detector
@@ -371,7 +371,7 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 		delphi->scsnor = (double*)realloc(delphi->scsnor,3*sizeof(double)*index);
 
 		delphi->nbgp = index;
-		cout << endl << INFO_STR << "Number bgps after conditional filling..." << delphi->nbgp;		
+		spdlog::info("Number bgps after conditional filling... {}", delphi->nbgp);		
 	}
 
 	/** TODO salt for now not supported, always false*/
@@ -388,12 +388,12 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 inline void ExternalSurface::getRayIntersection(double pa[3],double pb[3],vector<pair<double,double*> >& intersections,int thdID,bool computeNormals)
 {
 	intersections.clear();
-	cout << endl << WARN << "Cannot perform ray intersection with an externally loaded surface";
+	spdlog::warn( "Cannot perform ray intersection with an externally loaded surface");
 }					
 
 bool ExternalSurface::getProjection(double p[3],double* proj1,double* proj2,
 		double* proj3,double* normal1,double* normal2,double* normal3)
 {
-	cout << endl << WARN << "Cannot perform projection with an externally loaded surface";
+	spdlog::warn( "Cannot perform projection with an externally loaded surface");
 	return false;
 }

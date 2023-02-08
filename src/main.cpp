@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
     strcpy(confFile, argv[1]);
 
   if (numargs > 1)
-    cout << endl << WARN << "Ignoring additional non required parameters";
+    spdlog::warn( "Ignoring additional non required parameters");
 
   // check configuration consistency, init error stream, get configuration
   ConfigFileOP cf = load(string(confFile));
@@ -163,23 +163,21 @@ int main(int argc, char *argv[]) {
     // Get surface
     Surface *surf = surfaceFactory().create(cf.get(), dg);
     normalMode(surf, dg, conf);
-    cout << endl << INFO_STR << "Cleaning memory...";
-    cout.flush();
+    spdlog::info( "Cleaning memory...");
+    
     delete surf;
     delete dg;
-    cout << "ok!";
+    spdlog::info("ok!");
   }
   // detect pockets
   else if (!conf->operativeMode.compare("pockets")) {
     pocketMode(false, cf, conf);
   } else {
-    cout << endl << INFO_STR << "Unknown operative mode";
-    cout << endl;
+    spdlog::info( "Unknown operative mode");
     return -1;
   }
 
   cite();
-  cout << endl << endl;
 
 // Memory leak detection
 #ifdef DBGMEM_CRT
@@ -234,8 +232,8 @@ extern "C"
   try {
     cf2 = new ConfigFile("custom.prm");
   } catch (...) {
-    cout << endl << ERR << "Cannot read custom.prm";
-    cout.flush();
+    spdlog::error( "Cannot read custom.prm";
+    
     exit(-1);
   }
   string mode = cf2->read<string>("Surface", "ses");
@@ -247,7 +245,7 @@ extern "C"
   cf->add<string>("Surface", mode);
 
   if (conf.operativeMode == "normal") {
-    cout << endl << INFO_STR << "Binding with DelPhi..";
+    spdlog::info( "Binding with DelPhi..";
 
     // Set up delphi environment
     DelPhiShared *dg = new DelPhiShared();
@@ -261,14 +259,14 @@ extern "C"
     // here only means populate epsilon map
     dg->buildEpsmap(true);
 
-    cout << endl << INFO_STR << "DelPhi grid is " << igrid;
+    spdlog::info( "DelPhi grid is " << igrid;
 
     Surface *surf = surfaceFactory().create(cf, dg);
     surf->setProjBGP(true);
     surf->setInsideCode(inside);
 
     if (exrad > 0) {
-      cout << endl << INFO_STR << "Setting Stern Layer -> " << exrad << " Angstrom";
+      spdlog::info( "Setting Stern Layer -> " << exrad << " Angstrom";
       surf->setSternLayer(exrad);
     }
 
@@ -278,14 +276,13 @@ extern "C"
     // avoid to destroy things that now belong to DelPhi
     dg->finalizeBinding(ibnum);
 
-    cout << endl << INFO_STR << "Cleaning memory...";
-    cout.flush();
+    spdlog::info( "Cleaning memory...";
+    
 
     delete surf;
     delete dg;
 
-    cout << "ok!";
-    cout << endl << endl;
+    spdlog::info("ok!");
     return;
   }
 
@@ -296,16 +293,15 @@ extern "C"
 
     pocketMode(true, cf);
 
-    cout << endl << INFO_STR << "Brute force exiting to avoid DelPhi solver";
-    cout << endl << INFO_STR << "Closing " << PROGNAME << "\n";
+    spdlog::info( "Brute force exiting to avoid DelPhi solver";
+    spdlog::info( "Closing " << PROGNAME << "\n";
     exit(-1);
   } else {
-    cout << endl << INFO_STR << "Unknown operative mode: " << conf.operativeMode;
+    spdlog::info( "Unknown operative mode: " << conf.operativeMode;
     exit(-1);
   }
 
   cite();
-  cout << endl << endl;
 }
 
 #endif

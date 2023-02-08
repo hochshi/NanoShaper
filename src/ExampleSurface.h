@@ -78,7 +78,7 @@ public:
 	{ 
 		if (r<=0)
 		{
-			cout << endl << WARN << "Cannot set a radius <0. Setting the default value";
+			spdlog::warn( "Cannot set a radius <0. Setting the default value");
 			radius = DEFAULT_RADIUS;
 		}
 		else

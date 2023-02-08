@@ -106,7 +106,7 @@ void MeshSurface::init(ConfigFile* cf)
 		bool load_f = load((char*)fname.c_str());
 		if (!load_f)
 		{
-			cout << endl << ERR << "Cannot load " << fname;
+			spdlog::error("Cannot load {}", fname);
 			exit(-1);
 		}		
 	}
@@ -116,7 +116,7 @@ void MeshSurface::init(ConfigFile* cf)
 		bool load_f = loadMSMS((char*)fname.substr(0,fname.size()-5).c_str(),numMSMSFiles);
 		if (!load_f)
 		{
-			cout << endl << ERR << "Cannot load " << fname;
+			spdlog::error("Cannot load {}", fname);
 			exit(-1);
 		}
 		char cc[BUFLEN];
@@ -125,8 +125,7 @@ void MeshSurface::init(ConfigFile* cf)
 	}
 	else
 	{
-		cout << endl << ERR << "Unknown surface type, please check extension/type";
-		cout << endl;
+		spdlog::error("Unknown surface type, please check extension/type");
 		exit(-1);
 	}
 }
@@ -149,8 +148,6 @@ MeshSurface::MeshSurface(ConfigFile* cf,DelPhiShared* ds):Surface(cf)
 void MeshSurface::preProcessPanel()
 {
 	unsigned int igrid=delphi->nx;	
-
-	//cout << endl << "A->";
 
 	// cannot have an auxiliary grid smaller than that of delphi.
 	// all the rest of the code is based on this assumption
@@ -178,7 +175,7 @@ void MeshSurface::preProcessPanel()
 	// auxiliary scale
 	scale_2d = delphi->scale/((double)gridMul);
 
-	//cout << endl << INFO_STR << "Auxiliary grid is " << igrid;
+	//spdlog::info("Auxiliary grid is " << igrid);
 	
 	xmin_2d = delphi->baricenter[0]-(igrid-1)/(2*scale_2d);
 	ymin_2d = delphi->baricenter[1]-(igrid-1)/(2*scale_2d);
@@ -228,7 +225,7 @@ void MeshSurface::preProcessPanel()
 
 	if (vertMatrix == NULL || faceMatrix==NULL)
 	{	
-		cout << endl << WARN << "Cannot get surface without a mesh!";
+		spdlog::warn("Cannot get surface without a mesh!");
 		return;
 	}	
 
@@ -314,7 +311,7 @@ void MeshSurface::preProcessPanel()
 				
 					if (ind_2d[iy][iz]>=MAX_TRIANGLES_2D)
 					{
-						cout << endl << ERR << "Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_2d_cell";						
+						spdlog::error("Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_2d_cell");						
 						exit(-1);
 					}
 					GRID_TRIANGLEMAP_2D(iy,iz,(ind_2d[iy][iz]),ny_2d,nz_2d) = it;
@@ -335,7 +332,7 @@ void MeshSurface::preProcessPanel()
 				
 					if (ind_2d[ix][iy]>=MAX_TRIANGLES_2D)
 					{
-						cout << endl << ERR << "Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_2d_cell";						
+						spdlog::error("Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_2d_cell");						
 						exit(-1);
 					}
 					GRID_TRIANGLEMAP_2D(ix,iy,(ind_2d[ix][iy]),nx_2d,ny_2d) = it;
@@ -355,7 +352,7 @@ void MeshSurface::preProcessPanel()
 				
 					if (ind_2d[ix][iz]>=MAX_TRIANGLES_2D)
 					{
-						cout << endl << ERR << "Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_2d_cell";						
+						spdlog::error("Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_2d_cell");						
 						exit(-1);
 					}
 					GRID_TRIANGLEMAP_2D(ix,iz,(ind_2d[ix][iz]),nx_2d,nz_2d) = it;
@@ -365,7 +362,6 @@ void MeshSurface::preProcessPanel()
 		}
 	}    	
 
-	//cout << "B";
 }
 
 void MeshSurface::preProcessTriangles()
@@ -452,7 +448,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 {	
 	if (faceMatrix == NULL || vertMatrix == NULL)
 	{	
-		cout << endl << WARN << "Cannot get surface without a loaded mesh!";
+		spdlog::warn("Cannot get surface without a loaded mesh!");
 		return false;
 	}
 
@@ -495,7 +491,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 	// auxiliary scale
 	scale = delphi->scale/((double)gridMul);
 	
-	cout << endl << INFO_STR << "Auxiliary grid is " << igrid << " auxiliary scale is " << scale << " grid mul " << gridMul;
+	spdlog::info("Auxiliary grid is {} auxiliary scale is {} grid mul {}", igrid, scale, gridMul);
 	
 	xmin = delphi->baricenter[0]-(igrid-1)/(2*scale);
 	ymin = delphi->baricenter[1]-(igrid-1)/(2*scale);
@@ -546,7 +542,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 	if (gridTriangleMap!=NULL)
 		free(gridTriangleMap);
 	
-	cout << endl << INFO_STR << "Allocating " << (nx*ny*nz*MAX_TRIANGLES)*sizeof(int)/1024.0/1024.0 << " MB" << " for the auxiliary grid...";
+  spdlog::info("Allocating {} MB for the auxiliary grid...", (nx*ny*nz*MAX_TRIANGLES)*sizeof(int)/1024.0/1024.0);
 	gridTriangleMap = (int*)malloc(sizeof(int)*nx*ny*nz*MAX_TRIANGLES);
 
 	//////////////////////////////////////////////////////////////////////////
@@ -597,7 +593,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 		 //printf("\n %f %f %f %f %f %f %d %d %d %d %d %d",downx,downy,downz,upx,upy,upz,ix_start,iy_start,iz_start,ix_end,iy_end,iz_end);
 		 if (ix_start<0 || iy_start<0 || iz_start<0 || ix_end>=nx || iy_end>=ny || iz_end>=nz)
 		 {
-			cout << endl << ERR << "Triangle bounding box out of grid. Increase perfil";
+			spdlog::error("Triangle bounding box out of grid. Increase perfil");
 			exit(-1);
 		 }
 
@@ -614,7 +610,7 @@ bool MeshSurface::buildAuxiliaryGrid()
 
 					 if (ind[ix][iy][iz]>=MAX_TRIANGLES)
 					 {
-						cout << endl << ERR << "Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_cell";						
+						spdlog::error("Number of triangles is superior to maximum allowed, please increase Max_mesh_patches_per_auxiliary_grid_cell");						
 						exit(-1);
 					 }
 					 //gridTriangleMap[ix][iy][iz][ind[ix][iy][iz]]=it;
@@ -624,10 +620,10 @@ bool MeshSurface::buildAuxiliaryGrid()
 				 }
 
 		 if (!assigned)
-			cout << endl << ERR << "Not assigned triangle!";
+			spdlog::error("Not assigned triangle!");
 	}    	
 
-	cout << endl << INFO_STR << "Max triangles per cell -> " << max_t;
+	spdlog::info("Max triangles per cell -> {}", max_t);
 
 	return true;
 }
@@ -638,17 +634,17 @@ bool MeshSurface::save(char* fileName)
 	ofstream fout;
     fout.open(fileName,ios::out);
 
-	cout << endl << INFO_STR << "Writing mesh in OFF file format in " << fileName << "...";
+	spdlog::info("Writing mesh in OFF file format in {}", fileName);
 
 	if (fout.fail())
 	{
-		cout << endl << WARN << "Cannot write file " << fileName;
+		spdlog::warn("Cannot write file {}", fileName);
 		return false;
 	}
 
 	if (vertMatrix==NULL || faceMatrix==NULL)
 	{
-		cout << endl << WARN << "Cannot write null mesh!";
+		spdlog::warn("Cannot write null mesh!");
 		return false;
 	}
 
@@ -670,7 +666,7 @@ bool MeshSurface::load(char* fileName)
 	int len = (int)strlen(fileName);
 	if (len==0)
 	{
-		cout << WARN << "Cannot load with empty file name!";
+		spdlog::warn("Cannot load with empty file name!");
 		return false;
 	}
 	string ss(fileName);
@@ -678,7 +674,7 @@ bool MeshSurface::load(char* fileName)
 	ss = toLowerCase(ss);
 	found = ss.find(".off");
 
-	cout << endl << INFO_STR << "Loading mesh in file " << fileName << "...";
+	spdlog::info("Loading mesh in file {}", fileName);
 
 	bool exit = true;
 
@@ -708,23 +704,23 @@ bool MeshSurface::loadPLY(char* fname)
 
  if ((in = fopen(fname,"rb")) == NULL)
  {
-	 cout << endl << ERR <<("Can't open input ply file\n");
+	 spdlog::error("Can't open input ply file\n");
 	 return false;
  }
 
  if (strcmp(readLineFromFile(in),"ply"))
  {
-	 cout << endl << ERR <<("Input doesn't seem a valid ply file.\n");
+	 spdlog::error("Input doesn't seem a valid ply file.\n");
 	 return false;
  }
  if (sscanf(readLineFromFile(in),"%7s %24s %10s",keyword,formats,version) < 3)
  {
-	 cout << endl << ERR <<("Unexpected token or end of file!\n");
+	 spdlog::error("Unexpected token or end of file!\n");
 	 return false;
  }
  if (strcmp(keyword,"format"))
  {
-	 cout << endl << ERR <<("format definition expected!\n");
+	 spdlog::error("format definition expected!\n");
 	 return false;
  }
 
@@ -733,7 +729,7 @@ bool MeshSurface::loadPLY(char* fname)
  else if (!strcmp(formats,"binary_big_endian")) format = PLY_FORMAT_BIN_B;
  else
  {
-	 cout << endl << ERR <<("Unrecognized format '%s'\n",formats);
+	 spdlog::error("Unrecognized format '%s'\n",formats);
 	 return false;
  }
 
@@ -748,13 +744,13 @@ bool MeshSurface::loadPLY(char* fname)
 
  if (!sscanf(readLineFromFile(in),"%64s ",keyword))
  {
-	 cout << endl << ERR <<("Unexpected token or end of file!\n");
+	 spdlog::error("Unexpected token or end of file!\n");
 	 return false;
  }
  while (strcmp(keyword, "end_header"))
   if (!sscanf(readLineFromFile(in),"%64s ",keyword))
   {
-	  cout << endl << ERR <<("Unexpected token or end of file!\n");
+	  spdlog::error("Unexpected token or end of file!\n");
 	  return false;
   }
 
@@ -796,12 +792,12 @@ bool MeshSurface::loadPLY(char* fname)
   {   
    if (i1<0 || i2<0 || i3<0 || i4<3 || i4>=4 || i1>(nv-1) || i2>(nv-1) || i3>(nv-1))
    {
-	   cout << endl << ERR <<("\nloadPLY: Invalid index at face %d!\n",i);
+	   spdlog::error("\nloadPLY: Invalid index at face %d!\n",i);
 	   return false;
    }
    for (j=3; j<=i4; j++)
    {
-    if (i1 == i2 || i2 == i3 || i3 == i1) cout << endl << WARN <<("\nloadPLY: Coincident indexes at triangle %d! Skipping.\n",i);
+    if (i1 == i2 || i2 == i3 || i3 == i1) spdlog::warn("\nloadPLY: Coincident indexes at triangle %d! Skipping.\n",i);
     else
 	{
 		faceMatrix[i][0]=i1;
@@ -816,7 +812,7 @@ bool MeshSurface::loadPLY(char* fname)
     {
      if (!ply_readAnotherFIndex(in, format, &i3))
 	 {
-		 cout << endl << ERR <<("\nloadPLY: Couldn't read indexes for face # %d\n",i);
+		 spdlog::error("\nloadPLY: Couldn't read indexes for face # %d\n",i);
 		 return false;
 	 }
      else triangulate=1;
@@ -824,7 +820,7 @@ bool MeshSurface::loadPLY(char* fname)
     else ply_readOverhead(in, format, foh);
    }
   }
-  else cout << endl << ERR <<("\nloadPLY: Couldn't read indexes for face # %d\n",i);
+  else spdlog::error("\nloadPLY: Couldn't read indexes for face # %d\n",i);
  }
  
  fclose(in);
@@ -844,7 +840,7 @@ bool MeshSurface::loadOFF(char* fileName)
 
 	if (fin.fail())
 	{
-		cout << endl << WARN << "Cannot read file " << fileName;
+		spdlog::warn("Cannot read file {}", fileName);
 		return false;
 	}
 
@@ -871,8 +867,6 @@ bool MeshSurface::loadOFF(char* fileName)
 		if (fin.eof())
 			break;
 
-		//cout << endl << buffer;
-	
 		// skip empty lines
 		if (strlen(buffer)<=1)
 			continue;
@@ -885,7 +879,7 @@ bool MeshSurface::loadOFF(char* fileName)
 
 		if (buffer[0]=='#')
 		{
-			cout << endl << INFO_STR << "Mesh comment line: " << buffer;
+			spdlog::info("Mesh comment line: {}", buffer);
 			continue;
 		}
 
@@ -895,7 +889,7 @@ bool MeshSurface::loadOFF(char* fileName)
 			sscanf(buffer,"%d %d %d",&numVertexes,&numTriangles,&temp);
 			if (numVertexes <=0 || numTriangles<=0)
 			{
-				cout << endl << WARN << "Number of triangles or vertices <=0 !";
+				spdlog::warn("Number of triangles or vertices <=0 !");
 				return false;
 			}
 			else
@@ -915,8 +909,8 @@ bool MeshSurface::loadOFF(char* fileName)
 
 	if (header !=1 || tag !=1)
 	{
-		cout << endl << WARN << "Cannot read OFF header or number of vertices/triangles, stop reading";
-		cout << endl << WARN << "Tag " << tag << " Header " << header;
+		spdlog::warn("Cannot read OFF header or number of vertices/triangles, stop reading");
+		spdlog::warn("Tag {} Header {}", tag, header);
 		return false;
 	}
 	// read vertices
@@ -952,7 +946,7 @@ bool MeshSurface::loadOFF(char* fileName)
 
 		if (temp!=3)
 		{
-			cout << endl << WARN << "Non triangular mesh, stop reading";
+			spdlog::warn("Non triangular mesh, stop reading");
 			return false;
 		}
 	}
@@ -1013,10 +1007,10 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 
 		fin.open(currentVert,ios::in);
 		fin2.open(currentFace,ios::in);	
-		cout << endl << INFO_STR << "Getting num vertices and triangles in MSMS mesh files " << currentFace << "," << currentVert << "...";
+		spdlog::info("Getting num vertices and triangles in MSMS mesh files {}, {}", currentFace, currentVert);
 		if (fin.fail() || fin2.fail())
 		{
-			cout << WARN << "One or both MSMS files don't exist";
+			spdlog::warn("One or both MSMS files don't exist");
 			return false;
 		}
 	
@@ -1045,8 +1039,8 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 		fin2.close();
 	}
 	
-	cout << endl << INFO_STR << "Total number of triangles " << numTriangles;
-	cout << endl << INFO_STR << "Total number of vertices " << numVertexes;
+	spdlog::info("Total number of triangles {}", numTriangles);
+	spdlog::info("Total number of vertices {}", numVertexes);
 
 	vertMatrix = allocateMatrix2D<double>(numVertexes,3);	
 	vertNormals = allocateMatrix2D<double>(numVertexes,3);
@@ -1070,11 +1064,11 @@ bool MeshSurface::loadMSMS(char* fileName,int numFiles)
 
 		fin.open(currentVert,ios::in);
 		fin2.open(currentFace,ios::in);	
-		cout << endl << INFO_STR << "Loading MSMS mesh files " << currentFace << "," << currentVert << "...";
+		spdlog::info("Loading MSMS mesh files {},{}", currentFace, currentVert);
 
 		if (fin.fail() || fin2.fail())
 		{
-			cout << WARN << "One or both MSMS files don't exist";
+			spdlog::warn("One or both MSMS files don't exist");
 			return false;
 		}
 	
@@ -1156,7 +1150,7 @@ bool MeshSurface::checkDuplicates()
 {
 	if (faceMatrix == NULL || vertMatrix == NULL)
 	{	
-		cout << endl << WARN << "Cannot check mesh without a loaded mesh!";
+		spdlog::warn("Cannot check mesh without a loaded mesh!");
 		return false;
 	}
 	
@@ -1180,8 +1174,7 @@ bool MeshSurface::checkDuplicates()
 		// duplicated vertex
 		else
 		{
-			cout << endl << WARN << "Duplicated vertex detected! " << triplet.first << " " 
-				<< triplet.second.first << " " << triplet.second.second;			
+        spdlog::warn("Duplicated vertex detected! {} {} {}", triplet.first, triplet.second.first, triplet.second.second);
 			ret = false;
 		}
 
@@ -1206,8 +1199,7 @@ bool MeshSurface::checkDuplicates()
 		// duplicated triangle
 		else
 		{
-			cout << endl << WARN << "Duplicated triangle detected! " << triplet.first << " " 
-				<< triplet.second.first << " " << triplet.second.second;
+        spdlog::warn("Duplicated triangle detected! {} {} {}", triplet.first, triplet.second.first, triplet.second.second);
 			ret = false;
 		}
 
@@ -1219,15 +1211,15 @@ bool MeshSurface::checkDuplicates()
 
 void MeshSurface::printSummary()
 {
-	//cout << endl << INFO_STR << "Summary of the triangulated mesh:";	
+	//spdlog::info("Summary of the triangulated mesh:");	
 	if (faceMatrix == NULL || vertMatrix == NULL)
 	{
-		cout << endl << WARN << "Mesh not loaded!";
+		spdlog::warn("Mesh not loaded!");
 	}
 	else
 	{
-		cout << endl << INFO_STR << "Number of loaded vertices -> " << numVertexes;
-		cout << endl << INFO_STR << "Number of loaded triangles -> " << numTriangles;
+		spdlog::info("Number of loaded vertices -> {}", numVertexes);
+		spdlog::info("Number of loaded triangles -> {}", numTriangles);
 	}
 }
 	
@@ -1685,6 +1677,6 @@ bool MeshSurface::getProjection(double p[3],double* proj1,double* proj2,
 
 	// further check that the projection is in the cube
 //	if (!testInCube((*proj1),(*proj2),(*proj3),p[0],p[1],p[2],delphi->side))
-//		cout << endl << WARN << "Out of cube projection in MeshSurface::getProjection!";	
+//		spdlog::warn("Out of cube projection in MeshSurface::getProjection!");	
 	return ff;
 }

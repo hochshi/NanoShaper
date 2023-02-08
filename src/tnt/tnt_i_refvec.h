@@ -33,6 +33,12 @@
 #define NULL 0
 #endif
 
+#ifdef TNT_DEBUG
+#ifdef SPDLOG
+#include <spdlog/spdlog.h>
+#endif
+#endif
+
 namespace TNT
 {
 /*
@@ -100,7 +106,7 @@ i_refvec<T>::i_refvec(int n) : data_(NULL), ref_count_(NULL)
 	if (n >= 1)
 	{
 #ifdef TNT_DEBUG
-		std::cout  << "new data storage.\n";
+		spdlog::debug("new data storage.");
 #endif
 		data_ = new T[n];
 		ref_count_ = new int;
@@ -176,17 +182,17 @@ void i_refvec<T>::destroy()
 	if (ref_count_ != NULL)
 	{
 #ifdef TNT_DEBUG
-		std::cout << "destorying data... \n";
+		spdlog::debug("destorying data... ");
 #endif
 		delete ref_count_;
 
 #ifdef TNT_DEBUG
-		std::cout << "deleted ref_count_ ...\n";
+		spdlog::debug("deleted ref_count_ ...");
 #endif
 		if (data_ != NULL)
 			delete []data_;
 #ifdef TNT_DEBUG
-		std::cout << "deleted data_[] ...\n";
+		spdlog::debug("deleted data_[] ...");
 #endif
 		data_ = NULL;
 	}

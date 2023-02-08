@@ -3,6 +3,8 @@
 #define SurfaceFactory_h
 
 #include <map>
+#include <spdlog/spdlog.h>
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <ConfigFile.h>
@@ -31,7 +33,7 @@ public:
 		string surfName = conf->read<string>("Surface");
 		if (!surfRegister.count(surfName))
 		{
-			cout << endl << surfName << " type is not registered!";
+      spdlog::info("{} type is not registered!", surfName);
 			return NULL;
 		}		
 		return surfRegister[surfName](conf,ds);
@@ -39,11 +41,13 @@ public:
 
 	void print()
 	{
-		cout << endl << INFO_STR << "Available surfaces:";
+    std::stringstream ss;
+		ss << endl << INFO_STR << "Available surfaces:";
 		for (it=surfRegister.begin();it!=surfRegister.end();it++)
 		{
-			cout << endl << INFO_STR << "\t" << (*it).first;
+			ss << endl << INFO_STR << "\t" << (*it).first;
 		}
+    spdlog::info("{}", ss.str());
 	}
 };
 

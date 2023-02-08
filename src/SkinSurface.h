@@ -9,6 +9,7 @@
 #define SkinSurface_h
 
 #include <Surface.h>
+#include <spdlog/spdlog.h>
 
 // #define DEBUG_SKIN
 
@@ -285,10 +286,7 @@ public:
     if (ss <= (1.0 - e) && ss >= (0.0 + e)) {
       s = ss;
     } else {
-      cout << endl
-           << WARN << "Cannot set " << ss
-           << ". s parameter is in (0+e,1-e], where e is " << e << ".Setting "
-           << DEFAULT_S;
+      spdlog::warn("Cannot set {}. s parameter is in (0+e,1-e], where e is {}.Setting {}", ss, e, DEFAULT_S);
       s = DEFAULT_S;
     }
   }

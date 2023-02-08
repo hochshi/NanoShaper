@@ -46,7 +46,7 @@ void BlobbySurface::setBlobbyness(double b)
 {		
 	if (b>=0)
 	{
-		cout << endl << WARN << "Blobbyness is always a stricly negative real: setting "<< DEFAULT_BLOBBYNESS;
+		spdlog::warn( "Blobbyness is always a stricly negative real: setting {}", DEFAULT_BLOBBYNESS);
 		b = DEFAULT_BLOBBYNESS;
 	}
 	B=b;
@@ -68,7 +68,7 @@ bool BlobbySurface::build()
 	// disable cutoff
 	//numgrid = delphi->nx;
 
-	cout << endl << INFO_STR << "Using cut-off " << cutoff << " num neighbour grid points " << numgrid;
+	spdlog::info("Using cut-off {} num neighbour grid points {}", cutoff, numgrid);
 
 	if (scalarField!=NULL)
 		deleteMatrix3D<double>(last_nx,last_ny,scalarField);
@@ -77,7 +77,7 @@ bool BlobbySurface::build()
 
 	if (scalarField==NULL)
 	{
-		cout << endl << ERR << "Cannot allocate scalar field!";
+		spdlog::error( "Cannot allocate scalar field!");
 		exit(-1);
 	}
 
@@ -144,7 +144,7 @@ bool BlobbySurface::build()
 
 	triangulateSurface(1.0,"blobby");
 
-	cout << endl << INFO_STR << "Smoothing blobby surface...";
+	spdlog::info("Smoothing blobby surface...");
 	smoothSurface("blobby");
 	
 	setSaveMSMS(old_saveMSMS);
@@ -155,7 +155,7 @@ bool BlobbySurface::build()
 
 	isAvailableScalarField = false;
 	
-	cout << "ok!";
+	spdlog::info("ok!");
 
 	deleteMatrix3D<double>(delphi->nx,delphi->ny,scalarField);
 	
@@ -196,6 +196,6 @@ bool BlobbySurface::build()
 
 void  BlobbySurface::printSummary()
 {
-	cout << endl << INFO_STR << "Blobbyness value " << getBlobbyness();
-	cout << endl << INFO_STR << "Cut-off distance " << cutoff << " [A]";
+	spdlog::info("Blobbyness value {}", getBlobbyness());
+	spdlog::info("Cut-off distance {}[A]", cutoff);
 }

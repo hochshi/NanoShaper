@@ -306,9 +306,7 @@ public:
     if (pr > e) {
       probe_radius = pr;
     } else {
-      cout << endl
-           << WARN << "Cannot set " << pr << "<=" << e << ". Setting "
-           << DEFAULT_PROBE_RADIUS;
+      spdlog::warn( "Cannot set {}<={}. Setting {}", pr, e, DEFAULT_PROBE_RADIUS);
       probe_radius = DEFAULT_PROBE_RADIUS;
     }
   }
@@ -339,7 +337,7 @@ public:
   The higher the probe radius the higher this parameter should be.*/
   void setMaxProbes(int m) {
     if (m <= 0) {
-      cout << endl << WARN << "Cannot set max probes <0";
+      spdlog::warn( "Cannot set max probes <0");
       return;
     }
     MAX_PROBES = m;

@@ -124,7 +124,7 @@ inline void ExampleSurface::getRayIntersection(double pa[3],double pb[3],vector<
 	}
 	else
 	{
-		cout << endl << ERR << "Panel does not exist!";
+		spdlog::error( "Panel does not exist!");
 		exit(-1);
 	}
 
@@ -185,7 +185,7 @@ bool ExampleSurface::getProjection(double p[3],double* proj1,double* proj2,
 
 void ExampleSurface::printSummary()
 {
-	cout << endl << INFO_STR << "Example surface has a radius of " << radius;
+	spdlog::info("Example surface has a radius of {}", radius);
 }
 
 void ExampleSurface::preProcessPanel()
@@ -250,7 +250,7 @@ bool ExampleSurface::build()
 
 	if (maxDist<radius)
 	{
-		cout << endl << WARN << "Max distance is lower than radius. Setting radius = max distance";
+		spdlog::warn( "Max distance is lower than radius. Setting radius = max distance");
 		radius = maxDist;
 	}
 	return true;
