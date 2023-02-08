@@ -1,5 +1,8 @@
 #include <SkinSurface.h>
+
+#ifdef SPDLOG
 #include <spdlog/spdlog.h>
+#endif
 
 void SkinSurface::clear() {
   if (gridMixedCellMap != NULL)
@@ -1905,7 +1908,8 @@ bool SkinSurface::save(char *fileName) {
   fout.open(fileName, ios::out);
 
   cout << endl
-       << INFO_STR << "Writing skin in .skin file format in " << fileName << "...";
+       << INFO_STR << "Writing skin in .skin file format in " << fileName
+       << "...";
 
   if (fout.fail()) {
     cout << endl << WARN << "Cannot write file " << fileName;
@@ -1946,11 +1950,13 @@ void SkinSurface::printSummary() {
     cout << endl << INFO_STR << "Number of del_facet/vor_edge -> " << type[2];
     cout << endl << INFO_STR << "Number of del_cell/vor_point -> " << type[3];
 
+#ifdef SPDLOG
     spdlog::info("mixedcells {}", numMixedCells);
     spdlog::info("del_point {}", type[0]);
     spdlog::info("del_edge {}", type[1]);
     spdlog::info("del_facet {}", type[2]);
     spdlog::info("del_cell {}", type[3]);
+#endif
   }
 }
 
@@ -2542,7 +2548,9 @@ bool SkinSurface::getProjection(double p[3], double *proj1, double *proj2,
 #ifdef ENABLE_BOOST_THREADS
       boost::mutex::scoped_lock scopedLock(mutex);
 #endif
+#ifdef SPDLOG
       spdlog::warn("Approximating bgp with grid point");
+#endif
     }
     (*proj1) = p[0];
     (*proj2) = p[1];
@@ -2553,7 +2561,7 @@ bool SkinSurface::getProjection(double p[3], double *proj1, double *proj2,
   // further check that the projection is in the cube
   // if (!testInCube((*proj1),(*proj2),(*proj3),p[0],p[1],p[2],delphi->side))
   //	cout << endl << WARN << "Out of cube projection in
-  //SkinSurface::getProjection!";
+  // SkinSurface::getProjection!";
 
   return true;
 }

@@ -6,7 +6,7 @@
 
 #ifdef SPDLOG
 #include <spdlog/spdlog.h>
-#endif // DEBUG
+#endif
 
 void ConnollySurface::init() {
   gridConnollyCellMap = NULL;
@@ -1836,7 +1836,9 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
 #ifdef ENABLE_BOOST_THREADS
               boost::mutex::scoped_lock scopedLock(mutex);
 #endif
-              spdlog::warn("Singular edge projection");
+              #ifdef SPDLOG
+                spdlog::warn("Singular edge projection");
+              #endif
             }
           }
 
@@ -1913,7 +1915,9 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
 #ifdef ENABLE_BOOST_THREADS
         boost::mutex::scoped_lock scopedLock(mutex);
 #endif
-        spdlog::warn("Approximating bgp with grid point ");
+        #ifdef SPDLOG
+          spdlog::warn("Approximating bgp with grid point ");
+        #endif
       }
     } else {
       // non tangent continuity has been properly managed.

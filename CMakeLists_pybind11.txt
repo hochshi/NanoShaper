@@ -45,6 +45,9 @@ link_libraries(${pybind11_LIBRARIES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include( ${CGAL_USE_FILE} )
 
+add_subdirectory(src/spdlog)
+add_definitions(-DSPDLOG)
+
 message(STATUS "Using python ${Python_EXECUTABLE} ${Python_INCLUDE_DIRS} ${Python_LIBRARY_DIRS} ${Python_LIBRARIES} ${pybind11_INCLUDE_DIRS} ${pybind11_LIBRARIES}")
 
 add_definitions(-DENABLE_CGAL)
@@ -55,6 +58,7 @@ add_definitions(-DENABLE_BOOST_THREADS)
     "./src/*.cpp")
   
 add_library(NanoShaper MODULE
+  ./src/python/nanoshaper_pybind.cpp
   ./src/main_functions.h
   ./src/sturm/sturm.cpp
   ./src/sturm/util.cpp
@@ -68,7 +72,10 @@ add_library(NanoShaper MODULE
   )
   
 target_link_options(NanoShaper PUBLIC -undefined dynamic_lookup)
-target_link_libraries(NanoShaper pybind11::headers)
+target_link_libraries(NanoShaper
+  PRIVATE pybind11::headers
+  PRIVATE spdlog::spdlog_header_only
+)
 pybind11_extension(NanoShaper)
 
 message(STATUS "C++ Release flags ${CMAKE_CXX_FLAGS_RELEASE}")
