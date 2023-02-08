@@ -28,7 +28,6 @@ endif (Boost_FOUND)
 SET(Python_FIND_STRATEGY LOCATION)
 find_package(Python 3.9 COMPONENTS Interpreter Development.Module REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
-# find_package(pybind11 REQUIRED)
 
 include_directories (BEFORE include)
 include_directories(src)
@@ -55,7 +54,6 @@ add_definitions(-DENABLE_BOOST_THREADS)
     "./src/*.h"
     "./src/*.cpp")
   
-# pybind11_add_module(NanoShaper src/python/nanoshaper_pybind.cpp)
 add_library(NanoShaper MODULE
   ./src/main_functions.h
   ./src/sturm/sturm.cpp
@@ -68,6 +66,7 @@ add_library(NanoShaper MODULE
   ./src/ConfigFile/ConfigFile.h 
   ./src/octree/octree.h 
   )
+  
 target_link_options(NanoShaper PUBLIC -undefined dynamic_lookup)
 target_link_libraries(NanoShaper pybind11::headers)
 pybind11_extension(NanoShaper)

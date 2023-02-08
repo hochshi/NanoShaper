@@ -3,7 +3,10 @@
 #include <tools.h>
 #include <CGAL/Kernel/global_functions_3.h>
 #include <tuple>
+
+#ifdef SPDLOG
 #include <spdlog/spdlog.h>
+#endif // DEBUG
 
 void ConnollySurface::init() {
   gridConnollyCellMap = NULL;
@@ -1708,12 +1711,14 @@ void ConnollySurface::printSummary() {
          << INFO_STR << "Number of singular del_facet cells -> "
          << type[SINGULAR_FACE_CELL];
 
-    spdlog::info("cells {}", sesComplex.size());
-    spdlog::info("del_point {}", type[POINT_CELL]);
-    spdlog::info("rdel_edge {}", type[REGULAR_EDGE_CELL]);
-    spdlog::info("sdel_edge {}", type[SINGULAR_EDGE_CELL]);
-    spdlog::info("rdel_facet {}", type[REGULAR_FACE_CELL]);
-    spdlog::info("sdel_facet {}", type[SINGULAR_FACE_CELL]);
+    #ifdef SPDLOG
+      spdlog::info("cells {}", sesComplex.size());
+      spdlog::info("del_point {}", type[POINT_CELL]);
+      spdlog::info("rdel_edge {}", type[REGULAR_EDGE_CELL]);
+      spdlog::info("sdel_edge {}", type[SINGULAR_EDGE_CELL]);
+      spdlog::info("rdel_facet {}", type[REGULAR_FACE_CELL]);
+      spdlog::info("sdel_facet {}", type[SINGULAR_FACE_CELL]);
+    #endif
   }
 }
 

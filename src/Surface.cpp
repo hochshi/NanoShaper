@@ -7,7 +7,10 @@
 
 #include <Surface.h>
 #include <tuple>
+
+#ifdef SPDLOG
 #include <spdlog/spdlog.h>
+#endif
 
 void Surface::init()
 {
@@ -1524,7 +1527,9 @@ void Surface::fillCavities(double vol,bool silent)
 		if (!silent)
 			printf("\tvol is %.4lf [A^3] \t",cavVol);
 
-    spdlog::info("cav {}", cavVol);
+    #ifdef SPDLOG
+      spdlog::info("cav {}", cavVol);
+    #endif
 
 		delphi->cavitiesSize[i]=cavVol;
 		delphi->cavitiesFlag[i]=false;

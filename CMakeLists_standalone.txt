@@ -11,7 +11,7 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
 endif()
 
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+SET(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 include_directories (BEFORE include)
 include_directories(src)
@@ -33,6 +33,7 @@ else (Boost_FOUND)
 endif (Boost_FOUND)
 	
 add_subdirectory(src/spdlog)
+add_definitions(-DSPDLOG)
 
 # if cgal is found, boost is automatically found
  find_package(CGAL)
@@ -103,5 +104,6 @@ add_subdirectory(src/spdlog)
 								./src/sturm/solve.h
 								./src/octree/octree.h 
 								)    
+  target_link_libraries(NanoShaper PRIVATE spdlog::spdlog_header_only)
 
 endif(CGAL_FOUND)

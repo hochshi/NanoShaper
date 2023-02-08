@@ -1,6 +1,9 @@
 
 #include <MeshSurface.h>
+
+#ifdef SPDLOG
 #include <spdlog/spdlog.h>
+#endif
 
 
 void MeshSurface::clear()
@@ -1669,7 +1672,9 @@ bool MeshSurface::getProjection(double p[3],double* proj1,double* proj2,
 			#ifdef ENABLE_BOOST_THREADS
 				boost::mutex::scoped_lock scopedLock(mutex);
 			#endif
-      spdlog::warn("Approximating bgp with grid point");
+      #ifdef SPDLOG
+        spdlog::warn("Approximating bgp with grid point");
+      #endif
 		}
 		
 		(*proj1)=p[0];
