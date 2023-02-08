@@ -45,7 +45,7 @@ link_libraries(${pybind11_LIBRARIES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include( ${CGAL_USE_FILE} )
 
-add_subdirectory(src/spdlog)
+add_subdirectory(lib/spdlog)
 add_definitions(-DSPDLOG)
 
 message(STATUS "Using python ${Python_EXECUTABLE} ${Python_INCLUDE_DIRS} ${Python_LIBRARY_DIRS} ${Python_LIBRARIES} ${pybind11_INCLUDE_DIRS} ${pybind11_LIBRARIES}")

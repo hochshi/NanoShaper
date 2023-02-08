@@ -32,7 +32,7 @@ else (Boost_FOUND)
   message(STATUS "Boost libs not found, Multithreading will be disabled")  
 endif (Boost_FOUND)
 	
-add_subdirectory(src/spdlog)
+add_subdirectory(lib/spdlog)
 add_definitions(-DSPDLOG)
 
 # if cgal is found, boost is automatically found
