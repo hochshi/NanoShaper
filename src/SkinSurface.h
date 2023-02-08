@@ -8,6 +8,7 @@
 #ifndef SkinSurface_h
 #define SkinSurface_h
 
+#include "SurfaceFactory.h"
 #include <Surface.h>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -287,7 +288,9 @@ public:
     if (ss <= (1.0 - e) && ss >= (0.0 + e)) {
       s = ss;
     } else {
-      spdlog::warn("Cannot set {}. s parameter is in (0+e,1-e], where e is {}.Setting {}", ss, e, DEFAULT_S);
+      spdlog::warn("Cannot set {}. s parameter is in (0+e,1-e], where e is "
+                   "{}.Setting {}",
+                   ss, e, DEFAULT_S);
       s = DEFAULT_S;
     }
   }
@@ -343,7 +346,9 @@ static class SkinSurfaceRegister {
   }
 
 public:
-  SkinSurfaceRegister() { surfaceFactory().register_instantiator("skin", createSurface); }
+  SkinSurfaceRegister() {
+    SurfaceFactory::getInstance().register_instantiator("skin", createSurface);
+  }
 } SkinSurfaceRegisterObject;
 
 // static SurfaceRecorder<SkinSurface> skinRecorder("skin");

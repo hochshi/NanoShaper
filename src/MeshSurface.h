@@ -8,6 +8,7 @@
 #ifndef MeshSurface_h
 #define MeshSurface_h
 
+#include "SurfaceFactory.h"
 #include <Surface.h>
 #include <memory>
 
@@ -190,7 +191,7 @@ static class MeshSurfaceRegister{
 	public: 
 		MeshSurfaceRegister() 
 		{ 
-			surfaceFactory().register_instantiator("mesh",createSurface); 
+      SurfaceFactory::getInstance().register_instantiator("mesh",createSurface); 
 		} 
 } MeshSurfaceRegisterObject;
 

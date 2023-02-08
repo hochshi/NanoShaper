@@ -133,7 +133,7 @@ void cite() {
 responsible for Surface or grid memory. The caller is the responsible.*/
 void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
   if (conf->printAvailSurf)
-    surfaceFactory().print();
+    SurfaceFactory::getInstance().print();
 
   Timer chrono;
   chrono.start();
@@ -256,7 +256,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   int natom = dg1->getNumAtoms();
   cf->remove(string("Surface"));
   cf->add<string>("Surface", "ses");
-  surf1 = surfaceFactory().create(cf, dg1);
+  surf1 = SurfaceFactory::getInstance().create(cf, dg1);
   surf1->setInsideCode(5);
   surf1->setProbeRadius(conf->pocketRadiusBig);
   surf1->setProjBGP(false);
@@ -284,7 +284,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
 
   DelPhiSharedOP dg2 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile, localEpsMap,
                        localStatusMap, localMulti, false);
-  surf2 = surfaceFactory().create(cf, dg2);
+  surf2 = SurfaceFactory::getInstance().create(cf, dg2);
   surf2->setInsideCode(10);
   surf2->setProjBGP(false);
   surf2->setProbeRadius(conf->pocketRadiusSmall);
@@ -294,7 +294,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   //// to check percolation ///////////////////////
   DelPhiShared* dg2 = new
   DelPhiShared(conf.scale,conf.perfill,conf.mol,localStatusMap,localMulti,false);
-  surf2 = surfaceFactory().create(cf,dg2);
+  surf2 = SurfaceFactory::getInstance().create(cf,dg2);
   surf2->inside = 10;
   ////////////////////////////////////////////////
   */
@@ -336,7 +336,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     // Set up Surface 3 (accessibility probe)
     dg3 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile,
                            localEpsMap, localStatusMap, localMulti, false);
-    surf3 = surfaceFactory().create(cf, dg3);
+    surf3 = SurfaceFactory::getInstance().create(cf, dg3);
     surf2->setProjBGP(false);
     surf2->setProbeRadius(conf->pocketRadiusSmall);
     surf2->setKeepWellShapedCavities(false);
@@ -442,7 +442,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     DelPhiSharedOP dg_temp = std::make_shared<DelPhiShared>(2.0, 50, mol, false, false, false);
     // reset seed
     srand(conf->currentSeed);
-    SurfaceOP cs_temp = surfaceFactory().create(cf, dg_temp);
+    SurfaceOP cs_temp = SurfaceFactory::getInstance().create(cf, dg_temp);
     // relatively big such that non degenerate configurations are avoided
     // due to the high packing of atoms. this has a minimal impact
     // on the estimation of the pocket/surface volume

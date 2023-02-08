@@ -307,7 +307,8 @@ public:
     if (pr > e) {
       probe_radius = pr;
     } else {
-      spdlog::warn( "Cannot set {}<={}. Setting {}", pr, e, DEFAULT_PROBE_RADIUS);
+      spdlog::warn("Cannot set {}<={}. Setting {}", pr, e,
+                   DEFAULT_PROBE_RADIUS);
       probe_radius = DEFAULT_PROBE_RADIUS;
     }
   }
@@ -338,7 +339,7 @@ public:
   The higher the probe radius the higher this parameter should be.*/
   void setMaxProbes(int m) {
     if (m <= 0) {
-      spdlog::warn( "Cannot set max probes <0");
+      spdlog::warn("Cannot set max probes <0");
       return;
     }
     MAX_PROBES = m;
@@ -397,7 +398,9 @@ static class ConnollySurfaceRegister {
   }
 
 public:
-  ConnollySurfaceRegister() { surfaceFactory().register_instantiator("ses", createSurface); }
+  ConnollySurfaceRegister() {
+    SurfaceFactory::getInstance().register_instantiator("ses", createSurface);
+  }
 } ConnollySurfaceRegisterObject;
 
 // static SurfaceRecorder<ConnollySurface> sesRecorder("ses");

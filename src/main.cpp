@@ -1,5 +1,6 @@
 
-#include "DelphiShared.h"
+#include "SurfaceFactory.h"
+#include <DelphiShared.h>
 #include <main_functions.h>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -166,8 +167,8 @@ int main(int argc, char *argv[]) {
         conf->scale, conf->perfill, conf->molFile, conf->buildEpsmaps,
         conf->buildStatus, conf->multi_diel);
     // Get surface
-    SurfaceOP surf = surfaceFactory().create(cf, dg);
-    if (surf != NULL) {
+    SurfaceOP surf = SurfaceFactory::getInstance().create(cf, dg);
+    if (surf != nullptr) {
       normalMode(surf, dg, conf);
     }
     spdlog::info("Cleaning memory...");

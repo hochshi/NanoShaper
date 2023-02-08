@@ -8,6 +8,7 @@
 #ifndef BlobbySurface_h
 #define BlobbySurface_h
 
+#include "SurfaceFactory.h"
 #include <Surface.h>
 #include <MeshSurface.h>
 #include <memory>
@@ -71,7 +72,7 @@ static class BlobbySurfaceRegister{
 	public: 
 		BlobbySurfaceRegister() 
 		{ 
-			surfaceFactory().register_instantiator("blobby",createSurface); 
+      SurfaceFactory::getInstance().register_instantiator("blobby",createSurface); 
 		} 
 } BlobbySurfaceRegisterObject;
 

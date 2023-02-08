@@ -1,8 +1,8 @@
 
 #include <SurfaceFactory.h>
 
-SurfaceFactory& surfaceFactory()
-{
-	static SurfaceFactory reg;
-	return reg;
-}
+// SurfaceFactory& surfaceFactory()
+// {
+// 	static SurfaceFactory reg;
+// 	return reg;
+// }

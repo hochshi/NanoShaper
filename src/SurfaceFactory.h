@@ -2,14 +2,14 @@
 #ifndef SurfaceFactory_h
 #define SurfaceFactory_h
 
+#include <ConfigFile.h>
+#include <globals.h>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
-#include <iostream>
-#include <ConfigFile.h>
-#include <globals.h>
 
 class Surface;
 using SurfaceOP = std::shared_ptr<Surface>;
@@ -17,58 +17,61 @@ class DelPhiShared;
 using DelPhiSharedOP = std::shared_ptr<DelPhiShared>;
 using namespace std;
 
-typedef SurfaceOP (*surface_instantiator)(ConfigFile* conf,DelPhiShared* ds);
+typedef SurfaceOP (*surface_instantiator)(ConfigFile *conf, DelPhiShared *ds);
 
-class SurfaceFactory{
-	
+class SurfaceFactory {
+
 private:
-	map<string,surface_instantiator> surfRegister;
-	map<string,surface_instantiator>::iterator it;
-public:
-	
-	void register_instantiator(string surfaceName,surface_instantiator si)
-	{
-		surfRegister.insert(pair<string,surface_instantiator>(surfaceName,si));
-	}
-	
-	SurfaceOP create(ConfigFileOP conf,DelPhiSharedOP ds)
-	{		
-		string surfName = conf->read<string>("Surface");
-		if (!surfRegister.count(surfName))
-		{
-      spdlog::error("{} type is not registered!", surfName);
-			return NULL;
-		}		
-		return surfRegister[surfName](conf.get(),ds.get());
-	}
+  SurfaceFactory() = default;
+  ~SurfaceFactory() = default;
 
-	void print()
-	{
+  map<string, surface_instantiator> surfRegister;
+  map<string, surface_instantiator>::iterator it;
+
+public:
+  SurfaceFactory(const SurfaceFactory &) = delete;
+  SurfaceFactory &operator=(const SurfaceFactory &) = delete;
+
+  static SurfaceFactory &getInstance() {
+    static SurfaceFactory instance;
+    return instance;
+  }
+
+  void register_instantiator(string surfaceName, surface_instantiator si) {
+    surfRegister.insert(pair<string, surface_instantiator>(surfaceName, si));
+  }
+
+  SurfaceOP create(ConfigFileOP conf, DelPhiSharedOP ds) {
+    string surfName = conf->read<string>("Surface");
+    if (!surfRegister.count(surfName)) {
+      spdlog::error("{} type is not registered!", surfName);
+      return nullptr;
+    }
+    return surfRegister[surfName](conf.get(), ds.get());
+  }
+
+  void print() {
     std::stringstream ss;
-		ss << endl << INFO_STR << "Available surfaces:";
-		for (it=surfRegister.begin();it!=surfRegister.end();it++)
-		{
-			ss << endl << INFO_STR << "\t" << (*it).first;
-		}
+    ss << endl << INFO_STR << "Available surfaces:";
+    for (it = surfRegister.begin(); it != surfRegister.end(); it++) {
+      ss << endl << INFO_STR << "\t" << (*it).first;
+    }
     spdlog::info("{}", ss.str());
-	}
+  }
 };
 
-SurfaceFactory& surfaceFactory();
+// SurfaceFactory& surfaceFactory();
 
-template<class T> class SurfaceRecorder 
-{
+template <class T> class SurfaceRecorder {
 
-public:	
-    SurfaceRecorder(string surface)
-    {
-		surfaceFactory().register_instantiator(surface,createSurface);
-    }
+public:
+  SurfaceRecorder(string surface) {
+    SurfaceFactory::getInstance().register_instantiator(surface, createSurface);
+  }
 
-	static SurfaceOP createSurface(ConfigFile* conf,DelPhiShared* ds) 
-	{ 
+  static SurfaceOP createSurface(ConfigFile *conf, DelPhiShared *ds) {
     return std::make_shared<T>(conf, ds);
-	} 
+  }
 };
 
 #endif
