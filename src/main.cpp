@@ -7,21 +7,6 @@
 #define _CRTDBG_MAP_ALLOC_NEW
 #endif
 
-// #include "SurfaceFactory.h"
-// #include "Surface.h"
-// #include "tools.h"
-// #include "DelphiShared.h"
-// #include "ConfigFile.h"
-
-// number of cores
-// int num_cores;
-
-// have to use a pointer because Swig will try to make a copy and fstream does
-// not have a copy semantic
-// fstream *errorStream;
-// fstream *internals;
-// Configuration conf;
-
 #ifndef DELPHI_BIND
 /** @mainpage
         @brief

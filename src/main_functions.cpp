@@ -1,5 +1,9 @@
-#include "globals.h"
+#include <globals.h>
 #include <main_functions.h>
+
+#ifdef SPDLOG
+#include <spdlog/spdlog.h>
+#endif
 
 // init streams, check configuration file for errors and read variables
 ConfigFileOP load(std::string confFile) {
@@ -22,8 +26,6 @@ ConfigurationOP parse(ConfigFileOP cf) {
 
   ConfigurationOP conf = std::make_shared<Configuration>();
 
-  conf->errorStream = new fstream("stderror.txt", fstream::out);
-
   conf->buildEpsmaps = cf->read<bool>("Build_epsilon_maps", false);
   conf->saveEpsmaps = cf->read<bool>("Save_eps_maps", false);
 
@@ -42,11 +44,6 @@ ConfigurationOP parse(ConfigFileOP cf) {
   bool dbg = cf->read<bool>("Debug_Internals", false);
   conf->debug = dbg;
   conf->debugStatus = dbg;
-
-  if (dbg)
-    conf->internals = new fstream("internals.txt", fstream::out);
-  else
-    conf->internals = NULL;
 
   if (cf != NULL) {
     if (!conf->buildEpsmaps && conf->saveEpsmaps) {
@@ -176,11 +173,15 @@ void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
 
   double duration = chrono.stop();
 
-  cout << endl << INFO_STR << "Surface computation time.. " << duration << " [s]";
-  cout << endl << INFO_STR << "Estimated volume " << surf->getVolume() << " [A^3]";
+  cout << endl
+       << INFO_STR << "Surface computation time.. " << duration << " [s]";
+  cout << endl
+       << INFO_STR << "Estimated volume " << surf->getVolume() << " [A^3]";
 
   if (conf->debugStatus)
-    (*(conf->internals)) << endl << "volume " << surf->getVolume();
+#ifdef SPDLOG
+    spdlog::debug("volume {}", surf->getVolume());
+#endif // SPDLOG
 
   if (conf->tri) {
     cout << endl << INFO_STR << "Triangulating Surface...";
@@ -191,9 +192,11 @@ void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
     surf->triangulateSurface();
 
     if (conf->debugStatus) {
-      (*(conf->internals)) << endl << "area " << surf->getArea();
-      (*(conf->internals)) << endl << "nv " << surf->getNumVertices();
-      (*(conf->internals)) << endl << "nt " << surf->getNumTriangles();
+#ifdef SPDLOG
+      spdlog::debug("area {}", surf->getArea());
+      spdlog::debug("nv {}", surf->getNumVertices());
+      spdlog::debug("nt {}", surf->getNumTriangles());
+#endif // SPDLOG
     }
 
     if (conf->smoothing) {
@@ -204,7 +207,8 @@ void normalMode(Surface *surf, DelPhiShared *dg, ConfigurationOP conf) {
     double duration = chrono.stop();
     cout << "ok!";
 
-    cout << endl << INFO_STR << "Total Triangulation time " << duration << " [s]";
+    cout << endl
+         << INFO_STR << "Total Triangulation time " << duration << " [s]";
   }
 
   if (conf->tri2balls) {
@@ -476,7 +480,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     cs_temp->getSurf(false);
     volumes.push_back(cs_temp->getVolume());
     if (conf->tri) {
-      cout << endl << INFO_STR << "Triangulating enveloped cavity/pockets " << i;
+      cout << endl
+           << INFO_STR << "Triangulating enveloped cavity/pockets " << i;
       cs_temp->triangulateSurface(0.0, tri_);
       areas.push_back(cs_temp->getArea());
 
@@ -604,51 +609,62 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
         if (conf->tri) {
           if (isPocket[i]) {
             cout << endl
-                 << INFO_STR << "Pocket " << i << " vol " << volumes[i] << " area "
-                 << areas[i] << " body area " << areas2[ii];
+                 << INFO_STR << "Pocket " << i << " vol " << volumes[i]
+                 << " area " << areas[i] << " body area " << areas2[ii];
             if (conf->debugStatus) {
-              *(conf->internals) << endl << "pocket_vol " << volumes[i];
-              *(conf->internals) << endl
-                                 << "pocket_area " << areas[i]
-                                 << " pocket_body_area " << areas2[i];
+#ifdef SPDLOG
+              spdlog::debug("pocket_vol {}", volumes[i]);
+              spdlog::debug("pocket_area {} pocket_body_area {}", areas[i],
+                            areas2[i]);
+#endif // SPDLOG
             }
             ii++;
           } else {
             cout << endl
-                 << INFO_STR << "Cavity " << i << " vol " << volumes[i] << " area "
-                 << areas[i];
+                 << INFO_STR << "Cavity " << i << " vol " << volumes[i]
+                 << " area " << areas[i];
             if (conf->debugStatus) {
-              *(conf->internals) << endl << "cav_vol " << volumes[i];
-              *(conf->internals) << endl << "cav_area " << areas[i];
+#ifdef SPDLOG
+              spdlog::debug("cav_vol {}", volumes[i]);
+              spdlog::debug("cav_area {}", areas[i]);
+#endif // SPDLOG
             }
           }
         } else {
           if (isPocket[i]) {
             cout << endl << INFO_STR << "Pocket " << i << " vol " << volumes[i];
             if (conf->debugStatus) {
-              *(conf->internals) << endl << "pocket_vol " << volumes[i];
+#ifdef SPDLOG
+              spdlog::debug("pocket_vol {}", volumes[i]);
+#endif // SPDLOG
             }
           } else {
             cout << endl << INFO_STR << "Cavity " << i << " vol " << volumes[i];
             if (conf->debugStatus) {
-              *(conf->internals) << endl << "cav_vol " << volumes[i];
+#ifdef SPDLOG
+              spdlog::debug("cav_vol {}", volumes[i]);
+#endif // SPDLOG
             }
           }
         }
       } else {
         if (conf->tri) {
           cout << endl
-               << INFO_STR << "Pocket " << i << " vol " << volumes[i] << " area "
-               << areas[i] << " body area " << areas2[ii];
+               << INFO_STR << "Pocket " << i << " vol " << volumes[i]
+               << " area " << areas[i] << " body area " << areas2[ii];
           if (conf->debugStatus) {
-            *(conf->internals) << endl << "pocket_vol " << volumes[i];
-            *(conf->internals) << endl << "pocket_area " << areas[i];
+#ifdef SPDLOG
+            spdlog::debug("pocket_vol {}", volumes[i]);
+            spdlog::debug("pocket_area {}", areas[i]);
+#endif // SPDLOG
           }
           ii++;
         } else {
           cout << endl << INFO_STR << "Pocket " << i << " vol " << volumes[i];
           if (conf->debugStatus) {
-            *(conf->internals) << endl << "pocket_vol " << volumes[i];
+#ifdef SPDLOG
+            spdlog::debug("pocket_vol {}", volumes[i]);
+#endif // SPDLOG
           }
         }
       }

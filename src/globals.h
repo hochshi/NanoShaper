@@ -305,9 +305,6 @@ is available*/
   }
 ////////////////////////////////////////////////////////
 
-// extern fstream* errorStream;
-// extern fstream* internals;
-
 class Configuration {
 public:
   void stopDebug() { debugStatus = false; }
@@ -359,11 +356,8 @@ public:
   bool debug;
   bool debugStatus;
 
-  fstream *errorStream;
-  fstream *internals;
 };
 
 using ConfigurationOP = std::shared_ptr<Configuration>;
-// extern Configuration conf;
 
 #endif
