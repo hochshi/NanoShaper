@@ -11,7 +11,8 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
 endif()
 
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-SET(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+# SET(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+SET(JSON_BuildTests OFF CACHE INTERNAL "")
 
 include_directories (BEFORE include)
 include_directories(src)
@@ -35,50 +36,30 @@ endif (Boost_FOUND)
 add_subdirectory(lib/spdlog)
 add_definitions(-DSPDLOG)
 
-# if cgal is found, boost is automatically found
- find_package(CGAL)
+add_subdirectory(lib/json)
 
-  
  file(GLOB SRC
     "./src/*.h"
     "./src/*.cpp")
 	
- if (CGAL_FOUND)
+# if cgal is found, boost is automatically found
+find_package(CGAL)
+
+  
+if (CGAL_FOUND)
 
 	include( ${CGAL_USE_FILE} )		
 	add_definitions(-DENABLE_CGAL)
 	add_definitions(-DENABLE_BOOST_THREADS)
 	
-	if (${UNIX}) 
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mtune=native") 
-	endif (${UNIX}) 
-
-		
-	add_executable(NanoShaper
-								./src/sturm/sturm.cpp
-								./src/sturm/util.cpp
-								./src/sturm/solve.h
-								${SRC}
-								./src/ply/ply.cpp
-								./src/ply/ply.h								
-								./src/ConfigFile/ConfigFile.cpp
-								./src/ConfigFile/ConfigFile.h 
-								./src/octree/octree.h 
-								)    
-  target_link_libraries(NanoShaper PRIVATE spdlog::spdlog_header_only)
-  
 	if (MSVC)
 		set_target_properties(NanoShaper PROPERTIES COMPILE_FLAGS "/wd4503")	
 		#message(STATUS "Adding optimizations for processor ${CMAKE_SYSTEM_PROCESSOR}")
 	endif (MSVC)  
 
- else(CGAL_FOUND)
+else(CGAL_FOUND)
 		
 	message(STATUS "CGAL not found, Skin Surface and Connolly Surface will be disabled")  
-	
-	if (${UNIX}) 
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mtune=native") 
-	endif (${UNIX}) 
 	
 	if (MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)	
@@ -92,18 +73,26 @@ add_definitions(-DSPDLOG)
 		#..
 	endif ()
 	
-	message(STATUS "C++ Release flags ${CMAKE_CXX_FLAGS_RELEASE}")
-	
-	add_executable(NanoShaper 	${SRC}
-								./src/ply/ply.cpp
-								./src/ply/ply.h
-								./src/ConfigFile/ConfigFile.cpp
-								./src/ConfigFile/ConfigFile.h 
-								./src/sturm/sturm.cpp
-								./src/sturm/util.cpp 
-								./src/sturm/solve.h
-								./src/octree/octree.h 
-								)    
-  target_link_libraries(NanoShaper PRIVATE spdlog::spdlog_header_only)
-
 endif(CGAL_FOUND)
+
+if (${UNIX}) 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mtune=native") 
+endif (${UNIX}) 
+
+add_executable(NanoShaper
+              ./src/sturm/sturm.cpp
+              ./src/sturm/util.cpp
+              ./src/sturm/solve.h
+              ${SRC}
+              ./src/ply/ply.cpp
+              ./src/ply/ply.h								
+              ./src/ConfigFile/ConfigFile.cpp
+              ./src/ConfigFile/ConfigFile.h 
+              ./src/octree/octree.h 
+              )    
+target_link_libraries(NanoShaper 
+  PRIVATE spdlog::spdlog_header_only
+  PRIVATE nlohmann_json::nlohmann_json
+)
+
+message(STATUS "C++ Release flags ${CMAKE_CXX_FLAGS_RELEASE}")
