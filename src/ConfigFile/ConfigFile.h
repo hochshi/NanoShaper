@@ -55,6 +55,12 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef PYTHON
+#include <pybind11/stl_bind.h>
+
+PYBIND11_MAKE_OPAQUE(std::map<std::string, std::string>);
+#endif
+
 using std::string;
 
 class ConfigFile {
@@ -75,6 +81,14 @@ public:
 	            string comment = "#",
 				string sentry = "EndConfigFile" );
 	ConfigFile();
+
+  const std::map<std::string, std::string> getContents() const {
+    return myContents;
+  }
+  
+  void setContents(const std::map<std::string, std::string>& newContents) {
+    myContents = newContents;
+  }
 	
 	// Search for key and read value or optional default value
 	template<class T> T read( const string& key ) const;  // call as read<T>

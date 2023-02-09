@@ -1,5 +1,15 @@
-#include "globals.h"
+#include <BlobbySurface.h>
+#include <ConfigFile.h>
+#include <ConnollySurface.h>
+#include <DelphiShared.h>
+#include <ExampleSurface.h>
+#include <MeshSurface.h>
+#include <SkinSurface.h>
+#include <Surface.h>
+#include <SurfaceFactory.h>
+#include <globals.h>
 #include <main_functions.h>
+#include <memory>
 #include <pybind11/pybind11.h>
 #include <spdlog/spdlog.h>
 
@@ -7,12 +17,26 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(NanoShaper, m) {
   m.doc() = "";
+  py::bind_map<std::map<std::string, std::string>>(m, "MapStringString");
 
   m.def("load_config", &load,
         "init streams, check configuration file for errors and read variables",
         py::arg("confFile"));
   m.def("parse_config", &parse, py::arg("cf"));
-  py::class_<Configuration>(m, "Configuration")
+  m.def("normalMode", &normalMode, py::arg("surf"), py::arg("dg"),
+        py::arg("conf"));
+  m.def("pocketMode", &pocketMode, py::arg("hasAtomInfo"), py::arg("cf"),
+        py::arg("conf"));
+  m.def(
+      "createSurface",
+      [](ConfigFileOP conf, DelPhiSharedOP ds) {
+        SurfaceOP base = SurfaceFactory::getInstance().create(conf, ds);
+        return base;
+      },
+      py::arg("conf"), py::arg("ds"));
+  m.def("printAvailableSurfaces",
+        []() { SurfaceFactory::getInstance().print(); });
+  py::class_<Configuration, std::shared_ptr<Configuration>>(m, "Configuration")
       .def(py::init())
       .def_readwrite("cavVol", &Configuration::cavVol)
       .def_readwrite("numMol", &Configuration::numMol)
@@ -60,4 +84,20 @@ PYBIND11_MODULE(NanoShaper, m) {
       .def_readwrite("debugStatus", &Configuration::debugStatus)
       .def("stopDebug", &Configuration::stopDebug)
       .def("restartDebug", &Configuration::restartDebug);
+  py::class_<ConfigFile, std::shared_ptr<ConfigFile>>(m, "ConfigFile")
+      .def(py::init<const std::string &, const std::string &,
+                    const std::string &, const std::string &>(),
+           py::arg("filename"), py::arg("delimiter") = "=",
+           py::arg("comment") = "#", py::arg("sentry") = "EndConfigFile")
+      .def_property("contents", &ConfigFile::getContents,
+                    &ConfigFile::setContents)
+      .def("getString", &ConfigFile::readString, py::arg("key"))
+      .def("getDouble", &ConfigFile::readFloat, py::arg("key"));
+  py::class_<DelPhiShared, std::shared_ptr<DelPhiShared>>(m, "DelphiShared")
+      .def(py::init<const double &, const double &, const std::string &,
+                    const bool &, const bool &, const bool &, const bool &>(),
+           py::arg("scale"), py::arg("perfill"), py::arg("fn"),
+           py::arg("eps_flag"), py::arg("stat_flag"), py::arg("multi"),
+           py::arg("atinfo") = false);
+  py::class_<Surface, std::shared_ptr<Surface>>(m, "Surface");
 }
