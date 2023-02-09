@@ -125,7 +125,11 @@ inline void ExampleSurface::getRayIntersection(double pa[3],double pb[3],vector<
 	else
 	{
 		spdlog::error( "Panel does not exist!");
-		exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 	}
 
 	if (hasIntersection)

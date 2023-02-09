@@ -748,7 +748,11 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 				else
 				{
 					spdlog::error("Non existing direction during octree assembling!");
-					exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 				}
 
 				vertList.push_back(intersec);
@@ -927,7 +931,11 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 		{
 			spdlog::error( "Number of bgp is {} and the maximum allowed is {}", bgp.size(), delphi->maxbgp);
 			spdlog::error("Please increase ibmx in DelPhi and recompile");
-			exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 		}
 
 		if (bgp_type!=NULL)
@@ -1125,7 +1133,11 @@ void Surface::buildAtomsMap()
 		if (max_ind>=MAX_ATOMS_MULTI_GRID)
 		{
 			spdlog::error( "Increase Max_Atoms_Multi_Grid. Current value is {}", MAX_ATOMS_MULTI_GRID);
-			exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 		}
 
 		//GRID_MULTI_MAP(ix,iy,iz,0,ggrid,ggrid,ggrid)=max_ind;
@@ -1273,7 +1285,11 @@ int Surface::getCavities(int idStart)
 	{
 		spdlog::error("Cannot do cavity detection without a status map");
 		spdlog::info("{} Please set Build_status_map = true", REMARK);
-		exit(-1);	
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif	
 	}
 
 	// free memory 
@@ -1956,7 +1972,11 @@ void Surface::floodFill(int ix,int iy,int iz,int idold,int idnew)
 					{
 						spdlog::error("Not enough memory to complete cavity detection, stopping");
 												
-						exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 					}
 					delphi->cavitiesVec->push_back(vec);
 				}
@@ -1970,7 +1990,11 @@ void Surface::floodFill(int ix,int iy,int iz,int idold,int idnew)
 				{
 					spdlog::error("Not enough memory to complete cavity detection, stopping");
 					
-					exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 				}
 				v[0] = cix;
 				v[1] = ciy;
@@ -2562,7 +2586,11 @@ void Surface::floodFill3(	pair<pair<int,int>,int > ind,
 							{
 								spdlog::error("Not enough memory to complete cavity detection, stopping");
 														
-								exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 							}
 							delphi->cavitiesVec->push_back(vec);
 						}
@@ -2576,7 +2604,11 @@ void Surface::floodFill3(	pair<pair<int,int>,int > ind,
 						{
 							spdlog::error("Not enough memory to complete cavity detection, stopping");
 							
-							exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 						}
 						v[0] = ix;
 						v[1] = y1;
@@ -2708,7 +2740,11 @@ void Surface::floodFill2(int ix,int iy,int iz,int idold,int idnew)
 							{
 								spdlog::error("Not enough memory to complete cavity detection, stopping");
 														
-								exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 							}
 							delphi->cavitiesVec->push_back(vec);
 						}
@@ -2722,7 +2758,11 @@ void Surface::floodFill2(int ix,int iy,int iz,int idold,int idnew)
 						{
 							spdlog::error("Not enough memory to complete cavity detection, stopping");
 							
-							exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 						}
 						v[0] = ix;
 						v[1] = y1;
@@ -6493,7 +6533,11 @@ int Surface::linkCavities(short* st1,short* st2)
 			if (minDist2==INFINITY)
 			{
 				spdlog::error("During linkage, two non null cavities/pockets have no minimum distance bgps");
-				exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 			}
 
 			bool merge = false;
@@ -6592,7 +6636,11 @@ int Surface::linkCavities(short* st1,short* st2)
 			if ((*sizeIt)!=0)
 			{
 				spdlog::error("Inconsistent volume agregation");
-				exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 			}
 
 			// delete size (already aggregated)
@@ -7049,7 +7097,11 @@ bool Surface::isCompletelyOut(double* pos)
 	if (delphi->status == NULL)
 	{
 		spdlog::error("Cannot compute if a point is completely out without the status map");
-		exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 	}
 
 	int nx = delphi->nx;

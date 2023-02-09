@@ -78,7 +78,11 @@ bool BlobbySurface::build()
 	if (scalarField==NULL)
 	{
 		spdlog::error( "Cannot allocate scalar field!");
-		exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 	}
 
 	for (int i=0;i<delphi->nx;i++)

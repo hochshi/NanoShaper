@@ -604,7 +604,11 @@ inline T read4DVector(const T *const var, const int i, const int j, const int k,
   if (i >= nx || j >= ny || k >= nz || l >= nl || i < 0 || j < 0 || k < 0 ||
       l < 0) {
                 spdlog::error( "Out of bound error in reading 4DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -620,7 +624,11 @@ inline void write4DVector(T *const var, const T val, const int i, const int j,
   if (i >= nx || j >= ny || k >= nz || l >= nl || i < 0 || j < 0 || k < 0 ||
       l < 0) {
                 spdlog::error( "Out of bound error in writing 4DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -634,7 +642,11 @@ inline T read3DVector(const T *const var, const int i, const int j, const int k,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
                 spdlog::error( "Out of bound error in reading 3DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -649,7 +661,11 @@ inline void write3DVector(T *const var, const T val, const int i, const int j,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
                 spdlog::error( "Out of bound error in writing 3DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -663,7 +679,11 @@ inline T read2DVector(const T *const var, const int i, const int j,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || i < 0 || j < 0) {
                 spdlog::error( "Out of bound error in reading 2DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -677,7 +697,11 @@ inline void write2DVector(T *const var, const T val, const int i, const int j,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || i < 0 || j < 0) {
                 spdlog::error( "Out of bound error in reading 2DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -690,7 +714,11 @@ inline T readVector(const T *const var, const int i, const int nx) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || i < 0) {
                 spdlog::error( "Out of bound error in reading Vector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -702,7 +730,11 @@ inline void writeVector(T *const var, const T val, const int i, const int nx) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || i < 0) {
                 spdlog::error( "Out of bound error in writing Vector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
   var[index] = val;
@@ -822,7 +854,11 @@ inline bool read3DVectorBool(boost::uint32_t *const var, const int i,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
                 spdlog::error( "Out of bound error in reading 3DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 
@@ -839,7 +875,11 @@ inline void write3DVectorBool(boost::uint32_t *const var, const bool val,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
                 spdlog::error( "Out of bound error in reading 3DVector";
-		exit(-1);
+#ifdef PYTHON
+throw std::out_of_range("Out of bound error");
+#else
+exit(-1);
+#endif
   }
 #endif
 

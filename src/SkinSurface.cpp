@@ -124,7 +124,11 @@ bool SkinSurface::build() {
   f = buildSkinCGAL();
 #else
   spdlog::error("Skin surface cannot be used, please install CGAL and rebuild\n");
-  exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 #endif
   if (!f) {
     spdlog::error("Error during skin build-up");
@@ -1602,7 +1606,11 @@ void SkinSurface::preProcessPanel() {
 
           if (ind_2d[iy][iz] >= MAX_MIXEDCELLS_2D) {
             spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRID_MIXEDCELLMAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) = it;
           ind_2d[iy][iz]++;
@@ -1619,7 +1627,11 @@ void SkinSurface::preProcessPanel() {
 
           if (ind_2d[ix][iy] >= MAX_MIXEDCELLS_2D) {
             spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRID_MIXEDCELLMAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) = it;
           ind_2d[ix][iy]++;
@@ -1634,7 +1646,11 @@ void SkinSurface::preProcessPanel() {
 
           if (ind_2d[ix][iz] >= MAX_MIXEDCELLS_2D) {
             spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRID_MIXEDCELLMAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) = it;
           ind_2d[ix][iz]++;
@@ -1843,7 +1859,11 @@ bool SkinSurface::buildAuxiliaryGrid() {
 
           if (ind[ix][iy][iz] >= MAX_MIXEDCELLS) {
             spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase Max_skin_patches_per_auxiliary_grid_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRIDMIXEDCELLMAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) = it;
           ind[ix][iy][iz]++;

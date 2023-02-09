@@ -17,8 +17,12 @@ ConfigFileOP load(std::string confFile) {
   try {
     cf = std::make_shared<ConfigFile>(confFile.c_str());
   } catch (...) {
-    spdlog::error( "Cannot read {}", confFile);
+    spdlog::error("Cannot read {}", confFile);
+#ifdef PYTHON
+    throw std::invalid_argument("");
+#else
     exit(-1);
+#endif
   }
 
   return cf;
@@ -49,42 +53,68 @@ ConfigurationOP parse(ConfigFileOP cf) {
 
   if (cf != NULL) {
     if (!conf->buildEpsmaps && conf->saveEpsmaps) {
-      spdlog::error( "Asked to save epsmap without builiding it");
+      spdlog::error("Asked to save epsmap without builiding it");
       spdlog::info("{} Please set Build_epsilon_maps = true", REMARK);
+#ifdef PYTHON
+      throw std::invalid_argument("");
+#else
       exit(-1);
+#endif
     }
 
     if (!conf->buildEpsmaps && conf->projBGP) {
-      spdlog::error("Cannot project boundary grid points without an epsilon map.");
+      spdlog::error(
+          "Cannot project boundary grid points without an epsilon map.");
       spdlog::info("{} Please set Build_epsilon_maps = true", REMARK);
+#ifdef PYTHON
+      throw std::invalid_argument("");
+#else
       exit(-1);
+#endif
     }
 
     if (!conf->accTri && !conf->buildStatus && conf->tri) {
       // status map is needed to deduced in/out vertices
-      spdlog::error("If non analytical triangulation is enabled status map is needed.");
+      spdlog::error(
+          "If non analytical triangulation is enabled status map is needed.");
       spdlog::info("{} Please set Build_status_map = true", REMARK);
+#ifdef PYTHON
+      throw std::invalid_argument("");
+#else
       exit(-1);
+#endif
     }
 
     if (conf->fillCavities && !conf->buildStatus) {
       // status map is needed to search cavities
-      spdlog::error( "If cavity detection is enabled status map is needed.");
+      spdlog::error("If cavity detection is enabled status map is needed.");
       spdlog::info("{} Please set Build_status_map = true", REMARK);
+#ifdef PYTHON
+      throw std::invalid_argument("");
+#else
       exit(-1);
+#endif
     }
 
     if (conf->saveIdebmap && !conf->buildEpsmaps) {
-      spdlog::error( "Idebmap is computed only if epsilon map is enabled");
+      spdlog::error("Idebmap is computed only if epsilon map is enabled");
       spdlog::info("{} Please set Build_epsilon_maps = true", REMARK);
+#ifdef PYTHON
+      throw std::invalid_argument("");
+#else
       exit(-1);
+#endif
     }
 
     if (!conf->operativeMode.compare("pockets") && !conf->buildStatus) {
-      spdlog::warn( "Cannot do pocket detection without status map");
+      spdlog::warn("Cannot do pocket detection without status map");
       spdlog::info("{} Please set Build_status_map = true", REMARK);
-      
+
+#ifdef PYTHON
+      throw std::invalid_argument("");
+#else
       exit(-1);
+#endif
     }
   }
 
@@ -123,10 +153,13 @@ ConfigurationOP parse(ConfigFileOP cf) {
 }
 
 void cite() {
-  spdlog::info( "If you use NanoShaper please cite these works:");
-  spdlog::info("\tS. Decherchi, W. Rocchia, \"A general and Robust Ray-Casting-Based Algorithm for Triangulating Surfaces at the Nanoscale\"; PlosOne");
-  spdlog::info("\tlink: http://www.plosone.org/article/metrics/info%3Adoi%2F10.1371%2Fjournal.pone.0059744");
-  
+  spdlog::info("If you use NanoShaper please cite these works:");
+  spdlog::info(
+      "\tS. Decherchi, W. Rocchia, \"A general and Robust Ray-Casting-Based "
+      "Algorithm for Triangulating Surfaces at the Nanoscale\"; PlosOne");
+  spdlog::info("\tlink: "
+               "http://www.plosone.org/article/metrics/"
+               "info%3Adoi%2F10.1371%2Fjournal.pone.0059744");
 }
 
 /** the set of operations in the usual mode of usage. This function is not
@@ -145,8 +178,12 @@ void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
   bool outsurf = surf->build();
 
   if (!outsurf) {
-    spdlog::error( "Surface construction failed!");
+    spdlog::error("Surface construction failed!");
+#ifdef PYTHON
+    throw std::exception();
+#else
     exit(-1);
+#endif
   }
 
   // Build DelPhi stuff
@@ -154,8 +191,8 @@ void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
 
   double duration = chrono.stop();
 
-  spdlog::info( "Surface computation time.. {} [s]", duration);
-  spdlog::info( "Estimated volume {} [A^3]", surf->getVolume());
+  spdlog::info("Surface computation time.. {} [s]", duration);
+  spdlog::info("Estimated volume {} [A^3]", surf->getVolume());
 
   if (conf->debugStatus)
 #ifdef SPDLOG
@@ -163,7 +200,7 @@ void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
 #endif // SPDLOG
 
   if (conf->tri) {
-    spdlog::info( "Triangulating Surface...");
+    spdlog::info("Triangulating Surface...");
 
     Timer chrono;
     chrono.start();
@@ -179,49 +216,49 @@ void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
     }
 
     if (conf->smoothing) {
-      spdlog::info( "Smoothing surface...");
+      spdlog::info("Smoothing surface...");
       surf->smoothSurface();
     }
 
     double duration = chrono.stop();
     spdlog::info("ok!");
 
-    spdlog::info( "Total Triangulation time {} [s]", duration);
+    spdlog::info("Total Triangulation time {} [s]", duration);
   }
 
   if (conf->tri2balls) {
-    spdlog::info( "Converting triangulation to balls...");
+    spdlog::info("Converting triangulation to balls...");
     surf->tri2Balls();
     spdlog::info("ok!");
   }
 
   if (conf->saveEpsmaps) {
-    spdlog::info( "Saving epsmaps...");
+    spdlog::info("Saving epsmaps...");
     // Save epsmap
     dg->saveEpsMaps(refName);
     spdlog::info("ok!");
   }
 
   if (conf->saveBgps) {
-    spdlog::info( "Saving bgpmap...");
+    spdlog::info("Saving bgpmap...");
     dg->saveBGP(refName);
     spdlog::info("ok!");
   }
 
   if (conf->saveStatusMap) {
-    spdlog::info( "Saving statusmap and cavities...");
+    spdlog::info("Saving statusmap and cavities...");
     dg->saveStatus(refName);
     spdlog::info("ok!");
   }
 
   if (conf->saveCavities) {
-    spdlog::info( "Saving cavities...");
+    spdlog::info("Saving cavities...");
     dg->saveCavities(false);
     spdlog::info("ok!");
   }
 
   if (conf->saveIdebmap) {
-    spdlog::info( "Saving idebmap...");
+    spdlog::info("Saving idebmap...");
     dg->saveIdebMap(refName);
     spdlog::info("ok!");
   }
@@ -249,10 +286,11 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
 
   /////////////////////////////////////////////////////////////////////////////////////////
   // Set up Surface 1 (fat probe)
-  
-  spdlog::info( "Step 1 -> fat probe");
-  DelPhiSharedOP dg1 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile, localEpsMap,
-                       localStatusMap, localMulti, hasAtomInfo);
+
+  spdlog::info("Step 1 -> fat probe");
+  DelPhiSharedOP dg1 = std::make_shared<DelPhiShared>(
+      conf->scale, conf->perfill, conf->molFile, localEpsMap, localStatusMap,
+      localMulti, hasAtomInfo);
   int natom = dg1->getNumAtoms();
   cf->remove(string("Surface"));
   cf->add<string>("Surface", "ses");
@@ -266,8 +304,12 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   bool outsurf = surf1->build();
 
   if (!outsurf) {
-    spdlog::error( "Surface 1 construction failed!");
+    spdlog::error("Surface 1 construction failed!");
+#ifdef PYTHON
+    throw std::exception();
+#else
     exit(-1);
+#endif
   }
 
   // fat connolly cancel each cavity (anyway they are smaller than they should
@@ -279,11 +321,12 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
 
   // Set up Surface 2 (regular probe 1.4)
   // Set up DelPhi grid  2
-  
-  spdlog::info( "Step 2 -> small probe");
 
-  DelPhiSharedOP dg2 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile, localEpsMap,
-                       localStatusMap, localMulti, false);
+  spdlog::info("Step 2 -> small probe");
+
+  DelPhiSharedOP dg2 = std::make_shared<DelPhiShared>(
+      conf->scale, conf->perfill, conf->molFile, localEpsMap, localStatusMap,
+      localMulti, false);
   surf2 = SurfaceFactory::getInstance().create(cf, dg2);
   surf2->setInsideCode(10);
   surf2->setProjBGP(false);
@@ -303,8 +346,12 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   outsurf = surf2->build();
 
   if (!outsurf) {
-    spdlog::error( "Surface 2 construction failed!");
+    spdlog::error("Surface 2 construction failed!");
+#ifdef PYTHON
+    throw std::exception();
+#else
     exit(-1);
+#endif
   }
 
   // if cav and pockets together -> do not perform cavity detection (keep all)
@@ -326,7 +373,11 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   /*
         surf1->difference(surf2);
         surf1->triangulateSurface(0.0,"diffmap.off",true);
-        exit(-1);
+        #ifdef PYTHON
+throw std::exception("");
+#else
+exit(-1);
+#endif
   */
   //////////////////////////////////////
 
@@ -334,8 +385,9 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   DelPhiSharedOP dg3;
   if (conf->linkPockets) {
     // Set up Surface 3 (accessibility probe)
-    dg3 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill, conf->molFile,
-                           localEpsMap, localStatusMap, localMulti, false);
+    dg3 = std::make_shared<DelPhiShared>(conf->scale, conf->perfill,
+                                         conf->molFile, localEpsMap,
+                                         localStatusMap, localMulti, false);
     surf3 = SurfaceFactory::getInstance().create(cf, dg3);
     surf2->setProjBGP(false);
     surf2->setProbeRadius(conf->pocketRadiusSmall);
@@ -346,17 +398,20 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     outsurf = surf3->build();
 
     if (!outsurf) {
-      spdlog::error( "Surface 3 construction failed!");
+      spdlog::error("Surface 3 construction failed!");
+#ifdef PYTHON
+      throw std::exception();
+#else
       exit(-1);
+#endif
     }
     // keep original surface
     surf3->getSurf(false);
   }
 
-  
-  spdlog::info( "Step 3 -> differential map");
+  spdlog::info("Step 3 -> differential map");
 
-  spdlog::info( "Building pockets by difference map...");
+  spdlog::info("Building pockets by difference map...");
   (*surf1) -= (*surf2);
 
   ////////////////////// recover split cavities links ///////////////
@@ -367,32 +422,30 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     Timer chrono1;
     chrono1.start();
 
-    
-    spdlog::info( "Step 3.1 -> linking");
+    spdlog::info("Step 3.1 -> linking");
 
-    spdlog::info( "Linking cavities/pockets...");
+    spdlog::info("Linking cavities/pockets...");
     while (nr != 0) {
       // check cavities links, use the link status map as reference map
       // to check accessibility
       nr = surf1->linkCavities(dg2->status, dg3->status);
-      spdlog::info( "Merged {} cavities", nr);
+      spdlog::info("Merged {} cavities", nr);
     }
 
     duration1 = chrono1.stop();
-    spdlog::info( "Diff. Step 4 {} [s]", duration1);
+    spdlog::info("Diff. Step 4 {} [s]", duration1);
 
     // delete surf3;
     // delete dg3;
   }
   ///////////////////////////////////////////////////////////////////
 
-  
-  spdlog::info( "Step 4 -> filtering, envelope building");
+  spdlog::info("Step 4 -> filtering, envelope building");
 
   ///////////////////// volume filter ///////////////////////////////
   surf1->fillCavities(11.4 * conf->numMol, false);
   surf1->getCavitiesAtoms();
-  spdlog::info( "Saving cavities info..");
+  spdlog::info("Saving cavities info..");
 
   if (hasAtomInfo) {
     // save cavities in ProShape format
@@ -418,16 +471,15 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
   vector<bool> isPocket;
 
   if (conf->cavAndPockets) {
-    
+
     // do cavity detection to recover which is cavity in the reference
-    spdlog::info( "Recovering cavity/pocket distinction..");
+    spdlog::info("Recovering cavity/pocket distinction..");
     surf2->getCavities();
     // mark which are pockets and which are cavities
     dg1->markPockets(dg2->status, isPocket);
   }
 
-  spdlog::info( "Build the envelope of each cavity/pocket");
-  
+  spdlog::info("Build the envelope of each cavity/pocket");
 
   cf->remove("Surface");
   cf->add<string>("Surface", "skin");
@@ -439,7 +491,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     char mol[100], tri_[100];
     snprintf(mol, sizeof(mol), "cav%d.txt", i);
     snprintf(tri_, sizeof(tri_), "cav_tri%d", i);
-    DelPhiSharedOP dg_temp = std::make_shared<DelPhiShared>(2.0, 50, mol, false, false, false);
+    DelPhiSharedOP dg_temp =
+        std::make_shared<DelPhiShared>(2.0, 50, mol, false, false, false);
     // reset seed
     srand(conf->currentSeed);
     SurfaceOP cs_temp = SurfaceFactory::getInstance().create(cf, dg_temp);
@@ -453,7 +506,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     cs_temp->getSurf(false);
     volumes.push_back(cs_temp->getVolume());
     if (conf->tri) {
-      spdlog::info( "Triangulating enveloped cavity/pockets {} ", i);
+      spdlog::info("Triangulating enveloped cavity/pockets {} ", i);
       cs_temp->triangulateSurface(0.0, tri_);
       areas.push_back(cs_temp->getArea());
 
@@ -467,8 +520,14 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
           // spdlog::error( "Cannot find the entrance of a cavity; it
           // must be a pocket.";
           if (!conf->cavAndPockets) {
-            spdlog::info("{} You have to enable Cavities and pockets flag to do a distinction between a pocket and a cavity", REMARK);
+            spdlog::info("{} You have to enable Cavities and pockets flag to "
+                         "do a distinction between a pocket and a cavity",
+                         REMARK);
+#ifdef PYTHON
+            throw std::invalid_argument("");
+#else
             exit(-1);
+#endif
           }
         } else {
           // is a pocket, we can identify the entrance
@@ -563,25 +622,30 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     fprintf(fp, "\nTot\t\t%.4f\t\t%.4f", sumA, sumV);
     fclose(fp);
   } else {
-    spdlog::info( "------------------------------------");
-    spdlog::info( "     Pocket Detection Summary       ");
-    spdlog::info( "------------------------------------");
-    spdlog::info( "Detected a total of {} pockets/cavities having at least the volume of {} water molecules", nc, conf->numMol);;
+    spdlog::info("------------------------------------");
+    spdlog::info("     Pocket Detection Summary       ");
+    spdlog::info("------------------------------------");
+    spdlog::info("Detected a total of {} pockets/cavities having at least the "
+                 "volume of {} water molecules",
+                 nc, conf->numMol);
+    ;
 
     for (int i = 0, ii = 0; i < nc; i++) {
       if (conf->cavAndPockets) {
         if (conf->tri) {
           if (isPocket[i]) {
-            spdlog::info( "Pocket {} vol {} area {} body area {}", i, volumes[i], areas[i], areas2[ii]);
+            spdlog::info("Pocket {} vol {} area {} body area {}", i, volumes[i],
+                         areas[i], areas2[ii]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("pocket_vol {}", volumes[i]);
-              spdlog::debug("pocket_area {} pocket_body_area {}", areas[i], areas2[i]);
+              spdlog::debug("pocket_area {} pocket_body_area {}", areas[i],
+                            areas2[i]);
 #endif // SPDLOG
             }
             ii++;
           } else {
-            spdlog::info( "Cavity {} vol {} area {}", i, volumes[i], areas[i]);
+            spdlog::info("Cavity {} vol {} area {}", i, volumes[i], areas[i]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("cav_vol {}", volumes[i]);
@@ -591,14 +655,14 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
           }
         } else {
           if (isPocket[i]) {
-            spdlog::info( "Pocket {} vol {}", i, volumes[i]);
+            spdlog::info("Pocket {} vol {}", i, volumes[i]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("pocket_vol {}", volumes[i]);
 #endif // SPDLOG
             }
           } else {
-            spdlog::info( "Cavity {} vol {}", i, volumes[i]);
+            spdlog::info("Cavity {} vol {}", i, volumes[i]);
             if (conf->debugStatus) {
 #ifdef SPDLOG
               spdlog::debug("cav_vol {}", volumes[i]);
@@ -608,7 +672,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
         }
       } else {
         if (conf->tri) {
-          spdlog::info( "Pocket {} vol {} area {} body area {}", i, volumes[i], areas[i], areas2[ii]);
+          spdlog::info("Pocket {} vol {} area {} body area {}", i, volumes[i],
+                       areas[i], areas2[ii]);
           if (conf->debugStatus) {
 #ifdef SPDLOG
             spdlog::debug("pocket_vol {}", volumes[i]);
@@ -617,7 +682,7 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
           }
           ii++;
         } else {
-          spdlog::info( "Pocket {} vol {}", i, volumes[i]);
+          spdlog::info("Pocket {} vol {}", i, volumes[i]);
           if (conf->debugStatus) {
 #ifdef SPDLOG
             spdlog::debug("pocket_vol {}", volumes[i]);
@@ -628,8 +693,8 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
     }
   }
 
-  spdlog::info( "Pocket detection time.. {} [s]", duration);
-  spdlog::info( "Cleaning memory...");
+  spdlog::info("Pocket detection time.. {} [s]", duration);
+  spdlog::info("Cleaning memory...");
 
   // delete surf1;
   // delete dg1;

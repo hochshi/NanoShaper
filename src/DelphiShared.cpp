@@ -38,13 +38,21 @@ void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
 
   if (!flag) {
     spdlog::error("Missing or corrupt atoms file. Initialization failed");
-    exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
   }
 
   flag = buildGrid(scale, perfill);
   if (!flag) {
     spdlog::error("Initialization failed");
-    exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
   }
   spdlog::info("Initialization completed");
 }
@@ -213,7 +221,11 @@ bool DelPhiShared::loadAtoms(string fn) {
         atm->radius2 = (atm->radius) * (atm->radius);
         if (d == -1) {
           spdlog::error( "Cannot get the dielectric value of the atom number {}; please add it after radius entry to the xyzr input file", list.size());
-          exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
         } else
           atm->dielectric = d;
       } else if (isAvailableAtomInfo) {
@@ -226,7 +238,11 @@ bool DelPhiShared::loadAtoms(string fn) {
         atm->radius2 = (atm->radius) * (atm->radius);
         if (d == -1) {
           spdlog::error( "Cannot get the dielectric value of the atom number {}; please add it after radius entry to the xyzr input file", list.size());
-          exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
         } else
           atm->dielectric = d;
 
@@ -269,13 +285,21 @@ bool DelPhiShared::loadAtoms(string fn) {
         "{} To emulate 4 atoms you can place dummy atoms with null radius",
         REMARK);
     spdlog::info("{} at the same centers of the real atoms", REMARK);
-    exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
   }
 
   if (max_rad == 0) {
     spdlog::error("All null radii? If you are using place holders atoms please "
                   "set at least one radius > 0");
-    exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
   }
 
   return true;
@@ -480,7 +504,11 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
 
     if (status == NULL) {
       spdlog::error("Not enough memory to allocate status map");
-      exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
     }
 
     for (int i = 0; i < tot; i++)
@@ -863,7 +891,11 @@ int DelPhiShared::cavitiesToAtoms(double rad) {
 
     if (count == 0) {
       spdlog::error("Zero support atoms to save");
-      exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
     }
 
     // clone atoms to let NanoShaper work on this set of points

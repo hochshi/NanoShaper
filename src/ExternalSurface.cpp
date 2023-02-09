@@ -153,7 +153,11 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				if (check<=0)
 				{
 					spdlog::error( "Error in reading from external surface");
-					exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 				}
 				if (tempint)
 					inside = tempint;
@@ -177,7 +181,11 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				if (check<=0)
 				{
 					spdlog::error( "Error in reading from external surface");
-					exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 				}
 				//delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ)=tempint;
 				write4DVector<int>(delphi->epsmap,tempint,ix,iy,iz,1,NX,NY,NZ,3);
@@ -199,7 +207,11 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				if (check<=0)
 				{
 					spdlog::error( "Error in reading from external surface");
-					exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 				}
 				//delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ)=tempint;
 				write4DVector<int>(delphi->epsmap,tempint,ix,iy,iz,2,NX,NY,NZ,3);
@@ -216,7 +228,11 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 	if (check<=0)
 	{
 		spdlog::error( "Error in reading from external surface");
-		exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 	}
 
 	if (nbgp<=0)
@@ -244,7 +260,11 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 		if (check<=0)
 		{
 			spdlog::error( "Error in reading from external surface");
-			exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 		}
 
 		ind[0]-=1;
@@ -282,7 +302,11 @@ bool ExternalSurface::getSurf(bool fillCav,double vol)
 				if (check<=0)
 				{
 					spdlog::error( "Error in reading from external surface");
-					exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
 				}
 				//delphi->status[ix][iy][iz]=((char)tempint);
 				//delphi->STATUSMAP(ix,iy,iz,NX,NY)=((short)tempint);
