@@ -89,6 +89,7 @@ std::istream &fileParser(std::istream &is, ConfigFile &cf) {
   const pos skip = delim.length();      // length of separator
 
   string nextline = ""; // might need to read ahead to see where value ends
+  std::map<std::string, std::string> contents;
 
   while (is || nextline.length() > 0) {
     // Read an entire line at a time
@@ -144,9 +145,10 @@ std::istream &fileParser(std::istream &is, ConfigFile &cf) {
       // Store key and value
       ConfigFile::trim(key);
       ConfigFile::trim(line);
-      cf.myContents[key] = line; // overwrites if key is repeated
+      contents[key] = line; // overwrites if key is repeated
     }
   }
-
+  
+  cf.setContents(contents);
   return is;
 }
