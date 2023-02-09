@@ -8,6 +8,7 @@
 #ifndef ConnollySurface_h
 #define ConnollySurface_h
 
+#include "globals.h"
 #include <Surface.h>
 #include <SurfaceFactory.h>
 #include <memory>
@@ -265,7 +266,7 @@ public:
   /** set DelPhi environment*/
   ConnollySurface(DelPhiShared *ds);
   /** set configuration and DelPhi environment*/
-  ConnollySurface(ConfigFile *cf, DelPhiShared *ds);
+  ConnollySurface(ConfigurationOP cf, DelPhiShared *ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////
@@ -293,7 +294,7 @@ public:
   /** function for the constructor without arguments*/
   virtual void init();
   /** functions for the constructor with config file argument*/
-  virtual void init(ConfigFile *cf);
+  virtual void init(ConfigurationOP cf);
   /**function for the denstructor*/
   virtual void clear();
   /** pre-process panel to accelerate ray-tracing*/
@@ -393,7 +394,7 @@ private:
 
 // expand it explicitly because Swig is not able to expand it
 static class ConnollySurfaceRegister {
-  static SurfaceOP createSurface(ConfigFile *conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
     return std::make_shared<ConnollySurface>(conf, ds);
   }
 

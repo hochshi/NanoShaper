@@ -1,4 +1,5 @@
 
+#include <globals.h>
 #include <ExternalSurface.h>
 
 void ExternalSurface::init()
@@ -6,7 +7,7 @@ void ExternalSurface::init()
 	surfType = GENERIC_SURFACE;
 }
 
-void ExternalSurface::init(ConfigFile* cf)
+void ExternalSurface::init(ConfigurationOP cf)
 {
 	
 }
@@ -27,7 +28,7 @@ ExternalSurface::ExternalSurface(DelPhiShared* ds):Surface()
 	init();
 }
 
-ExternalSurface::ExternalSurface(ConfigFile* cf,DelPhiShared* ds)
+ExternalSurface::ExternalSurface(ConfigurationOP cf, DelPhiShared* ds)
 {
 	// set environment
 	delphi = ds;	

@@ -9,6 +9,7 @@
 #define MeshSurface_h
 
 #include "SurfaceFactory.h"
+#include "globals.h"
 #include <Surface.h>
 #include <memory>
 
@@ -108,7 +109,7 @@ public:
 	/** set DelPhi environment*/
 	MeshSurface(DelPhiShared* ds);
 	/** set configuration and DelPhi environment*/
-	MeshSurface(ConfigFile* cf,DelPhiShared* ds);			
+	MeshSurface(ConfigurationOP cf,DelPhiShared* ds);			
 
 	//////////////////////// INTERFACE MANDATORY METHODS /////////////////////////////////
 	/** Nothing to do in this case*/
@@ -159,7 +160,7 @@ public:
 	/** function for the constructor without arguments*/
 	virtual void init();
 	/** functions for the constructor with config file argument*/
-	virtual void init(ConfigFile* cf);
+	virtual void init(ConfigurationOP cf);
 	/**function for the denstructor*/
 	virtual void clear();
 	/////////////////////////////////////////////////////////////
@@ -184,7 +185,7 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class MeshSurfaceRegister{ 
-	static SurfaceOP createSurface(ConfigFile* conf,DelPhiShared* ds) 
+	static SurfaceOP createSurface(ConfigurationOP conf,DelPhiShared* ds) 
 	{ 
     return std::make_shared<MeshSurface>(conf,ds); 
 	} 

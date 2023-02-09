@@ -45,6 +45,7 @@
 #include <list>
 #include <map>
 #include <math.h>
+#include <nlohmann/json.hpp>
 #include <queue>
 #include <set>
 #include <stdio.h>
@@ -356,8 +357,57 @@ public:
   bool debug;
   bool debugStatus;
 
+  // Rest of the values came from the code
+  double blobby_B = -2.5;
+  unsigned int maxSESDim2D = 50;
+  unsigned int maxSESPatches2D = 400;
+  unsigned int maxSESDim = 100;
+  unsigned int maxSESPatches = 400;
+  int mp = 100;
+  double si_perfil = 1.5;
+  double radius = 1.0;
+
+  string sfname = "mesh.off";
+  unsigned int maxMeshDim = 100;
+  unsigned int maxMeshPatches = 250;
+  unsigned int maxMeshDim2D = 100;
+  unsigned int maxMeshPatches2D = 250;
+  int NumMSMSfiles = 1;
+
+  double skin_s = 0.45;
+  unsigned int maxSkinDim = 100;
+  unsigned int maxSkinPatches = 400;
+  unsigned int maxSkinDim2D = 50;
+  unsigned int maxSkinPatches2D = 400;
+  bool useFastProjection = false;
+  bool savePovRay = false;
+
+  bool checkDuplicatedVertices = true;
+  bool wellShaped = false;
+  double probeRadius = 1.4;
+  bool lb = true;
+  bool vaFlag = false;
+  bool computeNormals = false;
+  bool saveMSMS = false;
+  double sternLayer = -1.;
+  int Max_Atoms_Multi_Grid = 100;
+  string surfName;
+  // string surfName = "ses";
 };
 
 using ConfigurationOP = std::shared_ptr<Configuration>;
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    Configuration, cavVol, numMol, scale, perfill, molFile, sysName, multi_diel,
+    fillCavities, buildEpsmaps, buildStatus, tri, accTri, smoothing, tri2balls,
+    projBGP, saveEpsmaps, saveIdebmap, saveBgps, saveStatusMap, saveCavities,
+    operativeMode, numthd, printAvailSurf, currentSeed, cavAndPockets,
+    linkPockets, pocketRadiusBig, pocketRadiusSmall, pocketRadiusLink, debug,
+    debugStatus, blobby_B, maxSESDim2D, maxSESPatches2D, maxSESDim,
+    maxSESPatches, mp, si_perfil, radius, sfname, maxMeshDim, maxMeshPatches,
+    maxMeshDim2D, maxMeshPatches2D, NumMSMSfiles, skin_s, maxSkinDim,
+    maxSkinPatches, maxSkinDim2D, maxSkinPatches2D, useFastProjection,
+    savePovRay, checkDuplicatedVertices, wellShaped, probeRadius, lb, vaFlag,
+    computeNormals, saveMSMS, sternLayer, Max_Atoms_Multi_Grid, surfName)
 
 #endif

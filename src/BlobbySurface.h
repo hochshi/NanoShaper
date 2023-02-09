@@ -9,6 +9,7 @@
 #define BlobbySurface_h
 
 #include "SurfaceFactory.h"
+#include "globals.h"
 #include <Surface.h>
 #include <MeshSurface.h>
 #include <memory>
@@ -40,7 +41,7 @@ public:
 	BlobbySurface();
 	/** set DelPhi environment*/
 	BlobbySurface(DelPhiShared* ds);			
-	BlobbySurface(ConfigFile* cf,DelPhiShared* ds);
+	BlobbySurface(ConfigurationOP cf,DelPhiShared* ds);
 
 	//////////////////////// INTERFACE MANDATORY METHODS /////////////////////////////////
 	/** Compute blobby mesh and run MeshSurface::build()*/
@@ -50,7 +51,7 @@ public:
 	/** function for the constructor without arguments*/
 	virtual void init();
 	/** functions for the constructor with config file argument*/
-	virtual void init(ConfigFile* cf);
+	virtual void init(ConfigurationOP cf);
 	/**function for the denstructor*/
 	virtual void clear();
 	/////////////////////////////////////////////////////////////
@@ -65,7 +66,7 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class BlobbySurfaceRegister{ 
-	static SurfaceOP createSurface(ConfigFile* conf,DelPhiShared* ds) 
+	static SurfaceOP createSurface(ConfigurationOP conf,DelPhiShared* ds) 
 	{ 
     return std::make_shared<BlobbySurface>(conf, ds);
 	} 

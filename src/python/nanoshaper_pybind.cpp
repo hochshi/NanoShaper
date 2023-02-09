@@ -31,7 +31,7 @@ PYBIND11_MODULE(NanoShaper, m) {
         py::arg("conf"));
   m.def(
       "createSurface",
-      [](ConfigFileOP conf, DelPhiSharedOP ds) {
+      [](ConfigurationOP conf, DelPhiSharedOP ds) {
         SurfaceOP base = SurfaceFactory::getInstance().create(conf, ds);
         return base;
       },
@@ -84,6 +84,44 @@ PYBIND11_MODULE(NanoShaper, m) {
       .def_readwrite("pocketRadiusLink", &Configuration::pocketRadiusLink)
       .def_readwrite("debug", &Configuration::debug)
       .def_readwrite("debugStatus", &Configuration::debugStatus)
+
+      .def_readwrite("blobby_B", &Configuration::blobby_B)
+      .def_readwrite("maxSESDim2D", &Configuration::maxSESDim2D)
+      .def_readwrite("maxSESPatches2D", &Configuration::maxSESPatches2D)
+      .def_readwrite("maxSESDim", &Configuration::maxSESDim)
+      .def_readwrite("maxSESPatches", &Configuration::maxSESPatches)
+      .def_readwrite("mp", &Configuration::mp)
+      .def_readwrite("si_perfil", &Configuration::si_perfil)
+      .def_readwrite("radius", &Configuration::radius)
+
+      .def_readwrite("sfname", &Configuration::sfname)
+      .def_readwrite("maxMeshDim", &Configuration::maxMeshDim)
+      .def_readwrite("maxMeshPatches", &Configuration::maxMeshPatches)
+      .def_readwrite("maxMeshDim2D", &Configuration::maxMeshDim2D)
+      .def_readwrite("maxMeshPatches2D", &Configuration::maxMeshPatches2D)
+      .def_readwrite("NumMSMSfiles", &Configuration::NumMSMSfiles)
+
+      .def_readwrite("skin_s", &Configuration::skin_s)
+      .def_readwrite("maxSkinDim", &Configuration::maxSkinDim)
+      .def_readwrite("maxSkinPatches", &Configuration::maxSkinPatches)
+      .def_readwrite("maxSkinDim2D", &Configuration::maxSkinDim2D)
+      .def_readwrite("maxSkinPatches2D", &Configuration::maxSkinPatches2D)
+      .def_readwrite("useFastProjection", &Configuration::useFastProjection)
+      .def_readwrite("savePovRay", &Configuration::savePovRay)
+
+      .def_readwrite("checkDuplicatedVertices",
+                     &Configuration::checkDuplicatedVertices)
+      .def_readwrite("wellShaped", &Configuration::wellShaped)
+      .def_readwrite("probeRadius", &Configuration::probeRadius)
+      .def_readwrite("lb", &Configuration::lb)
+      .def_readwrite("vaFlag", &Configuration::vaFlag)
+      .def_readwrite("computeNormals", &Configuration::computeNormals)
+      .def_readwrite("saveMSMS", &Configuration::saveMSMS)
+      .def_readwrite("sternLayer", &Configuration::sternLayer)
+      .def_readwrite("Max_Atoms_Multi_Grid",
+                     &Configuration::Max_Atoms_Multi_Grid)
+      .def_readwrite("surfName", &Configuration::surfName)
+
       .def("stopDebug", &Configuration::stopDebug)
       .def("restartDebug", &Configuration::restartDebug);
   py::class_<ConfigFile, std::shared_ptr<ConfigFile>>(m, "ConfigFile")

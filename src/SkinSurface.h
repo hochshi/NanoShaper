@@ -9,6 +9,7 @@
 #define SkinSurface_h
 
 #include "SurfaceFactory.h"
+#include "globals.h"
 #include <Surface.h>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -246,7 +247,7 @@ public:
   /** set DelPhi environment*/
   SkinSurface(DelPhiShared *ds);
   /** set configuration and DelPhi environment*/
-  SkinSurface(ConfigFile *cf, DelPhiShared *ds);
+  SkinSurface(ConfigurationOP cf, DelPhiShared *ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////
@@ -274,7 +275,7 @@ public:
   /** function for the constructor without arguments*/
   virtual void init();
   /** functions for the constructor with config file argument*/
-  virtual void init(ConfigFile *cf);
+  virtual void init(ConfigurationOP cf);
   /**function for the denstructor*/
   virtual void clear();
   /** pre-process panel to accelerate ray-tracing*/
@@ -341,7 +342,7 @@ private:
 };
 
 static class SkinSurfaceRegister {
-  static SurfaceOP createSurface(ConfigFile *conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
     return std::make_shared<SkinSurface>(conf, ds);
   }
 

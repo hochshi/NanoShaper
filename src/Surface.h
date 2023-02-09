@@ -429,7 +429,7 @@ protected:
 
 protected:
   Surface();
-  Surface(ConfigFile *cf);
+  Surface(ConfigurationOP cf);
 
 public:
   // In order to use the set of default surface methods, the following
@@ -473,7 +473,7 @@ public:
   virtual void init();
 
   /** functions for the constructor with config file argument*/
-  virtual void init(ConfigFile *cf);
+  virtual void init(ConfigurationOP cf);
 
   /**function for the denstructor*/
   virtual void clear();

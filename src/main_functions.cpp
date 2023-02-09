@@ -1,6 +1,7 @@
-#include "DelphiShared.h"
+#include <DelphiShared.h>
 #include <globals.h>
 #include <main_functions.h>
+#include <ConfigFile.h>
 #include <memory>
 
 #ifdef SPDLOG
@@ -149,6 +150,46 @@ ConfigurationOP parse(ConfigFileOP cf) {
   conf->pocketRadiusSmall = cf->read<double>("Pocket_Radius_Small", 1.4);
   conf->pocketRadiusLink = cf->read<double>("Pocket_Radius_Link", 1.0);
 
+
+  // Rest of the values came from the code
+  conf->blobby_B = cf->read<double>( "Blobbyness", -2.5 );
+  
+  conf->maxSESDim2D  = cf->read<unsigned int>("Max_ses_patches_auxiliary_grid_2d_size", 50);
+  conf->maxSESPatches2D = cf->read<unsigned int>("Max_ses_patches_per_auxiliary_grid_2d_cell", 400);
+  conf->maxSESDim = cf->read<unsigned int>("Max_ses_patches_auxiliary_grid_size", 100);
+  conf->maxSESPatches = cf->read<unsigned int>("Max_ses_patches_per_auxiliary_grid_cell", 400);
+  
+  conf->mp = cf->read<int>("Max_Probes_Self_Intersections", 100);
+  conf->si_perfil = cf->read<double>("Self_Intersections_Grid_Coefficient", 1.5);
+  
+  conf->radius = cf->read<double>( "Example_Surface_Parameter", 1.0);
+
+  conf->sfname = cf->read<string>( "Surface_File_Name", "mesh.off" );
+	conf->maxMeshDim = cf->read<unsigned int>( "Max_mesh_auxiliary_grid_size", 100 );
+	conf->maxMeshPatches = cf->read<unsigned int>( "Max_mesh_patches_per_auxiliary_grid_cell", 250 );
+	conf->maxMeshDim2D = cf->read<unsigned int>( "Max_mesh_auxiliary_grid_2d_size", 100 );
+	conf->maxMeshPatches2D = cf->read<unsigned int>( "Max_mesh_patches_per_auxiliary_grid_2d_cell", 250 );
+  conf->NumMSMSfiles = cf->read<int>( "Num_MSMS_files", 1 );
+
+  conf->skin_s = cf->read<double>("Skin_Surface_Parameter", 0.45);
+  conf->maxSkinDim = cf->read<unsigned int>("Max_skin_patches_auxiliary_grid_size", 100);
+  conf->maxSkinPatches = cf->read<unsigned int>("Max_skin_patches_per_auxiliary_grid_cell", 400);
+  conf->maxSkinDim2D = cf->read<unsigned int>("Max_skin_patches_auxiliary_grid_2d_size", 50);
+  conf->maxSkinPatches2D = cf->read<unsigned int>( "Max_skin_patches_per_auxiliary_grid_2d_cell", 400);
+  conf->useFastProjection = cf->read<bool>("Skin_Fast_Projection", false);
+  conf->savePovRay = cf->read<bool>("Save_PovRay", false);
+  
+  conf->checkDuplicatedVertices = cf->read<bool>( "Check_duplicated_vertices", true );
+  conf->wellShaped = cf->read<bool>( "Keep_Water_Shaped_Cavities", false );
+  conf->probeRadius = cf->read<double>( "Probe_Radius", 1.4 );
+  conf->lb = cf->read<bool>( "Load_Balancing",true);
+  conf->vaFlag = cf->read<bool>( "Vertex_Atom_Info",false);
+  conf->computeNormals = cf->read<bool>( "Compute_Vertex_Normals",false);
+  conf->saveMSMS = cf->read<bool>( "Save_Mesh_MSMS_Format",false);
+  conf->sternLayer = cf->read<double>( "Stern_layer", -1. );
+  conf->Max_Atoms_Multi_Grid = cf->read<int>( "Max_Atoms_Multi_Grid", 100 );
+  conf->surfName = cf->read<string>("Surface");
+
   return conf;
 }
 
@@ -264,7 +305,7 @@ void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
   }
 }
 
-void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
+void pocketMode(bool hasAtomInfo, ConfigurationOP cf, ConfigurationOP conf) {
   double duration = 0;
 
   bool localEpsMap = false;
@@ -292,8 +333,9 @@ void pocketMode(bool hasAtomInfo, ConfigFileOP cf, ConfigurationOP conf) {
       conf->scale, conf->perfill, conf->molFile, localEpsMap, localStatusMap,
       localMulti, hasAtomInfo);
   int natom = dg1->getNumAtoms();
-  cf->remove(string("Surface"));
-  cf->add<string>("Surface", "ses");
+  // cf->remove(string("Surface"));
+  // cf->add<string>("Surface", "ses");
+  cf->surfName = "ses";
   surf1 = SurfaceFactory::getInstance().create(cf, dg1);
   surf1->setInsideCode(5);
   surf1->setProbeRadius(conf->pocketRadiusBig);
@@ -481,8 +523,9 @@ exit(-1);
 
   spdlog::info("Build the envelope of each cavity/pocket");
 
-  cf->remove("Surface");
-  cf->add<string>("Surface", "skin");
+  // cf->remove("Surface");
+  // cf->add<string>("Surface", "skin");
+  cf->surfName = "skin";
 
   // TODO make it an option
   bool saveEntranceInfo = true;

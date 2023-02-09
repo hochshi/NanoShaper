@@ -1,4 +1,5 @@
 
+#include <globals.h>
 #include <ConnollySurface.h>
 #include <tools.h>
 #include <CGAL/Kernel/global_functions_3.h>
@@ -31,19 +32,14 @@ void ConnollySurface::init() {
   si_perfil = 1.5;
 }
 
-void ConnollySurface::init(ConfigFile *cf) {
-  unsigned int maxSESDim2D =
-      cf->read<unsigned int>("Max_ses_patches_auxiliary_grid_2d_size", 50);
-  unsigned int maxSESPatches2D =
-      cf->read<unsigned int>("Max_ses_patches_per_auxiliary_grid_2d_cell", 400);
-  unsigned int maxSESDim =
-      cf->read<unsigned int>("Max_ses_patches_auxiliary_grid_size", 100);
-  unsigned int maxSESPatches =
-      cf->read<unsigned int>("Max_ses_patches_per_auxiliary_grid_cell", 400);
-  bool savePovRay = cf->read<bool>("Save_PovRay", false);
-  int mp = cf->read<int>("Max_Probes_Self_Intersections", 100);
-  double si_perfil =
-      cf->read<double>("Self_Intersections_Grid_Coefficient", 1.5);
+void ConnollySurface::init(ConfigurationOP cf) {
+  unsigned int maxSESDim2D = cf->maxSESDim2D;
+  unsigned int maxSESPatches2D = cf->maxSESPatches2D;
+  unsigned int maxSESDim = maxSESDim;
+  unsigned int maxSESPatches = maxSESPatches;
+  bool savePovRay = cf->savePovRay; 
+  int mp = cf->mp;
+  double si_perfil = cf->si_perfil;
 
   setAuxGrid(maxSESDim, maxSESPatches);
   setAuxGrid2D(maxSESDim2D, maxSESPatches2D);
@@ -61,7 +57,7 @@ ConnollySurface::ConnollySurface(DelPhiShared *ds) : Surface() {
   delphi = ds;
 }
 
-ConnollySurface::ConnollySurface(ConfigFile *cf, DelPhiShared *ds)
+ConnollySurface::ConnollySurface(ConfigurationOP cf, DelPhiShared *ds)
     : Surface(cf) {
   init();
   // set environment

@@ -1,3 +1,4 @@
+#include <globals.h>
 #include <ExampleSurface.h>
 
 // denstructor should always call a clear function
@@ -39,14 +40,15 @@ ExampleSurface::ExampleSurface():Surface()
 }
 
 // here you can parse all the custom key words that you add in the configuration file
-void ExampleSurface::init(ConfigFile* cf)
+void ExampleSurface::init(ConfigurationOP cf)
 {
 	// we have the configuration file; so we can query the radius parameter (or our custom parameters)
 	// the second argument is the default value if the radius keyword is not found
-	radius = cf->read<double>( "Example_Surface_Parameter", DEFAULT_RADIUS);	
+	// radius = cf->read<double>( "Example_Surface_Parameter", DEFAULT_RADIUS);	
+  radius = cf->radius;
 }
 
-ExampleSurface::ExampleSurface(ConfigFile* cf,DelPhiShared* ds):Surface(cf)
+ExampleSurface::ExampleSurface(ConfigurationOP cf,DelPhiShared* ds):Surface(cf)
 {
 	init();
 	init(cf);

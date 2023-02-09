@@ -2,7 +2,6 @@
 #ifndef SurfaceFactory_h
 #define SurfaceFactory_h
 
-#include <ConfigFile.h>
 #include <globals.h>
 #include <iostream>
 #include <map>
@@ -17,7 +16,7 @@ class DelPhiShared;
 using DelPhiSharedOP = std::shared_ptr<DelPhiShared>;
 using namespace std;
 
-typedef SurfaceOP (*surface_instantiator)(ConfigFile *conf, DelPhiShared *ds);
+typedef SurfaceOP (*surface_instantiator)(ConfigurationOP conf, DelPhiShared *ds);
 
 class SurfaceFactory {
 
@@ -41,13 +40,13 @@ public:
     surfRegister.insert(pair<string, surface_instantiator>(surfaceName, si));
   }
 
-  SurfaceOP create(ConfigFileOP conf, DelPhiSharedOP ds) {
-    string surfName = conf->read<string>("Surface");
+  SurfaceOP create(ConfigurationOP conf, DelPhiSharedOP ds) {
+    string surfName = conf->surfName;
     if (!surfRegister.count(surfName)) {
       spdlog::error("{} type is not registered!", surfName);
       return nullptr;
     }
-    return surfRegister[surfName](conf.get(), ds.get());
+    return surfRegister[surfName](conf, ds.get());
   }
 
   void print() {
@@ -69,7 +68,7 @@ public:
     SurfaceFactory::getInstance().register_instantiator(surface, createSurface);
   }
 
-  static SurfaceOP createSurface(ConfigFile *conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
     return std::make_shared<T>(conf, ds);
   }
 };

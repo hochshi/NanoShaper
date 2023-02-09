@@ -57,19 +57,19 @@ void Surface::init()
 	MAX_ATOMS_MULTI_GRID = 100;
 }
 
-void Surface::init(ConfigFile* cf)
+void Surface::init(ConfigurationOP cf)
 {
-	bool projBGP = cf->read<bool>( "Project_boundary_grid_points", false );	
-	bool accTri = cf->read<bool>( "Accurate_Triangulation", false );
-	bool checkDuplicatedVertices = cf->read<bool>( "Check_duplicated_vertices", true );
-	bool wellShaped = cf->read<bool>( "Keep_Water_Shaped_Cavities", false );
-	double probeRadius = cf->read<double>( "Probe_Radius", 1.4 );
-	bool lb = cf->read<bool>( "Load_Balancing",true);
-	bool vaFlag = cf->read<bool>( "Vertex_Atom_Info",false);		
-	bool computeNormals = cf->read<bool>( "Compute_Vertex_Normals",false);		
-	bool saveMSMS = cf->read<bool>( "Save_Mesh_MSMS_Format",false);		
-	double sternLayer = cf->read<double>( "Stern_layer", -1. );
-	MAX_ATOMS_MULTI_GRID = cf->read<int>( "Max_Atoms_Multi_Grid", 100 );
+	bool projBGP = cf->projBGP;
+	bool accTri = cf->accTri;
+	bool checkDuplicatedVertices = cf->checkDuplicatedVertices;
+	bool wellShaped = cf->wellShaped;
+	double probeRadius = cf->probeRadius;
+	bool lb = cf->lb;
+	bool vaFlag = cf->vaFlag;
+	bool computeNormals = cf->computeNormals;
+	bool saveMSMS = cf->saveMSMS;
+	double sternLayer = cf->sternLayer;
+	MAX_ATOMS_MULTI_GRID = cf->Max_Atoms_Multi_Grid;
 
 	setProjBGP(projBGP);
 	setTriangulationFlag(accTri);
@@ -92,7 +92,7 @@ Surface::Surface()
 }
 
 
-Surface::Surface(ConfigFile* cf)
+Surface::Surface(ConfigurationOP cf)
 {
 	init();
 	init(cf);

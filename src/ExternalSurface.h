@@ -9,6 +9,7 @@
 #ifndef ExternalSurface_h
 #define ExternalSurface_h
 
+#include "globals.h"
 #include <Surface.h>
 #include <memory>
 
@@ -26,7 +27,7 @@ public:
   /** set DelPhi environment*/
   ExternalSurface(DelPhiShared *ds);
   /** set configuration and DelPhi environment*/
-  ExternalSurface(ConfigFile *cf, DelPhiShared *ds);
+  ExternalSurface(ConfigurationOP cf, DelPhiShared *ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////
@@ -58,7 +59,7 @@ public:
   /** function for the constructor without arguments*/
   virtual void init();
   /** functions for the constructor with config file argument*/
-  virtual void init(ConfigFile *cf);
+  virtual void init(ConfigurationOP cf);
   /**function for the denstructor*/
   virtual void clear();
   /////////////////////////////////////////////////////////////
@@ -70,7 +71,7 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class ExternalSurfaceRegister {
-  static SurfaceOP createSurface(ConfigFile *conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
     return std::make_shared<ExternalSurface>(conf, ds);
   }
 

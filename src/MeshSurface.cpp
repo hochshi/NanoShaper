@@ -1,4 +1,5 @@
 
+#include "globals.h"
 #include <MeshSurface.h>
 
 #ifdef SPDLOG
@@ -74,14 +75,14 @@ MeshSurface::MeshSurface(DelPhiShared* ds):Surface()
 	delphi = ds;	
 }
 
-void MeshSurface::init(ConfigFile* cf)
+void MeshSurface::init(ConfigurationOP cf)
 {
-	string fname = cf->read<string>( "Surface_File_Name", "mesh.off" );	
-	unsigned int maxMeshDim = cf->read<unsigned int>( "Max_mesh_auxiliary_grid_size", 100 );
-	unsigned int maxMeshPatches = cf->read<unsigned int>( "Max_mesh_patches_per_auxiliary_grid_cell", 250 );
-	unsigned int maxMeshDim2D = cf->read<unsigned int>( "Max_mesh_auxiliary_grid_2d_size", 100 );
-	unsigned int maxMeshPatches2D = cf->read<unsigned int>( "Max_mesh_patches_per_auxiliary_grid_2d_cell", 250 );
-	int numMSMSFiles = cf->read<int>( "Num_MSMS_files", 1 );		
+	string fname = cf->sfname; // cf->read<string>( "Surface_File_Name", "mesh.off" );	
+	unsigned int maxMeshDim = cf->maxMeshDim;
+	unsigned int maxMeshPatches = cf->maxMeshPatches;
+	unsigned int maxMeshDim2D = cf->maxMeshDim2D;
+	unsigned int maxMeshPatches2D = cf->maxMeshPatches2D;
+	int numMSMSFiles = cf->NumMSMSfiles;
 
 	setAuxGrid(maxMeshDim,maxMeshPatches);
 	setAuxGrid2D(maxMeshDim2D,maxMeshPatches2D);
@@ -148,7 +149,7 @@ MeshSurface::MeshSurface():Surface()
 	delphi = NULL;
 }
 
-MeshSurface::MeshSurface(ConfigFile* cf,DelPhiShared* ds):Surface(cf)
+MeshSurface::MeshSurface(ConfigurationOP cf,DelPhiShared* ds):Surface(cf)
 {
 	init();
 	init(cf);

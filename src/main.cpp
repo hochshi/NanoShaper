@@ -1,5 +1,5 @@
 
-#include "SurfaceFactory.h"
+#include <SurfaceFactory.h>
 #include <DelphiShared.h>
 #include <main_functions.h>
 #include <memory>
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
         conf->scale, conf->perfill, conf->molFile, conf->buildEpsmaps,
         conf->buildStatus, conf->multi_diel);
     // Get surface
-    SurfaceOP surf = SurfaceFactory::getInstance().create(cf, dg);
+    SurfaceOP surf = SurfaceFactory::getInstance().create(conf, dg);
     if (surf != nullptr) {
       normalMode(surf, dg, conf);
     }
@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
   }
   // detect pockets
   else if (!conf->operativeMode.compare("pockets")) {
-    pocketMode(false, cf, conf);
+    pocketMode(false, conf, conf);
   } else {
     spdlog::info("Unknown operative mode");
     return -1;

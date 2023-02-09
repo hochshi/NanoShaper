@@ -1,3 +1,4 @@
+#include "globals.h"
 #include <SkinSurface.h>
 
 #ifdef SPDLOG
@@ -71,18 +72,14 @@ SkinSurface::SkinSurface() : Surface() {
   init();
 }
 
-void SkinSurface::init(ConfigFile *cf) {
-  double skin_s = cf->read<double>("Skin_Surface_Parameter", 0.45);
-  unsigned int maxSkinDim =
-      cf->read<unsigned int>("Max_skin_patches_auxiliary_grid_size", 100);
-  unsigned int maxSkinPatches =
-      cf->read<unsigned int>("Max_skin_patches_per_auxiliary_grid_cell", 400);
-  unsigned int maxSkinDim2D =
-      cf->read<unsigned int>("Max_skin_patches_auxiliary_grid_2d_size", 50);
-  unsigned int maxSkinPatches2D = cf->read<unsigned int>(
-      "Max_skin_patches_per_auxiliary_grid_2d_cell", 400);
-  bool useFastProjection = cf->read<bool>("Skin_Fast_Projection", false);
-  bool savePovRay = cf->read<bool>("Save_PovRay", false);
+void SkinSurface::init(ConfigurationOP cf) {
+  double skin_s = cf->skin_s;
+  unsigned int maxSkinDim = cf->maxSkinDim;
+  unsigned int maxSkinPatches = cf->maxSkinPatches;
+  unsigned int maxSkinDim2D = cf->maxSkinDim2D;
+  unsigned int maxSkinPatches2D = cf->maxSkinPatches2D;
+  bool useFastProjection = cf->useFastProjection;
+  bool savePovRay = cf->savePovRay;
 
   setAuxGrid(maxSkinDim, maxSkinPatches);
   setAuxGrid2D(maxSkinDim2D, maxSkinPatches2D);
@@ -92,7 +89,7 @@ void SkinSurface::init(ConfigFile *cf) {
   setSavePovRay(savePovRay);
 }
 
-SkinSurface::SkinSurface(ConfigFile *cf, DelPhiShared *ds) : Surface(cf) {
+SkinSurface::SkinSurface(ConfigurationOP cf, DelPhiShared *ds) : Surface(cf) {
   init();
   init(cf);
   // set environment

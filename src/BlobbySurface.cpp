@@ -1,3 +1,4 @@
+#include "globals.h"
 #include <BlobbySurface.h>
 
 
@@ -9,12 +10,13 @@ void BlobbySurface::init()
 	providesAnalyticalNormals = false;
 }
 
-void BlobbySurface::init(ConfigFile* cf)
+void BlobbySurface::init(ConfigurationOP cf)
 {
-	double blobby_B = cf->read<double>( "Blobbyness", -2.5 );
+	// double blobby_B = cf->read<double>( "Blobbyness", -2.5 );
 	// Set up inside value
 	inside = 5;
-	setBlobbyness(blobby_B);
+  setBlobbyness(cf->blobby_B);
+	// setBlobbyness(blobby_B);
 
 }
 BlobbySurface::BlobbySurface()
@@ -28,7 +30,7 @@ BlobbySurface::BlobbySurface(DelPhiShared* ds):MeshSurface(ds)
 }
 
 
-BlobbySurface::BlobbySurface(ConfigFile* cf,DelPhiShared* ds):MeshSurface(ds)
+BlobbySurface::BlobbySurface(ConfigurationOP cf,DelPhiShared* ds):MeshSurface(ds)
 {	
 	init();
 	init(cf);

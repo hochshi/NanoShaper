@@ -7,6 +7,7 @@
 #ifndef ExampleSurface_h
 #define ExampleSurface_h
 
+#include "globals.h"
 #include <Surface.h>
 
 // 1 Angstrom default radius
@@ -41,7 +42,7 @@ public:
 	/** set DelPhi environment*/
 	ExampleSurface(DelPhiShared* ds);			
 	/** set configuration and DelPhi environment*/
-	ExampleSurface(ConfigFile* cf,DelPhiShared* ds);			
+	ExampleSurface(ConfigurationOP cf,DelPhiShared* ds);			
 
 	//////////////////////// INTERFACE MANDATORY METHODS /////////////////////////////////
 	/** Compute the surface. Call it after load*/
@@ -63,7 +64,7 @@ public:
 	/** function for the constructor without arguments*/
 	virtual void init();
 	/** functions for the constructor with config file argument*/
-	virtual void init(ConfigFile* cf);
+	virtual void init(ConfigurationOP cf);
 	/**function for the denstructor*/
 	virtual void clear();
 	/** here you should put your code to prepare a 2D/3D acceleration structure for ray tracing*/
