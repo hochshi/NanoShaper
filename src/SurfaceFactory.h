@@ -2,6 +2,7 @@
 #ifndef SurfaceFactory_h
 #define SurfaceFactory_h
 
+#include <Configuration.h>
 #include <globals.h>
 #include <iostream>
 #include <map>
@@ -16,7 +17,8 @@ class DelPhiShared;
 using DelPhiSharedOP = std::shared_ptr<DelPhiShared>;
 using namespace std;
 
-typedef SurfaceOP (*surface_instantiator)(ConfigurationOP conf, DelPhiShared *ds);
+typedef SurfaceOP (*surface_instantiator)(ConfigurationOP conf,
+                                          DelPhiShared *ds);
 
 class SurfaceFactory {
 

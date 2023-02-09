@@ -9,6 +9,7 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
     cmake_policy(VERSION 2.6)
   endif()
 endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists_git.txt)
 
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 SET(JSON_BuildTests OFF CACHE INTERNAL "")
@@ -55,9 +56,11 @@ add_subdirectory(lib/json)
 add_definitions(-DENABLE_CGAL)
 add_definitions(-DENABLE_BOOST_THREADS)
 
- file(GLOB SRC
-    "./src/*.h"
-    "./src/*.cpp")
+file(GLOB SRC
+  "./src/*.h"
+  "./src/*.cpp")
+list(FILTER SRC EXCLUDE REGEX ".*main\\.cpp$")
+
   
 add_library(NanoShaper MODULE
   ./src/python/nanoshaper_pybind.cpp

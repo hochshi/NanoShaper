@@ -8,9 +8,10 @@
 #ifndef ConnollySurface_h
 #define ConnollySurface_h
 
-#include "globals.h"
+#include <Configuration.h>
 #include <Surface.h>
 #include <SurfaceFactory.h>
+#include <globals.h>
 #include <memory>
 
 #ifdef DBGMEM_CRT

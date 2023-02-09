@@ -12,6 +12,7 @@
 #include <memory>
 #include <pybind11/pybind11.h>
 #include <spdlog/spdlog.h>
+#include <Configuration.h>
 
 namespace py = pybind11;
 
