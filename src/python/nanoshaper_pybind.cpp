@@ -21,7 +21,9 @@ PYBIND11_MODULE(NanoShaper, m) {
 
   m.def("load_config", &load,
         "init streams, check configuration file for errors and read variables",
-        py::arg("confFile"));
+        py::arg("filename"), py::arg("delimiter") = "=",
+        py::arg("comment") = "#", py::arg("sentry") = "EndConfigFile",
+        py::arg("format") = "plain");
   m.def("parse_config", &parse, py::arg("cf"));
   m.def("normalMode", &normalMode, py::arg("surf"), py::arg("dg"),
         py::arg("conf"));
@@ -86,9 +88,10 @@ PYBIND11_MODULE(NanoShaper, m) {
       .def("restartDebug", &Configuration::restartDebug);
   py::class_<ConfigFile, std::shared_ptr<ConfigFile>>(m, "ConfigFile")
       .def(py::init<const std::string &, const std::string &,
-                    const std::string &, const std::string &>(),
+                    const std::string &, const std::string &, std::string &>(),
            py::arg("filename"), py::arg("delimiter") = "=",
-           py::arg("comment") = "#", py::arg("sentry") = "EndConfigFile")
+           py::arg("comment") = "#", py::arg("sentry") = "EndConfigFile",
+           py::arg("format") = "plain")
       .def_property("contents", &ConfigFile::getContents,
                     &ConfigFile::setContents)
       .def("getString", &ConfigFile::readString, py::arg("key"))

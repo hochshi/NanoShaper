@@ -260,7 +260,11 @@ bool ConnollySurface::buildAuxiliaryGrid() {
 
           if (ind[ix][iy][iz] >= MAX_CONNOLLY_CELLS) {
             spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRID_CONNOLLY_CELL_MAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) =
               it;
@@ -1015,14 +1019,22 @@ bool ConnollySurface::buildConnollyCGAL() {
           if (ix >= (int)ggrid || iy >= (int)ggrid || iz >= (int)ggrid ||
               ix <= 0 || iy <= 0 || iz <= 0) {
             spdlog::error( "Too big probe, to support this probe increase " "Self_Intersections_Grid_Coefficient\n");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
 
           size_t max_ind = (size_t)SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid);
           max_ind++;
           if ((int)max_ind >= MAX_PROBES) {
             spdlog::error( "Increase MAX_PROBES");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid) = (FacetCell *)max_ind;
           SELF_MAP(ix, iy, iz, max_ind, ggrid, ggrid, ggrid) = fc1;
@@ -1248,7 +1260,11 @@ bool ConnollySurface::buildConnollyCGAL() {
         if (fcv[0] == NULL || fcv[1] == NULL) {
           spdlog::error( "Error at atoms {},{}", ec->id[0], ec->id[1]);
           spdlog::error( "Regular edge with no probe stations?");
-          exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
         }
 
         // now get the two planes that clip the torus and decide
@@ -1280,7 +1296,11 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           if (!found) {
             spdlog::error( "Cannot detect correct plane!");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
 
           found = false;
@@ -1305,7 +1325,11 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           if (!found) {
             spdlog::error( "Cannot detect correct plane!");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
 
           // get the two reference vectors of the planes.
@@ -1326,7 +1350,11 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           if ((index % 2) != 0) {
             spdlog::error( "Torus circulator gives an odd number of probes!");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
 
           // manage this situation by explictly trasversing the set of stations
@@ -1353,7 +1381,11 @@ bool ConnollySurface::buildConnollyCGAL() {
                 direction = +2;
               else {
                 spdlog::error( "Incosistency in torus circulator");
-                exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
               }
 
               break;
@@ -1386,7 +1418,11 @@ bool ConnollySurface::buildConnollyCGAL() {
             }
             if (!found) {
               spdlog::error( "Cannot identify plane!");
-              exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
             }
 
             double test = -DOT(mid2, plane);
@@ -1431,7 +1467,11 @@ bool ConnollySurface::buildConnollyCGAL() {
 
             if (!found) {
               spdlog::error( "Cannot detect correct plane!");
-              exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
             }
 
             found = false;
@@ -1459,7 +1499,11 @@ bool ConnollySurface::buildConnollyCGAL() {
 
             if (!found) {
               spdlog::error( "Cannot detect correct plane!");
-              exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
             }
 
             // get the two reference vectors of the planes.
@@ -2031,7 +2075,11 @@ void ConnollySurface::preProcessPanel() {
 
           if (ind_2d[iy][iz] >= MAX_CONNOLLY_CELLS_2D) {
             spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRID_CONNOLLY_CELL_MAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) =
               it;
@@ -2049,7 +2097,11 @@ void ConnollySurface::preProcessPanel() {
 
           if (ind_2d[ix][iy] >= MAX_CONNOLLY_CELLS_2D) {
             spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRID_CONNOLLY_CELL_MAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) =
               it;
@@ -2065,7 +2117,11 @@ void ConnollySurface::preProcessPanel() {
 
           if (ind_2d[ix][iz] >= MAX_CONNOLLY_CELLS_2D) {
             spdlog::error( "Number of connolly cells is superior to maximum allowed, " "please increase Max_ses_patches_per_auxiliary_grid_cell");
-            exit(-1);
+#ifdef PYTHON
+throw std::exception();
+#else
+exit(-1);
+#endif
           }
           GRID_CONNOLLY_CELL_MAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) =
               it;

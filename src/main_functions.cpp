@@ -8,14 +8,14 @@
 #endif
 
 // init streams, check configuration file for errors and read variables
-ConfigFileOP load(std::string confFile) {
+ConfigFileOP load(std::string confFile, string delimiter, string comment, string sentry, std::string format) {
   spdlog::info("Starting {} {}", PROGNAME, VERSION);
 
   ConfigFileOP cf = std::make_shared<ConfigFile>();
 
   // get data from configuration file
   try {
-    cf = std::make_shared<ConfigFile>(confFile.c_str());
+    cf = std::make_shared<ConfigFile>(confFile.c_str(), delimiter, comment, sentry, format);
   } catch (...) {
     spdlog::error("Cannot read {}", confFile);
 #ifdef PYTHON
