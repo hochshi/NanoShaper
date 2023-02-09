@@ -11,6 +11,9 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
 endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists_git.txt)
 
+SET(CMAKE_CXX_STANDARD 14)
+SET(CXX_STANDARD_REQUIRED ON)
+
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 SET(JSON_BuildTests OFF CACHE INTERNAL "")
 
@@ -42,7 +45,7 @@ add_subdirectory(lib/json)
 ### delphi bind mode ##
 #######################
 #delphi module  
-add_library(libDelphiSurface SHARED 
+add_library(DelphiSurface SHARED 
               ./src/sturm/sturm.cpp
               ./src/sturm/util.cpp
               ./src/sturm/solve.h
@@ -74,13 +77,13 @@ add_definitions(-DDELPHI_BIND)
 	### delphi bind mode ##
 	#######################
 	#delphi module  
-  target_sources(libDelphiSurface
+  target_sources(DelphiSurface
 		PRIVATE ./src/ply/ply.cpp
 		PRIVATE ./src/ply/ply.h
      
   )
 	if (MSVC)
-    set_target_properties(libDelphiSurface PROPERTIES COMPILE_FLAGS "/wd4503")
+    set_target_properties(DelphiSurface PROPERTIES COMPILE_FLAGS "/wd4503")
 	endif (MSVC)
 
  else(CGAL_FOUND)
@@ -108,6 +111,7 @@ add_definitions(-DDELPHI_BIND)
  endif(CGAL_FOUND)
 
  target_link_libraries(DelphiSurface
+  PRIVATE spdlog::spdlog_header_only
   PRIVATE nlohmann_json::nlohmann_json
  )
  
