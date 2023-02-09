@@ -9,6 +9,10 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
     cmake_policy(VERSION 2.6)
   endif()
 endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists_git.txt)
+
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+SET(JSON_BuildTests OFF CACHE INTERNAL "")
 
 include_directories (BEFORE include)
 include_directories(src)
@@ -29,6 +33,26 @@ else (Boost_FOUND)
   message(STATUS "Boost libs not found, Multithreading will be disabled")  
 endif (Boost_FOUND)
 	
+add_subdirectory(lib/spdlog)
+add_definitions(-DSPDLOG)
+
+add_subdirectory(lib/json)
+
+#######################
+### delphi bind mode ##
+#######################
+#delphi module  
+add_library(libDelphiSurface SHARED 
+              ./src/sturm/sturm.cpp
+              ./src/sturm/util.cpp
+              ./src/sturm/solve.h
+              ${SRC}
+              ./src/ConfigFile/ConfigFile.cpp
+              ./src/ConfigFile/ConfigFile.h 
+              ./src/octree/octree.h 
+              )    
+add_definitions(-DDELPHI_BIND)
+
 # if cgal is found, boost is automatically found
  find_package(CGAL)
  
@@ -49,33 +73,14 @@ endif (Boost_FOUND)
 	#######################
 	### delphi bind mode ##
 	#######################
-	add_definitions(-DDELPHI_BIND)
 	#delphi module  
+  target_sources(libDelphiSurface
+		PRIVATE ./src/ply/ply.cpp
+		PRIVATE ./src/ply/ply.h
+     
+  )
 	if (MSVC)
-	add_library(libDelphiSurface SHARED
-								./src/sturm/sturm.cpp
-								./src/sturm/util.cpp
-								./src/sturm/solve.h
-								${SRC}
-								./src/ply/ply.cpp
-								./src/ply/ply.h
-								./src/ConfigFile/ConfigFile.cpp
-								./src/ConfigFile/ConfigFile.h 
-								./src/octree/octree.h 
-								)    
-	set_target_properties(libDelphiSurface PROPERTIES COMPILE_FLAGS "/wd4503")
-	else (MSVC)
-	add_library(DelphiSurface SHARED
-								./src/sturm/sturm.cpp
-								./src/sturm/util.cpp
-								./src/sturm/solve.h
-								${SRC}
-								./src/ply/ply.cpp
-								./src/ply/ply.h								
-								./src/ConfigFile/ConfigFile.cpp
-								./src/ConfigFile/ConfigFile.h 
-								./src/octree/octree.h 
-								)    
+    set_target_properties(libDelphiSurface PROPERTIES COMPILE_FLAGS "/wd4503")
 	endif (MSVC)
 
  else(CGAL_FOUND)
@@ -86,8 +91,6 @@ endif (Boost_FOUND)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive") 
 	endif (${UNIX}) 
 
-	add_definitions(-DDELPHI_BIND)
-	
 	if (MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)	
 	endif (MSVC)  
@@ -100,21 +103,12 @@ endif (Boost_FOUND)
 		#..
 	endif ()
 	
-	message(STATUS "C++ Release flags ${CMAKE_CXX_FLAGS_RELEASE}")
 	
-	#######################
-	### delphi bind mode ##
-	#######################
-	add_definitions(-DDELPHI_BIND)	
-	#delphi module  
-	add_library(DelphiSurface SHARED 
-								./src/sturm/sturm.cpp
-								./src/sturm/util.cpp
-								./src/sturm/solve.h
-								${SRC}
-								./src/ConfigFile/ConfigFile.cpp
-								./src/ConfigFile/ConfigFile.h 
-								./src/octree/octree.h 
-								)    
 								
  endif(CGAL_FOUND)
+
+ target_link_libraries(DelphiSurface
+  PRIVATE nlohmann_json::nlohmann_json
+ )
+ 
+message(STATUS "C++ Release flags ${CMAKE_CXX_FLAGS_RELEASE}")
