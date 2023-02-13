@@ -58,9 +58,9 @@ if(ENABLE_NLOHMANN_JSON)
   endif()
 endif()
 
-if (${UNIX}) 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mtune=native") 
-endif (${UNIX}) 
+# if (${UNIX}) 
+#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mtune=native") 
+# endif (${UNIX}) 
 
 ################################################################################
 # BOOST
