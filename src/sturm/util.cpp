@@ -6,27 +6,25 @@
  * polynomials.
  */
 #include <math.h>
-#include <stdio.h>
 #include <solve.h>
+#include <stdio.h>
 
 /*
  * evalpoly
  *
  *	evaluate polynomial defined in coef returning its value.
  */
-double evalpoly (int ord,double* coef,double x)
-{
-	double	*fp, f;
+double evalpoly(int ord, double* coef, double x) {
+  double *fp, f;
 
-	fp = &coef[ord];
-	f = *fp;
+  fp = &coef[ord];
+  f = *fp;
 
-	for (fp--; fp >= coef; fp--)
-	f = x * f + *fp;
+  for (fp--; fp >= coef; fp--)
+    f = x * f + *fp;
 
-	return(f);
+  return (f);
 }
-
 
 /*
  * modrf
@@ -36,77 +34,72 @@ double evalpoly (int ord,double* coef,double x)
  * root is returned in *val. The routine returns zero
  * if it can't converge.
  */
-int modrf(int ord,double* coef,double a,double b,double* val)
-{
-	int		its;
-	double	fa, fb, x, fx, lfx;
-	double	*fp, *scoef, *ecoef;
+int modrf(int ord, double* coef, double a, double b, double* val) {
+  int its;
+  double fa, fb, x, fx, lfx;
+  double *fp, *scoef, *ecoef;
 
-	scoef = coef;
-	ecoef = &coef[ord];
+  scoef = coef;
+  ecoef = &coef[ord];
 
-	fb = fa = *ecoef;
-	for (fp = ecoef - 1; fp >= scoef; fp--) {
-		fa = a * fa + *fp;
-		fb = b * fb + *fp;
-	}
+  fb = fa = *ecoef;
+  for (fp = ecoef - 1; fp >= scoef; fp--) {
+    fa = a * fa + *fp;
+    fb = b * fb + *fp;
+  }
 
-	/*
+  /*
 	 * if there is no sign difference the method won't work
 	 */
-	if (fa * fb > 0.0)
-		return(0);
+  if (fa * fb > 0.0)
+    return (0);
 
-	if (fabs(fa) < RELERROR) {
-		*val = a;
-		return(1);
-	}
+  if (fabs(fa) < RELERROR) {
+    *val = a;
+    return (1);
+  }
 
-	if (fabs(fb) < RELERROR) {
-		*val = b;
-		return(1);
-	}
+  if (fabs(fb) < RELERROR) {
+    *val = b;
+    return (1);
+  }
 
-	lfx = fa;
+  lfx = fa;
 
+  for (its = 0; its < MAXIT; its++) {
 
-	for (its = 0; its < MAXIT; its++) {
+    x = (fb * a - fa * b) / (fb - fa);
 
-		x = (fb * a - fa * b) / (fb - fa);
+    fx = *ecoef;
+    for (fp = ecoef - 1; fp >= scoef; fp--)
+      fx = x * fx + *fp;
 
-		fx = *ecoef;
-		for (fp = ecoef - 1; fp >= scoef; fp--)
-				fx = x * fx + *fp;
+    if (fabs(x) > RELERROR) {
+      if (fabs(fx / x) < RELERROR) {
+        *val = x;
+        return (1);
+      }
+    } else if (fabs(fx) < RELERROR) {
+      *val = x;
+      return (1);
+    }
 
-		if (fabs(x) > RELERROR) {
-				if (fabs(fx / x) < RELERROR) {
-					*val = x;
-					return(1);
-				}
-		} else if (fabs(fx) < RELERROR) {
-				*val = x;
-				return(1);
-		}
+    if ((fa * fx) < 0) {
+      b = x;
+      fb = fx;
+      if ((lfx * fx) > 0)
+        fa /= 2;
+    } else {
+      a = x;
+      fa = fx;
+      if ((lfx * fx) > 0)
+        fb /= 2;
+    }
 
-		if ((fa * fx) < 0) {
-				b = x;
-				fb = fx;
-				if ((lfx * fx) > 0)
-					fa /= 2;
-		} else {
-				a = x;
-				fa = fx;
-				if ((lfx * fx) > 0)
-					fb /= 2;
-		}
+    lfx = fx;
+  }
 
-		lfx = fx;
-	}
+  //fprintf(stderr, "modrf overflow %f %f %f\n", a, b, fx);
 
-	//fprintf(stderr, "modrf overflow %f %f %f\n", a, b, fx);
-
-	return(0);
+  return (0);
 }
-	
-
-

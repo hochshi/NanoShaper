@@ -32,11 +32,11 @@ make file or cmake file, just write the source and put it the src folder.
 */
 class ExampleSurface : public Surface {
 
-private:
+ private:
   double radius;
   double center[3];
 
-public:
+ public:
   /** Default constructor*/
   ExampleSurface();
   /** set DelPhi environment*/
@@ -49,21 +49,21 @@ public:
   /** Compute the surface. Call it after load*/
   virtual bool build();
   /** Save it in a simple ASCII format (.example). It is not implemented*/
-  virtual bool save(char *fileName);
+  virtual bool save(char* fileName);
   /** Load the surface from a file in .example format. It is not implemented*/
-  virtual bool load(char *fileName);
+  virtual bool load(char* fileName);
   /** Print a summary of the surface*/
   virtual void printSummary();
   /** Get a projection of a point on the surface. Return projection and normal*/
-  virtual bool getProjection(double p[3], double *proj1, double *proj2,
-                             double *proj3, double *normal1, double *normal2,
-                             double *normal3);
+  virtual bool getProjection(double p[3], double* proj1, double* proj2,
+                             double* proj3, double* normal1, double* normal2,
+                             double* normal3);
   /** Get all the intersections of a ray that goes from P1 to P2 over the
   surface. The interesctions are returned with increasing distance order. the
   first double in the vector is the t parameter for the intersection of the
   parametric line and the surface, the double pointer is the normal vector.*/
   virtual void getRayIntersection(double p1[3], double p2[3],
-                                  vector<pair<double, double *>> &intersections,
+                                  vector<pair<double, double*>>& intersections,
                                   int thdID, bool computeNormals);
   /** function for the constructor without arguments*/
   virtual void init();

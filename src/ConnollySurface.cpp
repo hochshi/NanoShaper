@@ -2,8 +2,8 @@
 #include <ConnollySurface.h>
 #include <globals.h>
 #include <logging.h>
-#include <stdexcept>
 #include <tools.h>
+#include <stdexcept>
 #include <tuple>
 
 void ConnollySurface::init() {
@@ -46,7 +46,9 @@ void ConnollySurface::init(ConfigurationOP cf) {
   setSavePovRay(savePovRay);
 }
 
-ConnollySurface::ConnollySurface() : Surface() { init(); }
+ConnollySurface::ConnollySurface() : Surface() {
+  init();
+}
 
 ConnollySurface::ConnollySurface(DelPhiSharedOP ds) : Surface() {
   init();
@@ -169,7 +171,7 @@ bool ConnollySurface::buildAuxiliaryGrid() {
 
   for (unsigned int it = 0; it < sesComplex.size(); it++) {
     // map connolly cell
-    ConnollyCell *cc = sesComplex[it];
+    ConnollyCell* cc = sesComplex[it];
 
     // compute bounding box object
     double downx = INFINITY;
@@ -180,21 +182,21 @@ bool ConnollySurface::buildAuxiliaryGrid() {
     double upy = INFINITY;
     double upz = -INFINITY;
 
-    double *sphere_center;
+    double* sphere_center;
     double radius;
 
     if (cc->patch_type == REGULAR_FACE_CELL ||
         cc->patch_type == SINGULAR_FACE_CELL) {
-      FacetCell *fc = (FacetCell *)cc;
+      FacetCell* fc = (FacetCell*)cc;
       sphere_center = fc->center;
       radius = probe_radius;
     } else if (cc->patch_type == SINGULAR_EDGE_CELL ||
                cc->patch_type == REGULAR_EDGE_CELL) {
-      EdgeCell *ec = (EdgeCell *)cc;
+      EdgeCell* ec = (EdgeCell*)cc;
       sphere_center = ec->clipping_center;
       radius = ec->clipping_radius;
     } else if (cc->patch_type == POINT_CELL) {
-      PointCell *pc = (PointCell *)cc;
+      PointCell* pc = (PointCell*)cc;
       radius = delphi->atoms[pc->id]->radius;
       sphere_center = delphi->atoms[pc->id]->pos;
     }
@@ -417,8 +419,8 @@ bool ConnollySurface::buildConnollyCGAL() {
   double gzmin = delphi->baricenter[2] - (ggrid - 1) / (2 * gscale);
 
   logging::log<logging::level::info>("Allocating self intersection grid....");
-  FacetCell **gridProbesMap =
-      allocateVector<FacetCell *>(MAX_PROBES * ggrid * ggrid * ggrid);
+  FacetCell** gridProbesMap =
+      allocateVector<FacetCell*>(MAX_PROBES * ggrid * ggrid * ggrid);
   for (unsigned int i = 0; i < ggrid; i++)
     for (unsigned int j = 0; j < ggrid; j++)
       for (unsigned int k = 0; k < ggrid; k++)
@@ -441,9 +443,9 @@ bool ConnollySurface::buildConnollyCGAL() {
     type[i] = 0;
 
   if (atomPatches != NULL)
-    deleteVector<PointCell *>(atomPatches);
+    deleteVector<PointCell*>(atomPatches);
 
-  atomPatches = allocateVector<PointCell *>(delphi->numAtoms);
+  atomPatches = allocateVector<PointCell*>(delphi->numAtoms);
 
   for (int i = 0; i < delphi->numAtoms; i++)
     atomPatches[i] = NULL;
@@ -465,7 +467,7 @@ bool ConnollySurface::buildConnollyCGAL() {
       type[POINT_CELL]++;
       // retrieve atom index
 
-      PointCell *pc = new PointCell();
+      PointCell* pc = new PointCell();
       sesComplex.push_back(pc);
       pc->id = fvit->info();
       pc->patch_type = POINT_CELL;
@@ -481,8 +483,8 @@ bool ConnollySurface::buildConnollyCGAL() {
 
         // connection to buried atoms. Get the hidden clipping sphere
         if (ctype == Fixed_alpha_shape_3::INTERIOR) {
-          const Vertex_handle &v1 = ll[i].first->vertex(ll[i].second);
-          const Vertex_handle &v2 = ll[i].first->vertex(ll[i].third);
+          const Vertex_handle& v1 = ll[i].first->vertex(ll[i].second);
+          const Vertex_handle& v2 = ll[i].first->vertex(ll[i].third);
           double diff[3];
           diff[0] = v2->point().x() - v1->point().x();
           diff[1] = v2->point().y() - v1->point().y();
@@ -503,7 +505,7 @@ bool ConnollySurface::buildConnollyCGAL() {
           double r1 = delphi->atoms[ind1]->radius;
           double r2 = delphi->atoms[ind2]->radius;
 
-          EdgeCell *ec = new EdgeCell();
+          EdgeCell* ec = new EdgeCell();
           pc->buried_neighbours.push_back(ec);
 
           ec->id[0] = ind1;
@@ -593,7 +595,7 @@ bool ConnollySurface::buildConnollyCGAL() {
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  FILE *fpExp = fopen("exposed.xyz", "w");
+  FILE* fpExp = fopen("exposed.xyz", "w");
   fprintf(fpExp, "%zu\n", exposed.size());
   fprintf(fpExp, "Exposed_atoms\n");
   for (unsigned int i = 0; i < exposed.size(); i++)
@@ -607,7 +609,7 @@ bool ConnollySurface::buildConnollyCGAL() {
     fprintf(fpExp, "%d\n", exposed[i]);
   fclose(fpExp);
 
-  set<FacetCell *> checkList;
+  set<FacetCell*> checkList;
 
   ////////////////////////// facets cells
   ////////////////////////////////////////////////////////////////////
@@ -635,19 +637,19 @@ bool ConnollySurface::buildConnollyCGAL() {
       // get the mirror facet such that the outwards normal is correct
       // depending on the classification of the cell
       if (alpha_shape.classify(ffit->first) == Fixed_alpha_shape_3::INTERIOR) {
-        const Alpha_Facet &facetp = alpha_shape.mirror_facet(
-            (*ffit)); // which gives the same facet viewed from the other
-                      // adjacent cells
+        const Alpha_Facet& facetp = alpha_shape.mirror_facet(
+            (*ffit));  // which gives the same facet viewed from the other
+                       // adjacent cells
         // opposite point
-        const Weighted_point &p0 =
+        const Weighted_point& p0 =
             facetp.first->vertex((facetp.second) & 3)->point();
 
         // get points on facet
-        const Weighted_point &p1 =
+        const Weighted_point& p1 =
             facetp.first->vertex((facetp.second + 1) & 3)->point();
-        const Weighted_point &p2 =
+        const Weighted_point& p2 =
             facetp.first->vertex((facetp.second + 2) & 3)->point();
-        const Weighted_point &p3 =
+        const Weighted_point& p3 =
             facetp.first->vertex((facetp.second + 3) & 3)->point();
 
         index0 = facetp.first->vertex((facetp.second) & 3)->info();
@@ -680,16 +682,16 @@ bool ConnollySurface::buildConnollyCGAL() {
         w2 = p2.weight();
         w3 = p3.weight();
       } else {
-        const Alpha_Facet *facetp = &(*ffit);
+        const Alpha_Facet* facetp = &(*ffit);
         // opposite point
-        const Weighted_point &p0 =
+        const Weighted_point& p0 =
             facetp->first->vertex((facetp->second) & 3)->point();
         // get points on facet
-        const Weighted_point &p1 =
+        const Weighted_point& p1 =
             facetp->first->vertex((facetp->second + 1) & 3)->point();
-        const Weighted_point &p2 =
+        const Weighted_point& p2 =
             facetp->first->vertex((facetp->second + 2) & 3)->point();
-        const Weighted_point &p3 =
+        const Weighted_point& p3 =
             facetp->first->vertex((facetp->second + 3) & 3)->point();
 
         index0 = facetp->first->vertex((facetp->second) & 3)->info();
@@ -775,7 +777,7 @@ bool ConnollySurface::buildConnollyCGAL() {
       probe[1] = Q[1] + coeff * n[1];
       probe[2] = Q[2] + coeff * n[2];
 
-      FacetCell *fc1 = new FacetCell();
+      FacetCell* fc1 = new FacetCell();
       if (isRegular)
         fc1->patch_type = REGULAR_FACE_CELL;
       else
@@ -883,7 +885,7 @@ bool ConnollySurface::buildConnollyCGAL() {
       inner2[1] = ((PP1[1] + PP2[1] + PP3[1]) / 3.0 + probe[1]) / 2.0;
       inner2[2] = ((PP1[2] + PP2[2] + PP3[2]) / 3.0 + probe[2]) / 2.0;
 
-      FacetCell *fc2;
+      FacetCell* fc2;
 
       for (int ff = 0; ff < 4; ff++) {
         double orient = DOT(inner2, fc1->planes[ff]);
@@ -1005,7 +1007,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
       if (plane_dist <= probe_radius &&
           ctype != Fixed_alpha_shape_3::SINGULAR) {
-        set<FacetCell *>::iterator it = checkList.find(fc1);
+        set<FacetCell*>::iterator it = checkList.find(fc1);
         if (it == checkList.end()) {
           checkList.insert(fc1);
           int ix = (int)rintp((fc1->center[0] - gxmin) / gside);
@@ -1028,7 +1030,7 @@ bool ConnollySurface::buildConnollyCGAL() {
             logging::log<logging::level::err>("Increase MAX_PROBES");
             throw std::runtime_error("Increase MAX_PROBES");
           }
-          SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid) = (FacetCell *)max_ind;
+          SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid) = (FacetCell*)max_ind;
           SELF_MAP(ix, iy, iz, max_ind, ggrid, ggrid, ggrid) = fc1;
         }
       }
@@ -1049,8 +1051,8 @@ bool ConnollySurface::buildConnollyCGAL() {
       double smallR = probe_radius;
 
       // up and down edge vertices
-      const Vertex_handle &v1 = feit->first->vertex(feit->second);
-      const Vertex_handle &v2 = feit->first->vertex(feit->third);
+      const Vertex_handle& v1 = feit->first->vertex(feit->second);
+      const Vertex_handle& v2 = feit->first->vertex(feit->third);
 
       // Vector3 diff  = v2->point()-v1->point();
       double diff[3];
@@ -1083,7 +1085,7 @@ bool ConnollySurface::buildConnollyCGAL() {
         logging::log<logging::level::warn>(
             "Non precise torus inner radius {} {}", bigR, bigR2);
 
-      EdgeCell *ec = new EdgeCell();
+      EdgeCell* ec = new EdgeCell();
       sesComplex.push_back(ec);
 
       ec->id[0] = ind1;
@@ -1208,7 +1210,7 @@ bool ConnollySurface::buildConnollyCGAL() {
       ASSIGN(ec->center, torus_center)
 
       //  set of incident probes to a given edge
-      FacetCell *fcv[MAX_INCIDENT_PROBES];
+      FacetCell* fcv[MAX_INCIDENT_PROBES];
 
       // if it is singular no clipping plane is needed
       bool isComplex = false;
@@ -1217,7 +1219,7 @@ bool ConnollySurface::buildConnollyCGAL() {
       // if it is regular needs clipping
       // now get the two triangle patches if the edge is regular
       if (ec->patch_type == REGULAR_EDGE_CELL) {
-        vector<FacetCell *> &f1 = atomPatches[ec->id[0]]->incidentProbes;
+        vector<FacetCell*>& f1 = atomPatches[ec->id[0]]->incidentProbes;
 
         int ref1 = ec->id[0];
         int ref2 = ec->id[1];
@@ -1374,8 +1376,8 @@ bool ConnollySurface::buildConnollyCGAL() {
           // no singular facets, use other, slower criterion
           if (direction == 0) {
             isComplex = true;
-            double *c1 = fcv[sorted[0]]->center;
-            double *c2 = fcv[sorted[1]]->center;
+            double* c1 = fcv[sorted[0]]->center;
+            double* c2 = fcv[sorted[1]]->center;
             double mid2[3], plane[3];
             MID(mid2, c1, c2)
             SUB(mid2, mid2, ec->center)
@@ -1413,8 +1415,8 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           // get all needed planes
           while (1) {
-            FacetCell *fc1 = fcv[sorted[currentProbe1]];
-            FacetCell *fc2 = fcv[sorted[currentProbe2]];
+            FacetCell* fc1 = fcv[sorted[currentProbe1]];
+            FacetCell* fc2 = fcv[sorted[currentProbe2]];
 
             bool found = false;
             double *plane1, *plane2;
@@ -1429,7 +1431,7 @@ bool ConnollySurface::buildConnollyCGAL() {
               if (((i1 == ind1) && (i2 == ind2)) ||
                   ((i1 == ind2) && (i2 == ind1))) {
                 found = true;
-                double *plane = allocateVector<double>(4);
+                double* plane = allocateVector<double>(4);
                 plane1 = plane;
                 ec->additional_planes.push_back(plane);
                 plane[0] = -fc1->planes[ii + 1][0];
@@ -1457,7 +1459,7 @@ bool ConnollySurface::buildConnollyCGAL() {
               if (((i1 == ind1) && (i2 == ind2)) ||
                   ((i1 == ind2) && (i2 == ind1))) {
                 found = true;
-                double *plane = allocateVector<double>(4);
+                double* plane = allocateVector<double>(4);
                 plane2 = plane;
                 ec->additional_planes.push_back(plane);
                 plane[0] = -fc2->planes[ii + 1][0];
@@ -1542,10 +1544,10 @@ bool ConnollySurface::buildConnollyCGAL() {
 
   // remove self intersections
   for (unsigned int i = 0; i < sesComplex.size(); i++) {
-    ConnollyCell *cc = sesComplex[i];
+    ConnollyCell* cc = sesComplex[i];
     int type = cc->patch_type;
     if (type == REGULAR_FACE_CELL || type == SINGULAR_FACE_CELL) {
-      FacetCell *fc1 = (FacetCell *)cc;
+      FacetCell* fc1 = (FacetCell*)cc;
       int ix = (int)rintp((fc1->center[0] - gxmin) / gside);
       int iy = (int)rintp((fc1->center[1] - gymin) / gside);
       int iz = (int)rintp((fc1->center[2] - gzmin) / gside);
@@ -1562,13 +1564,13 @@ bool ConnollySurface::buildConnollyCGAL() {
         size_t max_ind = (size_t)SELF_MAP(cx, cy, cz, 0, ggrid, ggrid, ggrid);
 
         for (size_t j = 0; j < max_ind; j++) {
-          FacetCell *fc2 = SELF_MAP(cx, cy, cz, j + 1, ggrid, ggrid, ggrid);
+          FacetCell* fc2 = SELF_MAP(cx, cy, cz, j + 1, ggrid, ggrid, ggrid);
 
           if (fc1 == fc2)
             continue;
 
-          double *c1 = fc1->center;
-          double *c2 = fc2->center;
+          double* c1 = fc1->center;
+          double* c2 = fc2->center;
           double dist2;
           DIST2(dist2, c1, c2)
           //  there is a self intersection, must clip
@@ -1587,7 +1589,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
             double bias = -DOT(dir, ref_point);
 
-            double *plane = new double[4];
+            double* plane = new double[4];
             plane[0] = dir[0];
             plane[1] = dir[1];
             plane[2] = dir[2];
@@ -1606,7 +1608,7 @@ bool ConnollySurface::buildConnollyCGAL() {
             }
 
             fc1->self_intersection_planes.push_back(plane);
-            double *plane2 = new double[4];
+            double* plane2 = new double[4];
             plane2[0] = -plane[0];
             plane2[1] = -plane[1];
             plane2[2] = -plane[2];
@@ -1623,18 +1625,18 @@ bool ConnollySurface::buildConnollyCGAL() {
     logging::log<logging::level::info>(
         "Saving surface in Pov-Ray in connolly.pov...");
     for (unsigned int i = 0; i < sesComplex.size(); i++) {
-      ConnollyCell *cp = sesComplex[i];
+      ConnollyCell* cp = sesComplex[i];
       if (cp->patch_type == REGULAR_FACE_CELL ||
           cp->patch_type == SINGULAR_FACE_CELL) {
-        FacetCell *fc = (FacetCell *)cp;
+        FacetCell* fc = (FacetCell*)cp;
         saveConcaveSpherePatch(of, fc, i);
       }
     }
 
     for (unsigned int i = 0; i < sesComplex.size(); i++) {
-      ConnollyCell *cp = sesComplex[i];
+      ConnollyCell* cp = sesComplex[i];
       if (cp->patch_type == POINT_CELL) {
-        PointCell *pc = (PointCell *)cp;
+        PointCell* pc = (PointCell*)cp;
         saveAtomPatch(of, pc);
       }
     }
@@ -1651,14 +1653,18 @@ bool ConnollySurface::buildConnollyCGAL() {
 
   printSummary();
   // free memory
-  deleteVector<FacetCell *>(gridProbesMap);
+  deleteVector<FacetCell*>(gridProbesMap);
 
   return true;
 }
 
-bool ConnollySurface::save(char *fileName) { return false; }
+bool ConnollySurface::save(char* fileName) {
+  return false;
+}
 
-bool ConnollySurface::load(char *fileName) { return false; }
+bool ConnollySurface::load(char* fileName) {
+  return false;
+}
 
 void ConnollySurface::printSummary() {
   logging::log<logging::level::info>("Probe Radius value {}", getProbeRadius());
@@ -1688,9 +1694,9 @@ void ConnollySurface::printSummary() {
   }
 }
 
-bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
-                                    double *proj3, double *normal1,
-                                    double *normal2, double *normal3) {
+bool ConnollySurface::getProjection(double p[3], double* proj1, double* proj2,
+                                    double* proj3, double* normal1,
+                                    double* normal2, double* normal3) {
   // get the cells that are associated to this grid point
   // by querying the auxiliary grid
   double dist;
@@ -1731,18 +1737,18 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
   int ptype;
 
   for (it = cells.begin(); it != cells.end(); it++) {
-    ConnollyCell *cc = sesComplex[(*it)];
+    ConnollyCell* cc = sesComplex[(*it)];
 
     if (cc->patch_type == POINT_CELL) {
-      PointCell *pc = (PointCell *)cc;
+      PointCell* pc = (PointCell*)cc;
       projectToSphere(p, delphi->atoms[pc->id]->pos,
                       delphi->atoms[pc->id]->radius, locProj, dist);
     } else if (cc->patch_type == REGULAR_FACE_CELL ||
                cc->patch_type == SINGULAR_FACE_CELL) {
-      FacetCell *fc = (FacetCell *)cc;
+      FacetCell* fc = (FacetCell*)cc;
       projectToSphere(p, fc->center, probe_radius, locProj, dist);
     } else {
-      EdgeCell *ec = (EdgeCell *)cc;
+      EdgeCell* ec = (EdgeCell*)cc;
       projectToTorus(p, ec, locProj, locNorm, dist);
     }
 
@@ -1776,15 +1782,15 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
   if (minDist == INFINITY) {
     bool fixed = false;
 
-    double **sampledPoints;
+    double** sampledPoints;
     int coiNum = 500;
     sampledPoints = allocateMatrix2D<double>(coiNum, 3);
 
     for (it = cells.begin(); it != cells.end(); it++) {
-      ConnollyCell *cc = sesComplex[(*it)];
+      ConnollyCell* cc = sesComplex[(*it)];
       if (cc->patch_type == SINGULAR_EDGE_CELL ||
           cc->patch_type == REGULAR_EDGE_CELL) {
-        EdgeCell *ec = (EdgeCell *)cc;
+        EdgeCell* ec = (EdgeCell*)cc;
 
         // try to manage singularity. Explicitly project to probes and keep the
         // nearest one
@@ -1793,7 +1799,7 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
           // the projection for at least one of them.
 
           //  set of incident probes to a given edge
-          FacetCell *fcv[MAX_INCIDENT_PROBES];
+          FacetCell* fcv[MAX_INCIDENT_PROBES];
           int index = 0;
 
           // manage SINGULAR EDGE?
@@ -1808,7 +1814,7 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
 
           // get all the sourrounding probe stations
           if (ec->patch_type == REGULAR_EDGE_CELL) {
-            vector<FacetCell *> &f1 = atomPatches[ec->id[0]]->incidentProbes;
+            vector<FacetCell*>& f1 = atomPatches[ec->id[0]]->incidentProbes;
 
             int ref1 = ec->id[0];
             int ref2 = ec->id[1];
@@ -1867,7 +1873,7 @@ bool ConnollySurface::getProjection(double p[3], double *proj1, double *proj2,
           }
         }
       }
-    } // end singular projection
+    }  // end singular projection
     deleteMatrix2D<double>(coiNum, sampledPoints);
 
     if (!fixed) {
@@ -1961,7 +1967,7 @@ void ConnollySurface::preProcessPanel() {
 
   for (unsigned int it = 0; it < sesComplex.size(); it++) {
     // map connolly cell
-    ConnollyCell *cc = sesComplex[it];
+    ConnollyCell* cc = sesComplex[it];
 
     // compute bounding box object
     double downx = INFINITY;
@@ -1972,21 +1978,21 @@ void ConnollySurface::preProcessPanel() {
     double upy = INFINITY;
     double upz = -INFINITY;
 
-    double *sphere_center;
+    double* sphere_center;
     double radius;
 
     if (cc->patch_type == REGULAR_FACE_CELL ||
         cc->patch_type == SINGULAR_FACE_CELL) {
-      FacetCell *fc = (FacetCell *)cc;
+      FacetCell* fc = (FacetCell*)cc;
       sphere_center = fc->center;
       radius = probe_radius;
     } else if (cc->patch_type == SINGULAR_EDGE_CELL ||
                cc->patch_type == REGULAR_EDGE_CELL) {
-      EdgeCell *ec = (EdgeCell *)cc;
+      EdgeCell* ec = (EdgeCell*)cc;
       sphere_center = ec->clipping_center;
       radius = ec->clipping_radius;
     } else if (cc->patch_type == POINT_CELL) {
-      PointCell *pc = (PointCell *)cc;
+      PointCell* pc = (PointCell*)cc;
       radius = delphi->atoms[pc->id]->radius;
       sphere_center = delphi->atoms[pc->id]->pos;
     }
@@ -2168,7 +2174,7 @@ void ConnollySurface::preProcessPanel() {
 }
 
 void ConnollySurface::getRayIntersection(
-    double pa[3], double pb[3], vector<pair<double, double *>> &intersections,
+    double pa[3], double pb[3], vector<pair<double, double*>>& intersections,
     int thdID, bool computeNormals) {
   double dir[3];
   double aposx = pa[0], aposy = pa[1], aposz = pa[2];
@@ -2220,11 +2226,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t1, n));
+          intersections.push_back(pair<double, double*>(t1, n));
         } else
-          intersections.push_back(pair<double, double *>(t1, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t1, (double*)NULL));
       }
 
       if (ni == 1)
@@ -2237,11 +2243,11 @@ void ConnollySurface::getRayIntersection(
       testFeasibility = isFeasible(sesComplex[it], intPoint);
       if (testFeasibility) {
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t2, n));
+          intersections.push_back(pair<double, double*>(t2, n));
         } else
-          intersections.push_back(pair<double, double *>(t2, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t2, (double*)NULL));
       }
 
       if (ni < 3)
@@ -2256,11 +2262,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t3, n));
+          intersections.push_back(pair<double, double*>(t3, n));
         } else
-          intersections.push_back(pair<double, double *>(t3, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t3, (double*)NULL));
       }
 
       if (ni < 4)
@@ -2274,11 +2280,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t4, n));
+          intersections.push_back(pair<double, double*>(t4, n));
         } else
-          intersections.push_back(pair<double, double *>(t4, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t4, (double*)NULL));
       }
     }
   } else if (panel == 1) {
@@ -2316,11 +2322,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t1, n));
+          intersections.push_back(pair<double, double*>(t1, n));
         } else
-          intersections.push_back(pair<double, double *>(t1, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t1, (double*)NULL));
       }
 
       if (ni == 1)
@@ -2334,11 +2340,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t2, n));
+          intersections.push_back(pair<double, double*>(t2, n));
         } else
-          intersections.push_back(pair<double, double *>(t2, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t2, (double*)NULL));
       }
 
       if (ni < 3)
@@ -2353,11 +2359,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t3, n));
+          intersections.push_back(pair<double, double*>(t3, n));
         } else
-          intersections.push_back(pair<double, double *>(t3, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t3, (double*)NULL));
       }
 
       if (ni < 4)
@@ -2372,11 +2378,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t4, n));
+          intersections.push_back(pair<double, double*>(t4, n));
         } else
-          intersections.push_back(pair<double, double *>(t4, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t4, (double*)NULL));
       }
     }
   } else {
@@ -2420,11 +2426,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t1, n));
+          intersections.push_back(pair<double, double*>(t1, n));
         } else
-          intersections.push_back(pair<double, double *>(t1, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t1, (double*)NULL));
       }
 
       if (ni == 1)
@@ -2439,11 +2445,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t2, n));
+          intersections.push_back(pair<double, double*>(t2, n));
         } else
-          intersections.push_back(pair<double, double *>(t2, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t2, (double*)NULL));
       }
 
       if (ni < 3)
@@ -2457,11 +2463,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t3, n));
+          intersections.push_back(pair<double, double*>(t3, n));
         } else
-          intersections.push_back(pair<double, double *>(t3, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t3, (double*)NULL));
       }
 
       if (ni < 4)
@@ -2476,11 +2482,11 @@ void ConnollySurface::getRayIntersection(
       if (testFeasibility) {
         // compute normal
         if (computeNormals) {
-          double *n = allocateVector<double>(3);
+          double* n = allocateVector<double>(3);
           getNormal(intPoint, sesComplex[it], n);
-          intersections.push_back(pair<double, double *>(t4, n));
+          intersections.push_back(pair<double, double*>(t4, n));
         } else
-          intersections.push_back(pair<double, double *>(t4, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t4, (double*)NULL));
       }
     }
   }
@@ -2520,38 +2526,40 @@ void ConnollySurface::clear() {
 
   // deallocate exposed atoms pointers
   if (atomPatches != NULL)
-    deleteVector<PointCell *>(atomPatches);
+    deleteVector<PointCell*>(atomPatches);
 
   sesComplex.clear();
 }
-ConnollySurface::~ConnollySurface() { clear(); }
+ConnollySurface::~ConnollySurface() {
+  clear();
+}
 
-bool ConnollySurface::rayConnollyCellIntersection(double *orig, double *dir,
-                                                  ConnollyCell *cc, double *t1,
-                                                  double *t2, double *t3,
-                                                  double *t4, int &numInt,
+bool ConnollySurface::rayConnollyCellIntersection(double* orig, double* dir,
+                                                  ConnollyCell* cc, double* t1,
+                                                  double* t2, double* t3,
+                                                  double* t4, int& numInt,
                                                   int thdID) {
-  double *sphere_center;
-  double *torus_center;
-  EdgeCell *ec;
+  double* sphere_center;
+  double* torus_center;
+  EdgeCell* ec;
   double sphere_radius;
   int patch_type = cc->patch_type;
 
   bool doTorus = false;
 
   if (patch_type == REGULAR_FACE_CELL || patch_type == SINGULAR_FACE_CELL) {
-    FacetCell *fc = (FacetCell *)cc;
+    FacetCell* fc = (FacetCell*)cc;
     sphere_center = fc->center;
     sphere_radius = probe_radius;
   } else if (patch_type == SINGULAR_EDGE_CELL ||
              patch_type == REGULAR_EDGE_CELL) {
-    ec = (EdgeCell *)cc;
+    ec = (EdgeCell*)cc;
     sphere_center = ec->clipping_center;
     sphere_radius = ec->clipping_radius;
     torus_center = ec->center;
     doTorus = true;
   } else if (patch_type == POINT_CELL) {
-    PointCell *pc = (PointCell *)cc;
+    PointCell* pc = (PointCell*)cc;
     sphere_center = delphi->atoms[pc->id]->pos;
     sphere_radius = delphi->atoms[pc->id]->radius;
   } else
@@ -2675,10 +2683,10 @@ bool ConnollySurface::rayConnollyCellIntersection(double *orig, double *dir,
   return true;
 }
 
-bool ConnollySurface::isFeasible(ConnollyCell *cc, double *point) {
+bool ConnollySurface::isFeasible(ConnollyCell* cc, double* point) {
   if (cc->patch_type == REGULAR_FACE_CELL ||
       cc->patch_type == SINGULAR_FACE_CELL) {
-    FacetCell *fc = (FacetCell *)cc;
+    FacetCell* fc = (FacetCell*)cc;
     int start;
 
     if (cc->patch_type == SINGULAR_FACE_CELL)
@@ -2701,7 +2709,7 @@ bool ConnollySurface::isFeasible(ConnollyCell *cc, double *point) {
 
     return true;
   } else if (cc->patch_type == SINGULAR_EDGE_CELL) {
-    EdgeCell *ec = (EdgeCell *)cc;
+    EdgeCell* ec = (EdgeCell*)cc;
 
     if (ec->isSelfIntersecting) {
       double r = ec->self_intersection_radius;
@@ -2712,7 +2720,7 @@ bool ConnollySurface::isFeasible(ConnollyCell *cc, double *point) {
     }
     return true;
   } else if (cc->patch_type == REGULAR_EDGE_CELL) {
-    EdgeCell *ec = (EdgeCell *)cc;
+    EdgeCell* ec = (EdgeCell*)cc;
 
     if (ec->isSelfIntersecting) {
       // check for self intersection
@@ -2787,11 +2795,11 @@ bool ConnollySurface::isFeasible(ConnollyCell *cc, double *point) {
 
     return false;
   } else if (cc->patch_type == POINT_CELL) {
-    PointCell *pc = (PointCell *)cc;
+    PointCell* pc = (PointCell*)cc;
 
     // filter on tori clipping spheres (shifted voronoi planes of exposed atoms)
     for (unsigned int i = 0; i < pc->neighbours.size(); i++) {
-      double *center = pc->neighbours[i]->clipping_center;
+      double* center = pc->neighbours[i]->clipping_center;
       double radius = pc->neighbours[i]->clipping_radius;
       double dd;
       DIST2(dd, center, point)
@@ -2802,7 +2810,7 @@ bool ConnollySurface::isFeasible(ConnollyCell *cc, double *point) {
 
     // filter on buried clipping tori (shifted voronoi planes of buried atoms)
     for (unsigned int i = 0; i < pc->buried_neighbours.size(); i++) {
-      double *center = pc->buried_neighbours[i]->clipping_center;
+      double* center = pc->buried_neighbours[i]->clipping_center;
       double radius = pc->buried_neighbours[i]->clipping_radius;
       double dd;
       DIST2(dd, center, point)
@@ -2818,9 +2826,9 @@ bool ConnollySurface::isFeasible(ConnollyCell *cc, double *point) {
   return false;
 }
 
-void ConnollySurface::projectToCircle(double *point, double radius,
-                                      double *center, double *plane,
-                                      double *proj, double &dist) {
+void ConnollySurface::projectToCircle(double* point, double radius,
+                                      double* center, double* plane,
+                                      double* proj, double& dist) {
   double pdist;
   point2plane(point, plane, &pdist, proj);
   SUB(proj, proj, center)
@@ -2830,8 +2838,8 @@ void ConnollySurface::projectToCircle(double *point, double radius,
   DIST(dist, point, proj)
 }
 
-void ConnollySurface::projectToTorus(double *y, EdgeCell *ec, double *proj,
-                                     double *norm, double &dist) {
+void ConnollySurface::projectToTorus(double* y, EdgeCell* ec, double* proj,
+                                     double* norm, double& dist) {
   double temp[3], pp[3], torus_plane[4] = {0, 0, +1, 0}, proj_major[3],
                          minor_plane[4], torus_center[3] = {0, 0, 0};
 
@@ -2866,12 +2874,12 @@ void ConnollySurface::projectToTorus(double *y, EdgeCell *ec, double *proj,
   DIST(dist, proj, y)
 }
 
-void ConnollySurface::getNormal(double *y, ConnollyCell *cc, double *normal) {
+void ConnollySurface::getNormal(double* y, ConnollyCell* cc, double* normal) {
   int patch_type = cc->patch_type;
   double *sphere_center, sphere_radius;
 
   if (patch_type == REGULAR_FACE_CELL || patch_type == SINGULAR_FACE_CELL) {
-    FacetCell *fc = (FacetCell *)cc;
+    FacetCell* fc = (FacetCell*)cc;
     sphere_center = fc->center;
     sphere_radius = probe_radius;
     SUB(normal, sphere_center, y)
@@ -2880,10 +2888,10 @@ void ConnollySurface::getNormal(double *y, ConnollyCell *cc, double *normal) {
     normal[2] /= sphere_radius;
   } else if (patch_type == SINGULAR_EDGE_CELL ||
              patch_type == REGULAR_EDGE_CELL) {
-    EdgeCell *ec = (EdgeCell *)cc;
+    EdgeCell* ec = (EdgeCell*)cc;
     getNormalToTorus(y, ec, normal);
   } else if (patch_type == POINT_CELL) {
-    PointCell *pc = (PointCell *)cc;
+    PointCell* pc = (PointCell*)cc;
     sphere_center = delphi->atoms[pc->id]->pos;
     sphere_radius = delphi->atoms[pc->id]->radius;
     SUB(normal, y, sphere_center)
@@ -2892,8 +2900,8 @@ void ConnollySurface::getNormal(double *y, ConnollyCell *cc, double *normal) {
     normal[2] /= sphere_radius;
   }
 }
-void ConnollySurface::getNormalToTorus(double *y, EdgeCell *ec,
-                                       double *normal) {
+void ConnollySurface::getNormalToTorus(double* y, EdgeCell* ec,
+                                       double* normal) {
   double temp[3], pp[3], torus_plane[4] = {0, 0, +1, 0},
                          torus_center[3] = {0, 0, 0}, dist, C[3], aa;
 
@@ -2917,7 +2925,7 @@ void ConnollySurface::getNormalToTorus(double *y, EdgeCell *ec,
   }
 }
 
-void ConnollySurface::saveConcaveSpherePatch(ofstream &of, FacetCell *fc,
+void ConnollySurface::saveConcaveSpherePatch(ofstream& of, FacetCell* fc,
                                              int i) {
   char buff2[BUFLEN], buff[BUFLEN], temp[BUFLEN];
   snprintf(buff, sizeof(buff), "Mesh_CS%d", i);
@@ -2959,7 +2967,7 @@ void ConnollySurface::saveConcaveSpherePatch(ofstream &of, FacetCell *fc,
   of << "\n bounded_by { " << buff << " } \n clipped_by{ bounded_by}}";
 }
 
-void ConnollySurface::saveSphere(ostream &of, double *center, double radius) {
+void ConnollySurface::saveSphere(ostream& of, double* center, double radius) {
   char buff2[BUFLEN];
   snprintf(buff2, sizeof(buff2),
            "\n\n sphere { \n <%lf,%lf,%lf>,%lf  pigment{color Green}}",
@@ -2967,7 +2975,7 @@ void ConnollySurface::saveSphere(ostream &of, double *center, double radius) {
   of << buff2;
 }
 
-void ConnollySurface::saveAtomPatch(ofstream &of, PointCell *pc) {
+void ConnollySurface::saveAtomPatch(ofstream& of, PointCell* pc) {
   char buff2[BUFLEN], buff[BUFLEN];
 
   of << "\n// -------------- ATOM " << pc->id << "-------------------";
@@ -2975,7 +2983,7 @@ void ConnollySurface::saveAtomPatch(ofstream &of, PointCell *pc) {
   // add
   of << "\n\n #declare " << buff << " =";
   of << "\n union {";
-  double *sphere;
+  double* sphere;
   double radius;
   for (unsigned int k = 0; k < pc->neighbours.size(); k++) {
     sphere = pc->neighbours[k]->clipping_center;
@@ -3003,9 +3011,9 @@ void ConnollySurface::saveAtomPatch(ofstream &of, PointCell *pc) {
   of << "\nobject{" << buff << "}}";
 }
 
-void ConnollySurface::saveEdgePatch(ofstream &of, EdgeCell *ec, int size,
-                                    double bigR, double *u, double *v,
-                                    double *w, bool isComplex) {
+void ConnollySurface::saveEdgePatch(ofstream& of, EdgeCell* ec, int size,
+                                    double bigR, double* u, double* v,
+                                    double* w, bool isComplex) {
   char buff2[BUFLEN], buff[BUFLEN], buff3[BUFLEN], clipplanes[BUFLEN],
       clip[BUFLEN];
 
@@ -3151,8 +3159,8 @@ void ConnollySurface::saveEdgePatch(ofstream &of, EdgeCell *ec, int size,
 
 /** check the orientation. Assume the planes points toward the visible region of
  * the torus*/
-bool ConnollySurface::orientation(double *pb_center1, double *pb_center2,
-                                  double *w1, double *w2) {
+bool ConnollySurface::orientation(double* pb_center1, double* pb_center2,
+                                  double* w1, double* w2) {
   // intersect the lines starting at the probes position and following the
   // normal orientations
   // double a=DOT(w1,w1);
@@ -3173,8 +3181,8 @@ bool ConnollySurface::orientation(double *pb_center1, double *pb_center2,
     return false;
 }
 
-void ConnollySurface::sortProbes(EdgeCell *ec, FacetCell **fcv, int np,
-                                 int *sorted) {
+void ConnollySurface::sortProbes(EdgeCell* ec, FacetCell** fcv, int np,
+                                 int* sorted) {
   vector<indexed_double> angles;
   double ref[3];
   double tt;
@@ -3208,9 +3216,9 @@ void ConnollySurface::sortProbes(EdgeCell *ec, FacetCell **fcv, int np,
   return;
 }
 
-void ConnollySurface::getCoi(double *torus_center, double rcoi,
-                             double **sampledPoints, int numPoints, double *u,
-                             double *v) {
+void ConnollySurface::getCoi(double* torus_center, double rcoi,
+                             double** sampledPoints, int numPoints, double* u,
+                             double* v) {
   // FILE* fp;
   // fp = fopen("tempp.txt","a");
 

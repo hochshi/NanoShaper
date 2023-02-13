@@ -37,7 +37,9 @@ void MeshSurface::clear() {
   if (planes != NULL)
     deleteMatrix2D<double>(numTriangles, planes);
 }
-MeshSurface::~MeshSurface() { clear(); }
+MeshSurface::~MeshSurface() {
+  clear();
+}
 
 void MeshSurface::init() {
   faceMatrix = NULL;
@@ -67,7 +69,7 @@ MeshSurface::MeshSurface(DelPhiSharedOP ds) : Surface() {
 
 void MeshSurface::init(ConfigurationOP cf) {
   string fname =
-      cf->sfname; // cf->read<string>( "Surface_File_Name", "mesh.off" );
+      cf->sfname;  // cf->read<string>( "Surface_File_Name", "mesh.off" );
   unsigned int maxMeshDim = cf->maxMeshDim;
   unsigned int maxMeshPatches = cf->maxMeshPatches;
   unsigned int maxMeshDim2D = cf->maxMeshDim2D;
@@ -92,14 +94,14 @@ void MeshSurface::init(ConfigurationOP cf) {
   // get the type of surface
   if (!ext.compare("off")) {
     // Load Surface
-    bool load_f = load((char *)fname.c_str());
+    bool load_f = load((char*)fname.c_str());
     if (!load_f) {
       logging::log<logging::level::err>("Cannot load {}", fname);
       throw std::invalid_argument("Cannot load off file");
     }
   } else if (!ext.compare("vert") || !ext.compare("face")) {
     // Load MSMS surface[s]
-    bool load_f = loadMSMS((char *)fname.substr(0, fname.size() - 5).c_str(),
+    bool load_f = loadMSMS((char*)fname.substr(0, fname.size() - 5).c_str(),
                            numMSMSFiles);
     if (!load_f) {
       logging::log<logging::level::err>("Cannot load {}", fname);
@@ -203,7 +205,7 @@ void MeshSurface::preProcessPanel() {
     return;
   }
 
-  double *p[3];
+  double* p[3];
   for (int it = 0; it < numTriangles; it++) {
     // triangle points
     p[0] = vertMatrix[faceMatrix[it][0]];
@@ -220,7 +222,7 @@ void MeshSurface::preProcessPanel() {
     double upz = -INFINITY;
 
     for (unsigned int pind = 0; pind < 3; pind++) {
-      double *pp = p[pind];
+      double* pp = p[pind];
       downx = MIN(downx, pp[0]);
       downy = MAX(downy, pp[1]);
       downz = MIN(downz, pp[2]);
@@ -344,7 +346,7 @@ void MeshSurface::preProcessTriangles() {
   // because if normals estimation is needed it is usually more numerically
   // stable to average the plane normals before normalization
 
-  double *p[3];
+  double* p[3];
   for (int it = 0; it < numTriangles; it++) {
     p[0] = vertMatrix[faceMatrix[it][0]];
     p[1] = vertMatrix[faceMatrix[it][1]];
@@ -504,11 +506,11 @@ bool MeshSurface::buildAuxiliaryGrid() {
   logging::log<logging::level::info>(
       "Allocating {} MB for the auxiliary grid...",
       (nx * ny * nz * MAX_TRIANGLES) * sizeof(int) / 1024.0 / 1024.0);
-  gridTriangleMap = (int *)malloc(sizeof(int) * nx * ny * nz * MAX_TRIANGLES);
+  gridTriangleMap = (int*)malloc(sizeof(int) * nx * ny * nz * MAX_TRIANGLES);
 
   //////////////////////////////////////////////////////////////////////////
 
-  double *p[3];
+  double* p[3];
   int max_t = 0;
 
   // build a bounding box for each triangle and map it to
@@ -528,7 +530,7 @@ bool MeshSurface::buildAuxiliaryGrid() {
     double upz = -1e20;
 
     for (unsigned int pind = 0; pind < 3; pind++) {
-      double *pp = p[pind];
+      double* pp = p[pind];
       downx = MIN(downx, pp[0]);
       downy = MAX(downy, pp[1]);
       downz = MIN(downz, pp[2]);
@@ -593,7 +595,7 @@ bool MeshSurface::buildAuxiliaryGrid() {
 }
 
 /** save in OFF format*/
-bool MeshSurface::save(char *fileName) {
+bool MeshSurface::save(char* fileName) {
   ofstream fout;
   fout.open(fileName, ios::out);
 
@@ -624,7 +626,7 @@ bool MeshSurface::save(char *fileName) {
   return true;
 }
 
-bool MeshSurface::load(char *fileName) {
+bool MeshSurface::load(char* fileName) {
   int len = (int)strlen(fileName);
   if (len == 0) {
     logging::log<logging::level::warn>("Cannot load with empty file name!");
@@ -654,12 +656,12 @@ bool MeshSurface::load(char *fileName) {
   return true;
 }
 
-bool MeshSurface::loadPLY(char *fname) {
+bool MeshSurface::loadPLY(char* fname) {
   int format = 0, voh, foh, vph, fph;
   int nv, nt, i, j, i1, i2, i3, i4;
   float x, y, z;
   bool triangulate = 0;
-  FILE *in;
+  FILE* in;
   char keyword[64], formats[24], version[10];
 
   if ((in = fopen(fname, "rb")) == NULL) {
@@ -723,7 +725,7 @@ bool MeshSurface::loadPLY(char *fname) {
   numVertexes = nv;
   vertMatrix = allocateMatrix2D<double>(numVertexes, 3);
   // vertexTrianglesList = new vector<int>*[numVertexes];
-  vertexTrianglesList = allocateVector<vector<int> *>(numVertexes);
+  vertexTrianglesList = allocateVector<vector<int>*>(numVertexes);
 
   for (int i = 0; i < numVertexes; i++)
     vertexTrianglesList[i] = new vector<int>();
@@ -785,7 +787,7 @@ bool MeshSurface::loadPLY(char *fname) {
   return true;
 }
 
-bool MeshSurface::loadOFF(char *fileName) {
+bool MeshSurface::loadOFF(char* fileName) {
   ifstream fin;
   fin.open(fileName, ios::in);
   int temp;
@@ -808,7 +810,7 @@ bool MeshSurface::loadOFF(char *fileName) {
   if (vertexTrianglesList != NULL) {
     for (int i = 0; i < numVertexes; i++)
       delete vertexTrianglesList[i];
-    deleteVector<vector<int> *>(vertexTrianglesList);
+    deleteVector<vector<int>*>(vertexTrianglesList);
   }
 
   while (1) {
@@ -842,7 +844,7 @@ bool MeshSurface::loadOFF(char *fileName) {
         faceMatrix = allocateMatrix2D<int>(numTriangles, 3);
         vertMatrix = allocateMatrix2D<double>(numVertexes, 3);
         // vertexTrianglesList = new vector<int>*[numVertexes];
-        vertexTrianglesList = allocateVector<vector<int> *>(numVertexes);
+        vertexTrianglesList = allocateVector<vector<int>*>(numVertexes);
         for (int i = 0; i < numVertexes; i++)
           vertexTrianglesList[i] = new vector<int>();
       }
@@ -899,7 +901,7 @@ bool MeshSurface::loadOFF(char *fileName) {
   return true;
 }
 
-bool MeshSurface::loadMSMS(char *fileName, int numFiles) {
+bool MeshSurface::loadMSMS(char* fileName, int numFiles) {
   ifstream fin, fin2;
 
   char buffer[BUFLEN];
@@ -1143,12 +1145,11 @@ void MeshSurface::printSummary() {
   }
 }
 
-inline void
-MeshSurface::getRayIntersection(double pa[3], double pb[3],
-                                vector<pair<double, double *>> &intersections,
-                                int thdID, bool computeNormals) {
+inline void MeshSurface::getRayIntersection(
+    double pa[3], double pb[3], vector<pair<double, double*>>& intersections,
+    int thdID, bool computeNormals) {
   double dir[3];
-  double *p[3];
+  double* p[3];
   double aposx = pa[0], aposy = pa[1], aposz = pa[2];
   dir[0] = pb[0] - aposx;
   dir[1] = pb[1] - aposy;
@@ -1189,7 +1190,7 @@ MeshSurface::getRayIntersection(double pa[3], double pb[3],
         proj_point[0] = apos[0] + dir[0] * t;
         proj_point[1] = apos[1];
         proj_point[2] = apos[2];
-        intersections.push_back(pair<double, double *>(t, planes[it]));
+        intersections.push_back(pair<double, double*>(t, planes[it]));
       }
     }
   } else if (panel == 1) {
@@ -1216,7 +1217,7 @@ MeshSurface::getRayIntersection(double pa[3], double pb[3],
         proj_point[0] = apos[0];
         proj_point[1] = apos[1];
         proj_point[2] = apos[2] + dir[2] * t;
-        intersections.push_back(pair<double, double *>(t, planes[it]));
+        intersections.push_back(pair<double, double*>(t, planes[it]));
       }
     }
   } else {
@@ -1243,7 +1244,7 @@ MeshSurface::getRayIntersection(double pa[3], double pb[3],
         proj_point[0] = apos[0];
         proj_point[1] = apos[1] + dir[1] * t;
         proj_point[2] = apos[2];
-        intersections.push_back(pair<double, double *>(t, planes[it]));
+        intersections.push_back(pair<double, double*>(t, planes[it]));
       }
     }
   }
@@ -1255,8 +1256,8 @@ MeshSurface::getRayIntersection(double pa[3], double pb[3],
 // returns 1 in case of intersection
 int MeshSurface::intersect_triangle(double orig[3], double dir[3],
                                     double vert0[3], double vert1[3],
-                                    double vert2[3], double *t, double *u,
-                                    double *v) {
+                                    double vert2[3], double* t, double* u,
+                                    double* v) {
   double edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
   double det, inv_det;
 
@@ -1324,8 +1325,8 @@ int MeshSurface::intersect_triangle(double orig[3], double dir[3],
 }
 
 bool MeshSurface::point2triangle(double P[3], double A[3], double B[3],
-                                 double C[3], double w[4], double *proj,
-                                 double *dist, double *normal, int planeID,
+                                 double C[3], double w[4], double* proj,
+                                 double* dist, double* normal, int planeID,
                                  int va, int vb, int vc) {
   bool flag;
   // project to plane
@@ -1351,13 +1352,13 @@ bool MeshSurface::point2triangle(double P[3], double A[3], double B[3],
 
     if (t < 0.0) {
       SUB(t1, P, A);
-      d[0] = sqrt(DOT(t1, t1)); // Beyond the first end of the segment
+      d[0] = sqrt(DOT(t1, t1));  // Beyond the first end of the segment
       ASSIGN(res1, A);
       // saturation
       t = 0.0;
     } else if (t > 1.0) {
       SUB(t1, P, B);
-      d[0] = sqrt(DOT(t1, t1)); // Beyond the second end of the segment
+      d[0] = sqrt(DOT(t1, t1));  // Beyond the second end of the segment
       ASSIGN(res1, B);
       // saturation
       t = 1.0;
@@ -1376,12 +1377,12 @@ bool MeshSurface::point2triangle(double P[3], double A[3], double B[3],
 
     if (t < 0.0) {
       SUB(t1, P, A);
-      d[1] = sqrt(DOT(t1, t1)); // Beyond the first end of the segment
+      d[1] = sqrt(DOT(t1, t1));  // Beyond the first end of the segment
       ASSIGN(res2, A);
       t = 0.0;
     } else if (t > 1.0) {
       SUB(t1, P, C);
-      d[1] = sqrt(DOT(t1, t1)); // Beyond the second end of the segment
+      d[1] = sqrt(DOT(t1, t1));  // Beyond the second end of the segment
       ASSIGN(res2, C);
       t = 1.0;
     } else {
@@ -1399,12 +1400,12 @@ bool MeshSurface::point2triangle(double P[3], double A[3], double B[3],
 
     if (t < 0.0) {
       SUB(t1, P, B);
-      d[2] = sqrt(DOT(t1, t1)); // Beyond the first end of the segment
+      d[2] = sqrt(DOT(t1, t1));  // Beyond the first end of the segment
       ASSIGN(res3, B);
       t = 0.0;
     } else if (t > 1.0) {
       SUB(t1, P, C);
-      d[2] = sqrt(DOT(t1, t1)); // Beyond the second end of the segment
+      d[2] = sqrt(DOT(t1, t1));  // Beyond the second end of the segment
       ASSIGN(res3, C);
       t = 1.0;
     } else {
@@ -1479,7 +1480,7 @@ bool MeshSurface::inTriangle(double P[3], double A[3], double B[3],
     return false;
 }
 
-void MeshSurface::point2plane(double p[3], double w[4], double *dist,
+void MeshSurface::point2plane(double p[3], double w[4], double* dist,
                               double proj[3]) {
   double den = (DOT(w, w));
   double d = sqrt(den);
@@ -1490,9 +1491,9 @@ void MeshSurface::point2plane(double p[3], double w[4], double *dist,
   (*dist) = fabs(val / d);
 }
 
-bool MeshSurface::getProjection(double p[3], double *proj1, double *proj2,
-                                double *proj3, double *normal1, double *normal2,
-                                double *normal3) {
+bool MeshSurface::getProjection(double p[3], double* proj1, double* proj2,
+                                double* proj3, double* normal1, double* normal2,
+                                double* normal3) {
   // get the triangles that are associated to this grid point
   // by querying the auxiliary grid
   double dist, *pp[3];

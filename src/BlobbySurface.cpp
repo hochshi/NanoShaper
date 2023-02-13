@@ -17,9 +17,13 @@ void BlobbySurface::init(ConfigurationOP cf) {
   setBlobbyness(cf->blobby_B);
   // setBlobbyness(blobby_B);
 }
-BlobbySurface::BlobbySurface() { init(); }
+BlobbySurface::BlobbySurface() {
+  init();
+}
 
-BlobbySurface::BlobbySurface(DelPhiSharedOP ds) : MeshSurface(ds) { init(); }
+BlobbySurface::BlobbySurface(DelPhiSharedOP ds) : MeshSurface(ds) {
+  init();
+}
 
 BlobbySurface::BlobbySurface(ConfigurationOP cf, DelPhiSharedOP ds)
     : MeshSurface(ds) {
@@ -27,7 +31,9 @@ BlobbySurface::BlobbySurface(ConfigurationOP cf, DelPhiSharedOP ds)
   init(cf);
 }
 
-BlobbySurface::~BlobbySurface() { clear(); }
+BlobbySurface::~BlobbySurface() {
+  clear();
+}
 
 void BlobbySurface::clear() {}
 
@@ -41,7 +47,9 @@ void BlobbySurface::setBlobbyness(double b) {
   B = b;
 }
 
-double BlobbySurface::getBlobbyness() { return B; }
+double BlobbySurface::getBlobbyness() {
+  return B;
+}
 
 bool BlobbySurface::build() {
   // build blobby in an atom-wise way in order to use a cutoff distance
@@ -70,13 +78,13 @@ bool BlobbySurface::build() {
       for (int k = 0; k < delphi->nx; k++)
         scalarField[i][j][k] = 0.0;
 
-  Atom **atoms = delphi->atoms;
+  Atom** atoms = delphi->atoms;
   printf("\n");
   int na = delphi->numAtoms;
   // fill surface class structures
   for (int i = 0; i < na; i++) {
     printf("\r%sBlobby %.2f%%        ", INFO_STR, ((float)i + 1) / na * 100.0);
-    double *pos = atoms[i]->pos;
+    double* pos = atoms[i]->pos;
     double r = atoms[i]->radius;
     double r2 = r * r;
     // get ref grid point
@@ -149,13 +157,13 @@ bool BlobbySurface::build() {
 
   ////////////// reset surface status ////////////////////////////
   if (triList.size() > 0) {
-    vector<int *>::iterator it;
+    vector<int*>::iterator it;
     for (it = triList.begin(); it != triList.end(); it++)
       deleteVector<int>((*it));
   }
 
   if (vertList.size() > 0) {
-    vector<double *>::iterator it;
+    vector<double*>::iterator it;
     for (it = vertList.begin(); it != vertList.end(); it++)
       deleteVector<double>((*it));
   }

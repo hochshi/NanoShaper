@@ -13,7 +13,9 @@
 #include <globals.h>
 #include <memory>
 
-ConfigFileOP load(std::string argv, string delimiter = "=", string comment = "#", string sentry = "EndConfigFile", std::string format = "plain");
+ConfigFileOP load(std::string argv, string delimiter = "=",
+                  string comment = "#", string sentry = "EndConfigFile",
+                  std::string format = "plain");
 ConfigurationOP parse(ConfigFileOP cf);
 // void dispose(ConfigFileOP cf);
 // void stopDebug();

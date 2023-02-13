@@ -30,8 +30,8 @@
 
 // vor point container
 class VorPoint {
-public:
-  double vor[3]; // Voronoi center
+ public:
+  double vor[3];  // Voronoi center
   bool visited;
 
   VorPoint() { visited = false; }
@@ -40,8 +40,8 @@ public:
 
 /** grid coordinates + vector (usually a point or a normal vector)*/
 class coordVec {
-public:
-  coordVec(const int x, const int y, const int z, double *const v,
+ public:
+  coordVec(const int x, const int y, const int z, double* const v,
            const int d) {
     ix = x;
     iy = y;
@@ -51,7 +51,7 @@ public:
   }
 
   /** shallow copy constructor*/
-  coordVec(const coordVec &cv) {
+  coordVec(const coordVec& cv) {
     ix = cv.ix;
     iy = cv.iy;
     iz = cv.iz;
@@ -63,18 +63,18 @@ public:
   int iy;
   int iz;
   int dir;
-  double *vec;
+  double* vec;
 };
 
 class packet {
-public:
+ public:
   packet() {}
-  packet(const packet &p) {
+  packet(const packet& p) {
     first = p.first;
     second = p.second;
   }
-  vector<coordVec> *first;
-  vector<coordVec> *second;
+  vector<coordVec>* first;
+  vector<coordVec>* second;
 };
 
 #ifdef DBGMEM_CRT
@@ -134,15 +134,15 @@ extern int num_cores;
 
 #ifdef ENABLE_BOOST_THREADS
 
-#define THREAD_SAFE_SCOPE(SSS)                                                 \
-  {                                                                            \
-    boost::mutex::scoped_lock scopedLock(mutex);                               \
-    SSS cout.flush();                                                          \
+#define THREAD_SAFE_SCOPE(SSS)                   \
+  {                                              \
+    boost::mutex::scoped_lock scopedLock(mutex); \
+    SSS cout.flush();                            \
   }
 
 #else
 
-#define THREAD_SAFE_SCOPE(SSS)                                                 \
+#define THREAD_SAFE_SCOPE(SSS) \
   { SSS cout.flush(); }
 #endif
 
@@ -188,7 +188,7 @@ ray/projections routine) thus providing all the necessary info to DelPhi solver.
 */
 class Surface {
 #ifdef ENABLE_CGAL
-private:
+ private:
   typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
   typedef K::FT Weight;
   typedef K::Point_3 Point;
@@ -197,13 +197,13 @@ private:
   typedef CGAL::Regular_triangulation_vertex_base_3<K> Vb0;
   typedef CGAL::Triangulation_vertex_base_with_info_3<int, K, Vb0> Vb;
   typedef CGAL::Regular_triangulation_cell_base_3<K> Cb0;
-  typedef CGAL::Triangulation_cell_base_with_info_3<VorPoint *, Cb0, Cb0> Cb;
+  typedef CGAL::Triangulation_cell_base_with_info_3<VorPoint*, Cb0, Cb0> Cb;
   typedef CGAL::Triangulation_data_structure_3<Vb, Cb> Tds;
   typedef CGAL::Regular_triangulation_3<K, Tds> Rt;
   typedef Tds::Cell_handle Cell_handle;
 #endif
 
-protected:
+ protected:
   //////////////////////////////////// surf definition variables
   //////////////////////////
   /** says if the surface represents a molecule, an hybrid system or an object
@@ -254,26 +254,26 @@ protected:
   // last nx,ny,nz dimensions seen by Surface class
   int last_nx, last_ny, last_nz;
   /** 3d matrix of intersections along x rays*/
-  Octree<int> *intersectionsMatrixAlongX;
+  Octree<int>* intersectionsMatrixAlongX;
   /** 3d matrix of intersections along y rays*/
-  Octree<int> *intersectionsMatrixAlongY;
+  Octree<int>* intersectionsMatrixAlongY;
   /** 3d matrix of intersections along z rays*/
-  Octree<int> *intersectionsMatrixAlongZ;
+  Octree<int>* intersectionsMatrixAlongZ;
   /** 3d matrix of normals along x rays*/
-  Octree<int> *normalsMatrixAlongX;
+  Octree<int>* normalsMatrixAlongX;
   /** 3d matrix of normals along y rays*/
-  Octree<int> *normalsMatrixAlongY;
+  Octree<int>* normalsMatrixAlongY;
   /** 3d matrix of normals along z rays*/
-  Octree<int> *normalsMatrixAlongZ;
+  Octree<int>* normalsMatrixAlongZ;
 
   /** mark wich MC cubes contain triangles to allow fast reject in the second
    * pass*/
-  bool *activeCubes;
+  bool* activeCubes;
 
-  bool ***verticesInsidenessMap;
+  bool*** verticesInsidenessMap;
   // bool *verticesInsidenessMap;
 
-  double ***scalarField;
+  double*** scalarField;
 
   // when a scalar field is available scalarField is used instead of
   // verticesInsidenessMap for vertex interpolation
@@ -283,28 +283,28 @@ protected:
   ///////////////////////////////////
   /** vector of vertex indices for the traingulation obtained by
    * triangulateSurface function*/
-  vector<int *> triList;
+  vector<int*> triList;
   /** vector of triangle vertices*/
-  vector<double *> vertList;
+  vector<double*> vertList;
   /** vector of normal to vertices*/
-  vector<double *> normalsList;
+  vector<double*> normalsList;
   /////////////////////////////////////////////////////////////////////////////////////////////
 
   double delta_accurate_triangulation;
 
   /** type of bgp for each detected bgp **/
-  int *bgp_type;
+  int* bgp_type;
 
   /** grid multi-dielectric map*/
-  int *gridMultiMap;
+  int* gridMultiMap;
   double gxmin, gymin, gzmin, gside, gscale;
   unsigned int ggrid;
 
   /** pointer to a vector which holds the information about the load for each
    * grid slice*/
-  int *gridLoad;
+  int* gridLoad;
   int totalLoad;
-  int *vertexAtomsMap;
+  int* vertexAtomsMap;
 
   int MAX_ATOMS_MULTI_GRID;
 
@@ -328,12 +328,12 @@ protected:
                   int num_cores = 0);
 
   /** inner routine for scanline */
-  void floodFill3(pair<pair<int, int>, int> ind, pair<int, int> z_limits,
-                  pair<int, int> old_new,
-                  pair<queue<pair<pair<int, int>, int>> *,
-                       queue<pair<pair<int, int>, int>> *>
-                      queues,
-                  queue<pair<pair<int, int>, int>> *in_queue);
+  void floodFill3(
+      pair<pair<int, int>, int> ind, pair<int, int> z_limits,
+      pair<int, int> old_new,
+      pair<queue<pair<pair<int, int>, int>>*, queue<pair<pair<int, int>, int>>*>
+          queues,
+      queue<pair<pair<int, int>, int>>* in_queue);
 
   /** supports inner floodfill inside the 1.4 surface (given status1) to
   understand if two cavities/pockets are status2-linked (check external
@@ -342,11 +342,11 @@ protected:
   cavities/pockets. It stops if a maximal number of moves have been reached. A
   'move' means moving from one grid point to another one. In max moves is
   returned the number of moves done to get the target.*/
-  bool innerFloodFill(int *start, int *target, short *status1, short *status2,
-                      int &maxMoves, bool debug);
+  bool innerFloodFill(int* start, int* target, short* status1, short* status2,
+                      int& maxMoves, bool debug);
 
   /** gives true if the point is outside vdw surface*/
-  bool vdwAccessible(double *p, int &nearest);
+  bool vdwAccessible(double* p, int& nearest);
 
   /**intersector routine, used to perform partial or full intersections.
   Usefully used together with boost threading routines. In order to get a
@@ -359,8 +359,8 @@ protected:
   trails, the trace of the previous ray is copied to the current one. \n In some
   cases this strategy can also fill small holes in the surface.
   */
-  void intersector(double *volPanel, int nb, int start, int end, int jump,
-                   int *numIntersections, packet pack);
+  void intersector(double* volPanel, int nb, int start, int end, int jump,
+                   int* numIntersections, packet pack);
 
   /** projector routine, used to perform partial or full intersections. Usefully
   used together with boost threading routines*/
@@ -371,32 +371,32 @@ protected:
   char getInsidness(int i, int j, int k, int vertInd);
 
   /** marching cubes vertex interpolation*/
-  void vertexInterp(double isolevel, double *p1, double *p2, double valp1,
-                    double valp2, double *p);
+  void vertexInterp(double isolevel, double* p1, double* p2, double valp1,
+                    double valp2, double* p);
 
   /** build triangles for marching cubes cell*/
   // int getTriangles(double* vertexValues,double** vertexPos,double isolevel,
   // int** triangles,int ix,int iy,int iz, 	int NX, int NY,int NZ,int*
   // xedge,int*
   // yedge,int* zedge,int* xedge_down,int* yedge_down);
-  int getTriangles(double *vertexValues, double **vertexPos, double isolevel,
-                   int **triangles, int ix, int iy, int iz, int NX, int NY,
+  int getTriangles(double* vertexValues, double** vertexPos, double isolevel,
+                   int** triangles, int ix, int iy, int iz, int NX, int NY,
                    int NZ);
 
   /** returns the vertices for a given section on z of the grid*/
   void getVertices(double isolevel, int start_z, int end_z, int jump,
-                   vector<coordVec> *, vector<double *> *);
+                   vector<coordVec>*, vector<double*>*);
 
   /** gives MC cube index. If !=-1 then that cube contains triangles*/
-  int classifyCube(double *vertexValues, double isolevel);
+  int classifyCube(double* vertexValues, double isolevel);
 
   /** approximate normals based on the surrounding triangle planes normals*/
-  void approximateNormals(vector<int> &appNormals, bool doOnlyList);
+  void approximateNormals(vector<int>& appNormals, bool doOnlyList);
 
   /** triangulator thread*/
   double triangulationKernel(double isolevel, bool revert, int start_z,
-                             int end_z, int jump, vector<int *> *localTriList,
-                             double *localArea);
+                             int end_z, int jump, vector<int*>* localTriList,
+                             double* localArea);
 
   /** build a 3D grid for acellerating nearest atom queries*/
   void buildAtomsMap();
@@ -411,7 +411,7 @@ protected:
   /** swap the state of a point in the epsmap from internal to the nearest atom
    * dielectric*/
   void swap2multi(double gxmin, double gymin, double gzmin, double gside,
-                  unsigned int ggrid, int *gridMultiMap, int i, int j, int k,
+                  unsigned int ggrid, int* gridMultiMap, int i, int j, int k,
                   int l);
 
   /** build stern layer.*/
@@ -428,13 +428,13 @@ protected:
 
   /** gives true if the point is completely out: completely
   out means that the nearest grid point is out all its 1-neighbours are out*/
-  bool isCompletelyOut(double *pos);
+  bool isCompletelyOut(double* pos);
 
-protected:
+ protected:
   Surface();
   Surface(ConfigurationOP cf);
 
-public:
+ public:
   // In order to use the set of default surface methods, the following
   // interface methods must be provided.
   // If a fully custom solution is built the mandatory methods can be fake
@@ -449,19 +449,19 @@ public:
 
   /** Save the surface in a specific class dependent format. Return
   if saving was succesful or not*/
-  virtual bool save(char *fileName) = 0;
+  virtual bool save(char* fileName) = 0;
 
   /**Load the surface in a specific class dependent format. Return
   if loading was succesful or not*/
-  virtual bool load(char *fileName) = 0;
+  virtual bool load(char* fileName) = 0;
 
   /** Print a summary of the surface type, status and other stuff*/
   virtual void printSummary() = 0;
 
   /** Get a projection of a point on the surface. Return projection and normal*/
-  virtual bool getProjection(double p[3], double *proj1, double *proj2,
-                             double *proj3, double *normal1, double *normal2,
-                             double *normal3) = 0;
+  virtual bool getProjection(double p[3], double* proj1, double* proj2,
+                             double* proj3, double* normal1, double* normal2,
+                             double* normal3) = 0;
 
   /** Get all the intersections of a ray that goes from P1 to P2 over the
   surface. The interesctions are returned with increasing distance order. the
@@ -469,7 +469,7 @@ public:
   line and the surface, the double pointer is the normal vector. The management
   of the memory of the normal is up to the derived class from surface*/
   virtual void getRayIntersection(double p1[3], double p2[3],
-                                  vector<pair<double, double *>> &intersections,
+                                  vector<pair<double, double*>>& intersections,
                                   int thdID, bool computeNormals) = 0;
 
   /** function for the constructor without arguments*/
@@ -530,18 +530,18 @@ public:
   cubes; thus the scalar field is given by the ensemble of the status map. The
   surface is saved in off format*/
   virtual double triangulateSurface(double iso = 0.0,
-                                    const char *fileName = "triangulatedSurf",
+                                    const char* fileName = "triangulatedSurf",
                                     bool revert = false, int num_cores = 0);
 
   /** save mesh in a prescribed format, revert triangles (change plane sign) if
    * requested*/
-  virtual bool saveMesh(int format, bool revert, const char *fileName,
-                        vector<double *> &vertList, vector<int *> &triList,
-                        vector<double *> &normalsList);
+  virtual bool saveMesh(int format, bool revert, const char* fileName,
+                        vector<double*>& vertList, vector<int*>& triList,
+                        vector<double*>& normalsList);
 
   /** smooth a given mesh and overwrites the given file name.
   The input/output mesh is in .off format*/
-  virtual void smoothSurface(const char *fn = "triangulatedSurf",
+  virtual void smoothSurface(const char* fn = "triangulatedSurf",
                              bool revert = false);
 
   /** this function is called before the ray tracing of the panel. It can be
@@ -570,19 +570,19 @@ public:
   /** If between two any cavities there is communication in map st2 and this
    * communication is all internal in map st1 these cavities are merged
    * logically.*/
-  int linkCavities(short *st1, short *st2);
+  int linkCavities(short* st1, short* st2);
 
   /** difference operator: said S1 the first surface (big probe), S2 (small
   probe) the second surface and S3 the output surface then the difference rule
   is the following rule: if S1 is not OUT and and S2 is OUT then that's the
   pocket
   */
-  bool difference(Surface *);
+  bool difference(Surface*);
 
   /** This is a Connolly regularized difference operator. Difference function is
   called and then Connolly filter is applied such that the noise can be filtered
   out.*/
-  Surface &operator-=(Surface &surf2);
+  Surface& operator-=(Surface& surf2);
 
   /** for each cavity/pocket detect the atoms that compose the cavity*/
   void getCavitiesAtoms();
@@ -590,18 +590,18 @@ public:
   /** given a triangulation coming from the current surface object says if the
   triangulations points are completely out or not according to the status map
   given in surf*/
-  void triangulationPointsAreCompletelyOut(Surface *surf,
-                                           vector<bool> &results);
+  void triangulationPointsAreCompletelyOut(Surface* surf,
+                                           vector<bool>& results);
 
   /** save selected points of the triangulation in file without normals, in
   filen with normals if they are available*/
-  void saveSelectedPoints(vector<bool> &selection, char *file, char *filen);
+  void saveSelectedPoints(vector<bool>& selection, char* file, char* filen);
 
   /**save a subset of the triangulation into triSubset file. The subset is given
   in a vertex wise way by the vector of boolean results. Revert must be true if
   the mesh comes from the triangulation of a pocket or a cavity. The value of
   the new area is returned.*/
-  double saveTriSubSet(char *triSubset, vector<bool> &results, bool revert);
+  double saveTriSubSet(char* triSubset, vector<bool>& results, bool revert);
   ///////////////////////////////////////////// getters/setters
   /////////////////////////////////////////////////
 

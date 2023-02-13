@@ -54,8 +54,9 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "Asked to save epsmap without builiding it");
       logging::log<logging::level::info>(
           "{} Please set Build_epsilon_maps = true", REMARK);
-      throw std::invalid_argument("Asked to save epsmap without building it! "
-                                  "Please set Build_epsilon_maps to true.");
+      throw std::invalid_argument(
+          "Asked to save epsmap without building it! "
+          "Please set Build_epsilon_maps to true.");
     }
 
     if (!conf->buildEpsmaps && conf->projBGP) {
@@ -105,8 +106,9 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "Cannot do pocket detection without status map");
       logging::log<logging::level::info>(
           "{} Please set Build_status_map = true", REMARK);
-      throw std::invalid_argument("Cannot do pocket detection without status "
-                                  "map. Please set Build_status_map = true");
+      throw std::invalid_argument(
+          "Cannot do pocket detection without status "
+          "map. Please set Build_status_map = true");
     }
   }
 
@@ -609,7 +611,7 @@ exit(-1);
   if (hasAtomInfo) {
     char name2[100];
     snprintf(name2, sizeof(name2), "%s.info", conf->sysName.c_str());
-    FILE *fp = fopen(name2, "w");
+    FILE* fp = fopen(name2, "w");
     fprintf(fp, "\n Protein             : ");
     fprintf(fp, "\n Probe radius        : %.2f", conf->pocketRadiusSmall);
     fprintf(fp, "\n Number of atoms : %d", natom);

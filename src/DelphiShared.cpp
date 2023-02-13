@@ -1,8 +1,8 @@
 
 #include <DelphiShared.h>
 #include <logging.h>
-#include <stdexcept>
 #include <tools.h>
+#include <stdexcept>
 
 void DelPhiShared::init() {
   epsmap = NULL;
@@ -26,10 +26,14 @@ void DelPhiShared::init() {
   atsurf = NULL;
 }
 
-DelPhiShared::DelPhiShared() { init(); }
+DelPhiShared::DelPhiShared() {
+  init();
+}
 
 DelPhiShared::DelPhiShared(bool map, bool status, bool multi, bool atinfo)
-    : buildEpsMap(map), buildStatus(status), multi_diel(multi),
+    : buildEpsMap(map),
+      buildStatus(status),
+      multi_diel(multi),
       isAvailableAtomInfo(atinfo) {}
 
 void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
@@ -38,7 +42,7 @@ void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
   buildStatus = stat_flag;
   multi_diel = multi;
   isAvailableAtomInfo = atinfo;
-  
+
   init(scale, perfill, fn);
 }
 
@@ -62,7 +66,7 @@ void DelPhiShared::init(double scale, double perfill, string fn) {
   logging::log<logging::level::info>("Initialization completed");
 }
 
-void DelPhiShared::init(double scale, double perfill, const InputData &in) {
+void DelPhiShared::init(double scale, double perfill, const InputData& in) {
   logging::log<logging::level::info>("Loading atoms....");
 
   int retNum = loadAtoms(in.na, in.x, in.y, in.z, in.r, in.q, in.d, in.ai);
@@ -92,11 +96,11 @@ DelPhiShared::DelPhiShared(double scale, double perfill, string fn,
 void DelPhiShared::DelPhiBinding(double xmin, double ymin, double zmin,
                                  double xmax, double ymax, double zmax,
                                  double c1, double c2, double c3, double rmax,
-                                 double perf, int *local_i_epsmap, int igrid,
-                                 double scale, double *local_i_scspos,
-                                 double *local_i_scsnor, bool *local_i_idebmap,
-                                 int *local_i_ibgp, int maxbgp, bool bstatus,
-                                 int *_atsurf) {
+                                 double perf, int* local_i_epsmap, int igrid,
+                                 double scale, double* local_i_scspos,
+                                 double* local_i_scsnor, bool* local_i_idebmap,
+                                 int* local_i_ibgp, int maxbgp, bool bstatus,
+                                 int* _atsurf) {
   logging::log<logging::level::info>("DelPhi Binding...");
   delphiBinding = true;
   buildStatus = bstatus;
@@ -187,7 +191,7 @@ void DelPhiShared::DelPhiBinding(double xmin, double ymin, double zmin,
       "Max number of bgps was set from DelPhi to {}", maxbgp);
 }
 
-void DelPhiShared::finalizeBinding(int *ibnum) {
+void DelPhiShared::finalizeBinding(int* ibnum) {
   // update indexes to be conformant to Fortran
   for (int i = 0; i < nbgp; i++) {
     ibgp[3 * i]++;
@@ -200,12 +204,12 @@ void DelPhiShared::finalizeBinding(int *ibnum) {
     for (int i = 0; i < nbgp; i++)
       atsurf[i]++;
 
-  epsmap = NULL;  // avoid deletion
-  scspos = NULL;  // avoid deletion
-  scsnor = NULL;  // avoid deletion
-  idebmap = NULL; // avoid deletion
+  epsmap = NULL;   // avoid deletion
+  scspos = NULL;   // avoid deletion
+  scsnor = NULL;   // avoid deletion
+  idebmap = NULL;  // avoid deletion
   // scsarea = NULL; //for now not used, so it must be distroied
-  ibgp = NULL; // avoid deletion
+  ibgp = NULL;  // avoid deletion
   // save ibnum
   (*ibnum) = nbgp;
 }
@@ -307,8 +311,8 @@ int DelPhiShared::loadAtoms(string fn) {
                    d.data(), ai.data());
 }
 
-int DelPhiShared::loadAtoms(int na, double *pos, double *rad, double *charge,
-                            int *dielec, char *atinf) {
+int DelPhiShared::loadAtoms(int na, double* pos, double* rad, double* charge,
+                            int* dielec, char* atinf) {
   logging::log<logging::level::info>("Read {} atoms", na);
 
   if (rad == NULL || pos == NULL) {
@@ -381,20 +385,20 @@ int DelPhiShared::loadAtoms(int na, double *pos, double *rad, double *charge,
                    d.data(), ai.data());
 }
 
-int DelPhiShared::loadAtoms(int na, const std::vector<double> &x,
-                            const std::vector<double> &y,
-                            const std::vector<double> &z,
-                            const std::vector<double> &r,
-                            const std::vector<double> &q,
-                            const std::vector<int> &d,
-                            const std::vector<AtomInfo> &ai) {
+int DelPhiShared::loadAtoms(int na, const std::vector<double>& x,
+                            const std::vector<double>& y,
+                            const std::vector<double>& z,
+                            const std::vector<double>& r,
+                            const std::vector<double>& q,
+                            const std::vector<int>& d,
+                            const std::vector<AtomInfo>& ai) {
   return loadAtoms(na, x.data(), y.data(), z.data(), r.data(), q.data(),
                    d.data(), ai.data());
 }
 
-int DelPhiShared::loadAtoms(int na, const double *x, const double *y,
-                            const double *z, const double *r, const double *q,
-                            const int *d, const AtomInfo *ai) {
+int DelPhiShared::loadAtoms(int na, const double* x, const double* y,
+                            const double* z, const double* r, const double* q,
+                            const int* d, const AtomInfo* ai) {
 
   if (atoms != NULL) {
     for (int i = 0; i < numAtoms; i++)
@@ -402,7 +406,7 @@ int DelPhiShared::loadAtoms(int na, const double *x, const double *y,
     delete[] atoms;
   }
 
-  atoms = new Atom *[na];
+  atoms = new Atom*[na];
   for (int i = 0; i < na; i++) {
     atoms[i] = new Atom(x[i], y[i], z[i], r[i]);
     if (NULL != q) {
@@ -617,7 +621,7 @@ void DelPhiShared::clearEpsMaps() {
   return;
 }
 
-void DelPhiShared::saveIdebMap(char *fname) {
+void DelPhiShared::saveIdebMap(char* fname) {
   if (idebmap == NULL) {
     logging::log<logging::level::warn>("Cannot save null idebmap!");
     return;
@@ -628,7 +632,7 @@ void DelPhiShared::saveIdebMap(char *fname) {
   snprintf(f1, sizeof(f1), "%s.idebmap.txt", fname);
   // else
   //	snprintf(f1, sizeof(f1), "%s.idebmap.stern.txt",fname);
-  FILE *fp = fopen(f1, "w");
+  FILE* fp = fopen(f1, "w");
   for (int i = 0; i < nx; i++) {
     for (int j = 0; j < ny; j++) {
       for (int k = 0; k < nz; k++)
@@ -642,7 +646,7 @@ void DelPhiShared::saveIdebMap(char *fname) {
   fclose(fp);
 }
 
-void DelPhiShared::saveEpsMaps(char *fname) {
+void DelPhiShared::saveEpsMaps(char* fname) {
   if (epsmap == NULL) {
     logging::log<logging::level::warn>("Cannot save null epsmap!");
     return;
@@ -653,7 +657,7 @@ void DelPhiShared::saveEpsMaps(char *fname) {
   snprintf(f2, sizeof(f2), "%s.epsmapy.txt", fname);
   snprintf(f3, sizeof(f3), "%s.epsmapz.txt", fname);
 
-  FILE *fp = fopen(f1, "w");
+  FILE* fp = fopen(f1, "w");
   for (int i = 0; i < nx; i++) {
     for (int j = 0; j < ny; j++) {
       for (int k = 0; k < nz; k++)
@@ -696,7 +700,9 @@ void DelPhiShared::saveEpsMaps(char *fname) {
   fclose(fp);
 }
 
-DelPhiShared::~DelPhiShared() { clear(); }
+DelPhiShared::~DelPhiShared() {
+  clear();
+}
 
 void DelPhiShared::clear() {
   if (epsmap != NULL)
@@ -730,10 +736,10 @@ void DelPhiShared::clear() {
 
   // free memory
   if (cavitiesVec != NULL) {
-    vector<vector<int *> *>::iterator it;
+    vector<vector<int*>*>::iterator it;
     for (it = cavitiesVec->begin(); it != cavitiesVec->end(); it++) {
-      vector<int *> *inner = (*it);
-      vector<int *>::iterator it2;
+      vector<int*>* inner = (*it);
+      vector<int*>::iterator it2;
       for (it2 = inner->begin(); it2 != inner->end(); it2++)
         free((*it2));
       delete inner;
@@ -742,7 +748,7 @@ void DelPhiShared::clear() {
   delete cavitiesVec;
 }
 
-void DelPhiShared::saveBGP(char *fname) {
+void DelPhiShared::saveBGP(char* fname) {
   if (scspos == NULL || scsnor == NULL) {
     logging::log<logging::level::warn>("Cannot save null scspos or scsnor!");
     return;
@@ -750,8 +756,8 @@ void DelPhiShared::saveBGP(char *fname) {
 
   char ff[BUFLEN];
   snprintf(ff, sizeof(ff), "%s.projections.txt", fname);
-  FILE *fp = fopen(ff, "w");
-  FILE *fp2 = fopen("surf.txt", "w");
+  FILE* fp = fopen(ff, "w");
+  FILE* fp2 = fopen("surf.txt", "w");
   fprintf(fp, "%d\n", nbgp);
   for (int iibgp = 0; iibgp < nbgp; iibgp++) {
     fprintf(fp, "%d %d %d %lf %lf %lf %lf %lf %lf", ibgp[iibgp * 3] + 1,
@@ -772,14 +778,14 @@ void DelPhiShared::saveBGP(char *fname) {
   fclose(fp2);
 }
 
-void DelPhiShared::saveStatus(char *fname) {
+void DelPhiShared::saveStatus(char* fname) {
   if (status == NULL) {
     logging::log<logging::level::warn>("Cannot save null status!");
     return;
   }
   char ff[BUFLEN];
   snprintf(ff, sizeof(ff), "%s.status.txt", fname);
-  FILE *fp = fopen(ff, "w");
+  FILE* fp = fopen(ff, "w");
 
   for (int i = 0; i < nx; i++) {
     for (int j = 0; j < ny; j++) {
@@ -816,8 +822,8 @@ void DelPhiShared::clearCav2Atoms() {
   cav2atoms.clear();
 }
 
-void DelPhiShared::markPockets(short *stat, vector<bool> &isPocket) {
-  vector<vector<int *> *>::iterator it;
+void DelPhiShared::markPockets(short* stat, vector<bool>& isPocket) {
+  vector<vector<int*>*>::iterator it;
   int num = (int)cavitiesVec->size();
 
   if (stat == NULL) {
@@ -833,7 +839,7 @@ void DelPhiShared::markPockets(short *stat, vector<bool> &isPocket) {
     return;
   }
 
-  short *status = stat;
+  short* status = stat;
 
   if (num == 0)
     return;
@@ -847,13 +853,13 @@ void DelPhiShared::markPockets(short *stat, vector<bool> &isPocket) {
       continue;
     }
 
-    vector<int *>::iterator it2;
-    vector<int *> *vec = (*it);
+    vector<int*>::iterator it2;
+    vector<int*>* vec = (*it);
 
     bool isPocketFlag = false;
 
     for (it2 = vec->begin(); it2 != vec->end(); it2++) {
-      int *vec = *it2;
+      int* vec = *it2;
       short value =
           read3DVector<short>(status, vec[0], vec[1], vec[2], nx, ny, nz);
       // if at least one was out, then that's a pocket
@@ -870,10 +876,10 @@ void DelPhiShared::markPockets(short *stat, vector<bool> &isPocket) {
   return;
 }
 
-void DelPhiShared::parseAtomInfo(char *atinf, string mol, int natom,
-                                 double *xn1, double *rad) {
+void DelPhiShared::parseAtomInfo(char* atinf, string mol, int natom,
+                                 double* xn1, double* rad) {
   // get atoms and info from delphi
-  FILE *ff = fopen(mol.c_str(), "w");
+  FILE* ff = fopen(mol.c_str(), "w");
   int lastChar = 0;
 
   // parse atinfo into a file
@@ -901,7 +907,7 @@ void DelPhiShared::parseAtomInfo(char *atinf, string mol, int natom,
 }
 
 int DelPhiShared::cavitiesToAtoms(double rad) {
-  vector<vector<int *> *>::iterator it;
+  vector<vector<int*>*>::iterator it;
   int num = (int)cavitiesVec->size();
 
   if (num == 0)
@@ -910,7 +916,7 @@ int DelPhiShared::cavitiesToAtoms(double rad) {
   char buff[100];
   int i = 0, sync_i = 0;
   int nonActive = 0;
-  FILE *fp;
+  FILE* fp;
 
   for (i = 0, sync_i = 0, it = cavitiesVec->begin(); it != cavitiesVec->end();
        it++, i++, sync_i++) {
@@ -922,16 +928,16 @@ int DelPhiShared::cavitiesToAtoms(double rad) {
     snprintf(buff, sizeof(buff), "cav%d.txt", i);
     fp = fopen(buff, "w");
     snprintf(buff, sizeof(buff), "all_cav%d.txt", i);
-    FILE *fp2 = fopen(buff, "w");
+    FILE* fp2 = fopen(buff, "w");
 
-    vector<int *>::iterator it2;
-    vector<int *> *vec = (*it);
+    vector<int*>::iterator it2;
+    vector<int*>* vec = (*it);
     int cavityId = sync_i + STATUS_FIRST_CAV;
 
     int count = 0;
     double lastx, lasty, lastz;
     for (it2 = vec->begin(); it2 != vec->end(); it2++) {
-      int *vec = *it2;
+      int* vec = *it2;
       fprintf(fp2, "%f %f %f %f\n", x[vec[0]], y[vec[1]], z[vec[2]], rad);
 
       // save only support cavity points
@@ -970,14 +976,14 @@ int DelPhiShared::cavitiesToAtoms(double rad) {
 
 void DelPhiShared::saveCavities2(bool onlySaveNonFilled, string sysName) {
   if (isAvailableAtomInfo) {
-    FILE *fp;
+    FILE* fp;
     char buff[100];
     snprintf(buff, sizeof(buff), "%s.pocket", sysName.c_str());
     fp = fopen(buff, "w");
     int savedIndex = 1;
     for (unsigned int i = 0; i < cav2atoms.size(); i++) {
       set<int>::iterator setIt;
-      set<int> *setPt = cav2atoms[i];
+      set<int>* setPt = cav2atoms[i];
 
       // save only non filled if required, or save all of them
       if ((onlySaveNonFilled && !cavitiesFlag[i]) || (!onlySaveNonFilled)) {
@@ -985,8 +991,8 @@ void DelPhiShared::saveCavities2(bool onlySaveNonFilled, string sysName) {
           // printf("\nIndex %d",i);
           fflush(stdout);
           int ii = (*setIt);
-          Atom *at = atoms[ii];
-          AtomInfo &ai = at->ai;
+          Atom* at = atoms[ii];
+          AtomInfo& ai = at->ai;
           if ((ai.getName()).size() == 4)
             fprintf(fp,
                     "ATOM  %5d %-4s %3s %s%4d    %8.3f%8.3f%8.3f               "
@@ -1015,7 +1021,7 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
     return;
   }
 
-  FILE *fp2 = fopen("cavities.txt", "w");
+  FILE* fp2 = fopen("cavities.txt", "w");
   for (int k = 0; k < nz; k++) {
     for (int j = 0; j < ny; j++) {
       for (int i = 0; i < nx; i++) {
@@ -1030,7 +1036,7 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
 
   fp2 = fopen("cavitiesSize.txt", "w");
   vector<double>::iterator itCav;
-  vector<int *>::iterator itCavVec;
+  vector<int*>::iterator itCavVec;
   int i = 0;
 
   fprintf(fp2, "%f\n", ((float)cavitiesSize.size()));
@@ -1067,7 +1073,7 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
   fp2 = fopen("cavAtomsSerials.txt", "w");
   for (unsigned int i = 0; i < cav2atoms.size(); i++) {
     set<int>::iterator setIt;
-    set<int> *setPt = cav2atoms[i];
+    set<int>* setPt = cav2atoms[i];
 
     // save only non filled if required, or save all of them
     if ((onlySaveNonFilled && !cavitiesFlag[i]) || (!onlySaveNonFilled)) {
@@ -1079,7 +1085,7 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
   fclose(fp2);
 
   if (isAvailableAtomInfo) {
-    FILE *fp3;
+    FILE* fp3;
     // logging::log<logging::level::info>("Atoms info is available I am saving
     // also residues");
     fp2 = fopen("residues.txt", "w");
@@ -1087,7 +1093,7 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
 
     for (unsigned int i = 0; i < cav2atoms.size(); i++) {
       set<int>::iterator setIt;
-      set<int> *setPt = cav2atoms[i];
+      set<int>* setPt = cav2atoms[i];
 
       // only save the non filled cavities
       if (onlySaveNonFilled && !cavitiesFlag[i]) {

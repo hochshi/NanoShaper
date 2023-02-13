@@ -20,30 +20,25 @@
 
 #include <tinyvector.h>
 
-template< typename T >
-class Point3D : public TinyVector<T,3>
-{
-public:
-    Point3D() {}
+template <typename T>
+class Point3D : public TinyVector<T, 3> {
+ public:
+  Point3D() {}
 
-    Point3D( T x, T y, T z )
-    {
-        (*this)(0) = x;
-        (*this)(1) = y;
-        (*this)(2) = z;
-    }
+  Point3D(T x, T y, T z) {
+    (*this)(0) = x;
+    (*this)(1) = y;
+    (*this)(2) = z;
+  }
 
-    Point3D( const TinyVector<T,3>& v )
-        : TinyVector<T,3>(v)
-    {
-    }
+  Point3D(const TinyVector<T, 3>& v) : TinyVector<T, 3>(v) {}
 
-    const T& x() const { return this->at(0); }
-    const T& y() const { return this->at(1); }
-    const T& z() const { return this->at(2); }
-    T& x() { return (*this)(0); }
-    T& y() { return (*this)(1); }
-    T& z() { return (*this)(2); }
+  const T& x() const { return this->at(0); }
+  const T& y() const { return this->at(1); }
+  const T& z() const { return this->at(2); }
+  T& x() { return (*this)(0); }
+  T& y() { return (*this)(1); }
+  T& z() { return (*this)(2); }
 };
 
 #endif

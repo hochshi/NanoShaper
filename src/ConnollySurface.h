@@ -24,25 +24,25 @@
 
 #define MAX_INCIDENT_PROBES 50
 
-#define DEFAULT_PROBE_RADIUS 1.4 // default probe radius
+#define DEFAULT_PROBE_RADIUS 1.4  // default probe radius
 
 class ConnollyCell {
-public:
+ public:
   int patch_type;
 
   virtual ~ConnollyCell() {}
 };
 
 class FacetCell : public ConnollyCell {
-public:
+ public:
   double center[3];
-  int id[3]; // atoms triplet indices
+  int id[3];  // atoms triplet indices
   bool isSelfIntersecting;
-  double planes[4][4];     // trimming tethraedron
-  int plane_indices[3][2]; // every plane depends on a pair of atoms
-  vector<double *>
-      self_intersection_planes; // additional self intersection planes
-  FacetCell *mirrorCell;
+  double planes[4][4];      // trimming tethraedron
+  int plane_indices[3][2];  // every plane depends on a pair of atoms
+  vector<double*>
+      self_intersection_planes;  // additional self intersection planes
+  FacetCell* mirrorCell;
 
   FacetCell() { mirrorCell = NULL; }
 
@@ -53,24 +53,24 @@ public:
 };
 
 class EdgeCell : public ConnollyCell {
-public:
+ public:
   double center[3];
-  int id[2]; // atom pair indices
+  int id[2];  // atom pair indices
   bool isSelfIntersecting;
-  double clipping_center[3]; // center of the clipping sphere of the torus
+  double clipping_center[3];  // center of the clipping sphere of the torus
   double clipping_radius;
   double major_radius;
   double u[3], v[3];
-  double self_intersection_radius; // radius of the clipping sphere in case of
-                                   // spindle torus
-  double Rot[3][3];                // rotation matrix of the torus
-  double invrot[3][3];             // inverse rotation matrix
-  double cutting_planes[2][4];     // two cutting planes of the torus
-  vector<double *> additional_planes; // additional clipping planes due to tori
+  double self_intersection_radius;  // radius of the clipping sphere in case of
+                                    // spindle torus
+  double Rot[3][3];                 // rotation matrix of the torus
+  double invrot[3][3];              // inverse rotation matrix
+  double cutting_planes[2][4];      // two cutting planes of the torus
+  vector<double*> additional_planes;  // additional clipping planes due to tori
                                       // clipping by singular facets
-  vector<bool> flags; // acute / non acute flags for additional planes
-  bool acute; // if angle between planes is acute perform "and" side test
-              // between planes, otherwise "or" side test is sufficient
+  vector<bool> flags;  // acute / non acute flags for additional planes
+  bool acute;  // if angle between planes is acute perform "and" side test
+               // between planes, otherwise "or" side test is sufficient
   double rcoi;
 
   virtual ~EdgeCell() {
@@ -80,11 +80,11 @@ public:
 };
 
 class PointCell : public ConnollyCell {
-public:
-  int id; // atom index
-  vector<EdgeCell *> neighbours;
-  vector<FacetCell *> incidentProbes;
-  vector<EdgeCell *> buried_neighbours;
+ public:
+  int id;  // atom index
+  vector<EdgeCell*> neighbours;
+  vector<FacetCell*> incidentProbes;
+  vector<EdgeCell*> buried_neighbours;
 
   virtual ~PointCell() {
     for (unsigned int i = 0; i < buried_neighbours.size(); i++)
@@ -94,14 +94,14 @@ public:
 
 // row major
 // 3d map
-#define GRID_CONNOLLY_CELL_MAP(i, j, k, l, NX, NY, NZ)                         \
-  gridConnollyCellMap[(l) + (MAX_CONNOLLY_CELLS - 1) *                         \
+#define GRID_CONNOLLY_CELL_MAP(i, j, k, l, NX, NY, NZ) \
+  gridConnollyCellMap[(l) + (MAX_CONNOLLY_CELLS - 1) * \
                                 ((k) + (NZ) * ((j) + (NY) * (i)))]
 // 2d map
-#define GRID_CONNOLLY_CELL_MAP_2D(i, j, k, NA, NB)                             \
+#define GRID_CONNOLLY_CELL_MAP_2D(i, j, k, NA, NB) \
   gridConnollyCellMap2D[(k) + (MAX_CONNOLLY_CELLS_2D - 1) * ((j) + (NB) * (i))]
 
-#define SELF_MAP(i, j, k, l, NX, NY, NZ)                                       \
+#define SELF_MAP(i, j, k, l, NX, NY, NZ) \
   gridProbesMap[(l) + (MAX_PROBES - 1) * ((k) + (NZ) * ((j) + (NY) * (i)))]
 
 #ifdef ENABLE_CGAL
@@ -150,7 +150,7 @@ the patches.
 class ConnollySurface : public Surface {
 
 #ifdef ENABLE_CGAL
-private:
+ private:
   // typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
   // typedef CGAL::Regular_triangulation_filtered_traits_3<K>	Traits;
   //  typedef CGAL::Regular_triangulation_euclidean_traits_3<K> _Traits;
@@ -188,7 +188,7 @@ private:
   typedef CGAL::Triangulation_vertex_base_with_info_3<int, K, Vb1> Vb;
   typedef CGAL::Regular_triangulation_cell_base_3<K> Cb0;
   typedef CGAL::Fixed_alpha_shape_cell_base_3<Cb0::Geom_traits, Cb0> Cb1;
-  typedef CGAL::Triangulation_cell_base_with_info_3<FacetCell *[4], Cb1, Cb1>
+  typedef CGAL::Triangulation_cell_base_with_info_3<FacetCell* [4], Cb1, Cb1>
       Cb;
   //   typedef CGAL::Fixed_alpha_shape_cell_base_3<K>            Cb0;
   //   typedef CGAL::Triangulation_cell_base_with_info_3<FacetCell*[4], Cb0>
@@ -214,12 +214,12 @@ private:
 
 #endif
 
-private:
+ private:
   /** number of Connolly cells for type*/
   int type[5];
   /** link each auxuliary grid box to the respective cell list */
-  int *gridConnollyCellMap2D;
-  int *gridConnollyCellMap;
+  int* gridConnollyCellMap2D;
+  int* gridConnollyCellMap;
   /** auxiliary grid sizes*/
   unsigned int nx, ny, nz;
   double scale;
@@ -229,12 +229,12 @@ private:
   double scale_2d;
   double side_2d;
   double xmin_2d, xmax_2d, ymin_2d, ymax_2d, zmin_2d, zmax_2d;
-  unsigned int **ind_2d;
+  unsigned int** ind_2d;
 
   double *x, *y, *z;
   double s;
   double xmin, xmax, ymin, ymax, zmin, zmax;
-  unsigned short ***ind;
+  unsigned short*** ind;
 
   unsigned int AUX_GRID_DIM_CONNOLLY;
   unsigned int MAX_CONNOLLY_CELLS;
@@ -242,10 +242,10 @@ private:
   unsigned int MAX_CONNOLLY_CELLS_2D;
 
   /** for each cell there is a structure that defines the patch*/
-  vector<ConnollyCell *> sesComplex;
+  vector<ConnollyCell*> sesComplex;
   /** this vector contains NULL if the atom is not exposed and the point cell if
    * the atom contributes to the surface*/
-  PointCell **atomPatches;
+  PointCell** atomPatches;
   /** compute the connolly surface using the CGAL alpha shape module and compute
   all information needed by to ray-trace it*/
   bool buildConnolly();
@@ -262,7 +262,7 @@ private:
   /** self intersections grid perfil. Increase this if you use big probes*/
   double si_perfil;
 
-public:
+ public:
   /** Default constructor*/
   ConnollySurface();
   /** set DelPhi environment*/
@@ -275,15 +275,15 @@ public:
   /** Compute connolly surface. Call it after load*/
   virtual bool build();
   /** Save it in a simple ASCII format (.ses)*/
-  virtual bool save(char *fileName);
+  virtual bool save(char* fileName);
   /**Load the surface from a file in .ses format*/
-  virtual bool load(char *fileName);
+  virtual bool load(char* fileName);
   /** Print number of cells and types*/
   virtual void printSummary();
   /** Get a projection of a point on the surface. Return projection and normal*/
-  virtual bool getProjection(double p[3], double *proj1, double *proj2,
-                             double *proj3, double *normal1, double *normal2,
-                             double *normal3);
+  virtual bool getProjection(double p[3], double* proj1, double* proj2,
+                             double* proj3, double* normal1, double* normal2,
+                             double* normal3);
   /** Get all the intersections of a ray that goes from P1 to P2 over the
   surface. The interesctions are returned with increasing distance order. the
   first double in the vector is the t parameter for the intersection of the
@@ -291,7 +291,7 @@ public:
   During ray surface intersection the previously built auxiliary grid is used to
   speed up computations*/
   virtual void getRayIntersection(double p1[3], double p2[3],
-                                  vector<pair<double, double *>> &intersections,
+                                  vector<pair<double, double*>>& intersections,
                                   int thdID, bool computeNormals);
   /** function for the constructor without arguments*/
   virtual void init();
@@ -311,7 +311,7 @@ public:
       probe_radius = pr;
     } else {
       logging::log<logging::level::warn>("Cannot set {}<={}. Setting {}", pr, e,
-                   DEFAULT_PROBE_RADIUS);
+                                         DEFAULT_PROBE_RADIUS);
       probe_radius = DEFAULT_PROBE_RADIUS;
     }
   }
@@ -356,42 +356,41 @@ public:
 
   virtual ~ConnollySurface();
 
-private:
-  bool rayConnollyCellIntersection(double *, double *, ConnollyCell *, double *,
-                                   double *, double *, double *, int &numInt,
-                                   int);
+ private:
+  bool rayConnollyCellIntersection(double*, double*, ConnollyCell*, double*,
+                                   double*, double*, double*, int& numInt, int);
   /** gives true if the point is inside the list of planes*/
-  bool isFeasible(ConnollyCell *cc, double *point);
+  bool isFeasible(ConnollyCell* cc, double* point);
   /** project a point to a torus defined by torus_equation*/
-  void projectToTorus(double *y, EdgeCell *ec, double *proj, double *norm,
-                      double &dist);
+  void projectToTorus(double* y, EdgeCell* ec, double* proj, double* norm,
+                      double& dist);
   /** given a point on the torus in EdgeCell, it gives the normal to that point
   without computing the gradient explicitly*/
-  void getNormalToTorus(double *y, EdgeCell *ec, double *normal);
+  void getNormalToTorus(double* y, EdgeCell* ec, double* normal);
   /** given a point y compute the normal on that point. This routine does not
   check that the y point really belongs to the surface, this should be assured
   by the user. If not assured the result is meaningless*/
-  void getNormal(double *y, ConnollyCell *cc, double *normal);
+  void getNormal(double* y, ConnollyCell* cc, double* normal);
   /** save concave sphere patch in Pov-Ray format*/
-  void saveConcaveSpherePatch(ofstream &of, FacetCell *fc, int i);
-  void saveSphere(ostream &of, double *center, double radius);
-  void saveAtomPatch(ofstream &of, PointCell *pc);
-  void saveEdgePatch(ofstream &of, EdgeCell *ec, int size, double bigR,
-                     double *u, double *v, double *w, bool isComplex);
+  void saveConcaveSpherePatch(ofstream& of, FacetCell* fc, int i);
+  void saveSphere(ostream& of, double* center, double radius);
+  void saveAtomPatch(ofstream& of, PointCell* pc);
+  void saveEdgePatch(ofstream& of, EdgeCell* ec, int size, double bigR,
+                     double* u, double* v, double* w, bool isComplex);
   /** check the orientation. Assume the planes points toward the visible region
    * of the torus*/
-  bool orientation(double *pb_center1, double *pb_center2, double *w1,
-                   double *w2);
+  bool orientation(double* pb_center1, double* pb_center2, double* w1,
+                   double* w2);
   /** the aim is to sort probes in clockwise order. As reference the first probe
    * is used*/
-  void sortProbes(EdgeCell *ec, FacetCell **fcv, int np, int *sorted);
-  void getCoi(double *torus_center, double rcoi, double **sampledPoints,
-              int numPoints, double *u, double *v);
+  void sortProbes(EdgeCell* ec, FacetCell** fcv, int np, int* sorted);
+  void getCoi(double* torus_center, double rcoi, double** sampledPoints,
+              int numPoints, double* u, double* v);
   /** project a point in 3D to a circle in 3D. Input are the point, the
   radius,center and the plane where circle belongs and the output is the
   projection and the distance. Assume that the normal to the plane is unitary*/
-  void projectToCircle(double *point, double radius, double *center,
-                       double *plane, double *proj, double &dist);
+  void projectToCircle(double* point, double radius, double* center,
+                       double* plane, double* proj, double& dist);
 };
 
 // expand it explicitly because Swig is not able to expand it
@@ -400,7 +399,7 @@ static class ConnollySurfaceRegister {
     return std::make_shared<ConnollySurface>(conf, ds);
   }
 
-public:
+ public:
   ConnollySurfaceRegister() {
     SurfaceFactory::getInstance().register_instantiator("ses", createSurface);
   }

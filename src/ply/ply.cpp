@@ -30,7 +30,7 @@
 #include <ply/ply.h>
 // Swap endian-ness for four-byte elements
 
-inline void endian_swap_long(unsigned char *p) {
+inline void endian_swap_long(unsigned char* p) {
   unsigned char b0, b1, b2, b3;
 
   b0 = *p;
@@ -45,7 +45,7 @@ inline void endian_swap_long(unsigned char *p) {
 
 // Read one line (max 1024 chars) and exit if EOF
 
-char *readLineFromFile(FILE *in, bool exit_on_eof) {
+char* readLineFromFile(FILE* in, bool exit_on_eof) {
 #define MAX_READLINE_CHARS 1024
   static char line[MAX_READLINE_CHARS];
   int i = 0;
@@ -72,7 +72,7 @@ char *readLineFromFile(FILE *in, bool exit_on_eof) {
 // The file pointer is set to the byte right after the first keyword matched.
 // Return 1 on success (keyword match), 0 otherwise.
 
-bool seek_keyword(FILE *fp, const char *kw) {
+bool seek_keyword(FILE* fp, const char* kw) {
   static char s[256];
   s[0] = '\0';
   do {
@@ -85,7 +85,7 @@ bool seek_keyword(FILE *fp, const char *kw) {
   return 1;
 }
 
-inline void skipCommentAndBlankLines(FILE *fp) {
+inline void skipCommentAndBlankLines(FILE* fp) {
   long pos0;
   char *line, s[2];
   do {
@@ -97,7 +97,7 @@ inline void skipCommentAndBlankLines(FILE *fp) {
 
 ////////////////////// PLY LOADER //////////////////////////////////////////////
 
-int ply_parseElements(FILE *in, const char *elname) {
+int ply_parseElements(FILE* in, const char* elname) {
   char c, keyword[64];
   int num;
   // skip comments
@@ -125,7 +125,7 @@ int ply_parseElements(FILE *in, const char *elname) {
   return num;
 }
 
-void ply_checkVertexProperties(FILE *in) {
+void ply_checkVertexProperties(FILE* in) {
   char keyword[64], dtype[64], dval[64];
   if (fscanf(in, "%64s %64s %64s\n", keyword, dtype, dval) < 3)
     logging::log<logging::level::err>("Unexpected token or end of file!\n");
@@ -153,11 +153,11 @@ void ply_checkVertexProperties(FILE *in) {
     logging::log<logging::level::err>("'z' float property expected!\n");
 }
 
-int ply_getOverhead(FILE *in, int format, const char *element) {
+int ply_getOverhead(FILE* in, int format, const char* element) {
   char keyword[64], ptype[64], pname[64];
   int oh = 0;
   long pos = ftell(in);
-  char *rline = readLineFromFile(in);
+  char* rline = readLineFromFile(in);
   if (!sscanf(rline, "%64s ", keyword))
     logging::log<logging::level::err>("Unexpected token or end of file!\n");
   while (!strcmp(keyword, "property")) {
@@ -190,7 +190,7 @@ int ply_getOverhead(FILE *in, int format, const char *element) {
   return oh;
 }
 
-void ply_checkFaceProperties(FILE *in) {
+void ply_checkFaceProperties(FILE* in) {
   char keyword[64], ltype[64], uctype[64], dtype[64], dval[64];
   if (fscanf(in, "%64s %64s %64s %64s %64s\n", keyword, ltype, uctype, dtype,
              dval) < 5)
@@ -207,7 +207,7 @@ void ply_checkFaceProperties(FILE *in) {
     logging::log<logging::level::err>("vertex_indices property expected!\n");
 }
 
-void ply_readOverhead(FILE *in, int format, int oh) {
+void ply_readOverhead(FILE* in, int format, int oh) {
   int i;
   static char token[1024];
   if (format == PLY_FORMAT_ASCII)
@@ -223,8 +223,8 @@ void ply_readOverhead(FILE *in, int format, int oh) {
       fgetc(in);
 }
 
-int ply_readVCoords(FILE *in, int format, int ph, int oh, float *x, float *y,
-                    float *z) {
+int ply_readVCoords(FILE* in, int format, int ph, int oh, float* x, float* y,
+                    float* z) {
   float vc[3];
 
   ply_readOverhead(in, format, ph);
@@ -240,9 +240,9 @@ int ply_readVCoords(FILE *in, int format, int ph, int oh, float *x, float *y,
     *z = vc[2];
 
     if (format == PLY_FORMAT_BIN_B) {
-      endian_swap_long((unsigned char *)(x));
-      endian_swap_long((unsigned char *)(y));
-      endian_swap_long((unsigned char *)(z));
+      endian_swap_long((unsigned char*)(x));
+      endian_swap_long((unsigned char*)(y));
+      endian_swap_long((unsigned char*)(z));
     }
   }
 
@@ -251,8 +251,8 @@ int ply_readVCoords(FILE *in, int format, int ph, int oh, float *x, float *y,
   return 1;
 }
 
-int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y,
-                     int *z) {
+int ply_readFIndices(FILE* in, int format, int ph, int* nv, int* x, int* y,
+                     int* z) {
   unsigned char nvs;
   int vc[3];
 
@@ -283,15 +283,15 @@ int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y,
   *z = vc[2];
 
   if (format == PLY_FORMAT_BIN_B) {
-    endian_swap_long((unsigned char *)(x));
-    endian_swap_long((unsigned char *)(y));
-    endian_swap_long((unsigned char *)(z));
+    endian_swap_long((unsigned char*)(x));
+    endian_swap_long((unsigned char*)(y));
+    endian_swap_long((unsigned char*)(z));
   }
 
   return 1;
 }
 
-int ply_readAnotherFIndex(FILE *in, int format, int *x) {
+int ply_readAnotherFIndex(FILE* in, int format, int* x) {
   if (format == PLY_FORMAT_ASCII)
     return (fscanf(in, "%d", x));
 
@@ -299,7 +299,7 @@ int ply_readAnotherFIndex(FILE *in, int format, int *x) {
     logging::log<logging::level::err>("Unexpected end of file!\n");
 
   if (format == PLY_FORMAT_BIN_B)
-    endian_swap_long((unsigned char *)(x));
+    endian_swap_long((unsigned char*)(x));
 
   return 1;
 }

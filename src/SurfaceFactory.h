@@ -4,8 +4,8 @@
 
 #include <Configuration.h>
 #include <globals.h>
-#include <iostream>
 #include <logging.h>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -22,18 +22,18 @@ typedef SurfaceOP (*surface_instantiator)(ConfigurationOP conf,
 
 class SurfaceFactory {
 
-private:
+ private:
   SurfaceFactory() = default;
   ~SurfaceFactory() = default;
 
   map<string, surface_instantiator> surfRegister;
   map<string, surface_instantiator>::iterator it;
 
-public:
-  SurfaceFactory(const SurfaceFactory &) = delete;
-  SurfaceFactory &operator=(const SurfaceFactory &) = delete;
+ public:
+  SurfaceFactory(const SurfaceFactory&) = delete;
+  SurfaceFactory& operator=(const SurfaceFactory&) = delete;
 
-  static SurfaceFactory &getInstance() {
+  static SurfaceFactory& getInstance() {
     static SurfaceFactory instance;
     return instance;
   }
@@ -63,9 +63,10 @@ public:
 
 // SurfaceFactory& surfaceFactory();
 
-template <class T> class SurfaceRecorder {
+template <class T>
+class SurfaceRecorder {
 
-public:
+ public:
   SurfaceRecorder(string surface) {
     SurfaceFactory::getInstance().register_instantiator(surface, createSurface);
   }

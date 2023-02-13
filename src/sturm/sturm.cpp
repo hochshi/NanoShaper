@@ -18,7 +18,7 @@
  *  note: this function assumes the leading coefficient of v
  *	is 1 or -1
  */
-static int modp(poly *u, poly *v, poly *r)
+static int modp(poly* u, poly* v, poly* r)
 
 {
   int k, j;
@@ -62,10 +62,10 @@ static int modp(poly *u, poly *v, poly *r)
  *	build up a sturm sequence for a polynomial in smat, returning
  * the number of polynomials in the sequence
  */
-int buildsturm(int ord, poly *sseq) {
+int buildsturm(int ord, poly* sseq) {
   int i;
   double f, *fp, *fc;
-  poly *sp;
+  poly* sp;
 
   sseq[0].ord = ord;
   sseq[1].ord = ord - 1;
@@ -104,9 +104,9 @@ int buildsturm(int ord, poly *sseq) {
  *	return the number of distinct real roots of the polynomial
  * described in sseq.
  */
-int numroots(int np, poly *sseq, int *atneg, int *atpos) {
+int numroots(int np, poly* sseq, int* atneg, int* atpos) {
   int atposinf, atneginf;
-  poly *s;
+  poly* s;
   double f, lf;
 
   atposinf = atneginf = 0;
@@ -153,10 +153,10 @@ int numroots(int np, poly *sseq, int *atneg, int *atpos) {
  *	return the number of sign changes in the Sturm sequence in
  * sseq at the value a.
  */
-int numchanges(int np, poly *sseq, double a) {
+int numchanges(int np, poly* sseq, double a) {
   int changes;
   double f, lf;
-  poly *s;
+  poly* s;
 
   changes = 0;
 
@@ -179,8 +179,8 @@ int numchanges(int np, poly *sseq, double a) {
  * described in sseq to isolate intervals in which roots occur,
  * the roots are returned in the roots array in order of magnitude.
  */
-void sbisect(int np, poly *sseq, double min, double max, int atmin, int atmax,
-             double *roots) {
+void sbisect(int np, poly* sseq, double min, double max, int atmin, int atmax,
+             double* roots) {
   double mid;
   int n1 = 0, n2 = 0, its, atmid, nroot;
 

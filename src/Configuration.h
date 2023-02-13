@@ -6,7 +6,7 @@
 
 extern "C" {
 struct Configuration {
-public:
+ public:
   void stopDebug() { debugStatus = false; }
 
   void restartDebug() { debugStatus = true; }
@@ -109,7 +109,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     computeNormals, saveMSMS, sternLayer, Max_Atoms_Multi_Grid, surfName)
 
 #ifdef NANOSHAPER_LIB
-using ConfigurationOP = Configuration *;
+using ConfigurationOP = Configuration*;
 #else
 using ConfigurationOP = std::shared_ptr<Configuration>;
 #endif

@@ -33,7 +33,9 @@ void SkinSurface::clear() {
     delete pendingCells[i];
 }
 
-SkinSurface::~SkinSurface() { clear(); }
+SkinSurface::~SkinSurface() {
+  clear();
+}
 
 void SkinSurface::init() {
   gridMixedCellMap = NULL;
@@ -50,10 +52,9 @@ void SkinSurface::init() {
   // aggressive settings can be used in a 64 bit machine with 6 GB of memory
   AUX_GRID_DIM_SKIN = 100;
   MAX_MIXEDCELLS = 400;
-  AUX_GRID_DIM_SKIN_2D = 50; // aggressive setting is 150
-  MAX_MIXEDCELLS_2D =
-      (400 * AUX_GRID_DIM_SKIN_2D); // aggressive setting is
-                                    // (200*AUX_GRID_DIM_SKIN_2D)
+  AUX_GRID_DIM_SKIN_2D = 50;  // aggressive setting is 150
+  MAX_MIXEDCELLS_2D = (400 * AUX_GRID_DIM_SKIN_2D);  // aggressive setting is
+      // (200*AUX_GRID_DIM_SKIN_2D)
   surfType = MOLECULAR_SURFACE;
   fastProjection = false;
   providesAnalyticalNormals = true;
@@ -198,7 +199,7 @@ bool SkinSurface::buildSkinCGAL() {
   max_y += fabs(mid_y - max_y) * 2;
   max_z += fabs(mid_z - max_z) * 2;
 
-  vector<MixedCell *> tempMixedComplex;
+  vector<MixedCell*> tempMixedComplex;
   tempMixedComplex.reserve(4 * delphi->numAtoms);
 
   // add bounding box using -1 weights to let easy detection of these virtual
@@ -237,21 +238,21 @@ bool SkinSurface::buildSkinCGAL() {
 
   Finite_Cells_Iterator fcit = rT.finite_cells_begin();
 
-  Del0Cell **atomPatches = NULL;
-  atomPatches = allocateVector<Del0Cell *>(delphi->numAtoms);
+  Del0Cell** atomPatches = NULL;
+  atomPatches = allocateVector<Del0Cell*>(delphi->numAtoms);
 
   for (; fcit != rT.finite_cells_end(); fcit++, currentCell++) {
-    const Point &p =
+    const Point& p =
         rT.geom_traits().construct_weighted_circumcenter_3_object()(
             fcit->vertex(0)->point(), fcit->vertex(1)->point(),
             fcit->vertex(2)->point(), fcit->vertex(3)->point());
-    Del3Cell *&mc = (Del3Cell *&)fcit->info();
+    Del3Cell*& mc = (Del3Cell*&)fcit->info();
     mc = new Del3Cell();
     mc->surface_type = DELAUNAY_TETRA_CELL;
     mc->vor[0] = p.x();
     mc->vor[1] = p.y();
     mc->vor[2] = p.z();
-    double *vor = mc->vor;
+    double* vor = mc->vor;
 
     // minkowsky sum of tethraedron vertices and voronoi point. Record the atom
     // from which it was computed
@@ -261,7 +262,7 @@ bool SkinSurface::buildSkinCGAL() {
     double cellPoints[4][3];
 
     for (int i = 0; i < 4; i++) {
-      Weighted_point &wp = fcit->vertex(i)->point();
+      Weighted_point& wp = fcit->vertex(i)->point();
 
       mc->ids[i] = fcit->vertex(i)->info();
       mc->reduced[i][0] = wp.x();
@@ -334,7 +335,7 @@ bool SkinSurface::buildSkinCGAL() {
     // a tethraedron in that order one is assured to get correctly oriented
     // planes In a non CGAL implementation these planes must be oriented
 
-    double *QQ = allocateVector<double>(10);
+    double* QQ = allocateVector<double>(10);
     mc->quadric = QQ;
 
     QQ[0] = 1;
@@ -370,7 +371,7 @@ bool SkinSurface::buildSkinCGAL() {
   Finite_Vertex_Iterator fvit = rT.finite_vertices_begin();
   int cellCount = 0;
   for (; fvit != rT.finite_vertices_end(); fvit++) {
-    const Weight &w0 = fvit->point().weight();
+    const Weight& w0 = fvit->point().weight();
 
     // skip virtual atoms
     if ((w0) == -1)
@@ -382,7 +383,7 @@ bool SkinSurface::buildSkinCGAL() {
       continue;
 
     // current atom id around which we are moving
-    const int &currentId = fvit->info();
+    const int& currentId = fvit->info();
 
     cells.clear();
     rT.incident_cells(fvit, std::back_inserter(cells));
@@ -404,14 +405,14 @@ bool SkinSurface::buildSkinCGAL() {
     // this cell is finite, it is acceptable
     cellCount++;
 
-    Del0Cell *mc = new Del0Cell();
+    Del0Cell* mc = new Del0Cell();
     tempMixedComplex.push_back(mc);
     mc->id = currentId;
     mc->surface_type = DELAUNAY_POINT_CELL;
 
     atomPatches[currentId] = mc;
 
-    double *QQ = allocateVector<double>(10);
+    double* QQ = allocateVector<double>(10);
     mc->quadric = QQ;
 
     QQ[0] = 1;
@@ -447,9 +448,9 @@ bool SkinSurface::buildSkinCGAL() {
   // Skin Surface needs the remaining solids
   int num_d1_v2_patches = 0;
 
-  vector<double *> upperPoints;
-  vector<double *> lowerPoints;
-  vector<double *> vorFace;
+  vector<double*> upperPoints;
+  vector<double*> lowerPoints;
+  vector<double*> vorFace;
 
   vorFace.reserve(50);
   upperPoints.reserve(50);
@@ -463,8 +464,8 @@ bool SkinSurface::buildSkinCGAL() {
     int num = (int)circulator_size(cit);
 
     // up and down edge vertices
-    const Vertex_handle &v1 = fei->first->vertex(fei->second);
-    const Vertex_handle &v2 = fei->first->vertex(fei->third);
+    const Vertex_handle& v1 = fei->first->vertex(fei->second);
+    const Vertex_handle& v2 = fei->first->vertex(fei->third);
 
     // connecting one or two non atoms
     if (v1->point().weight() == -1 || v2->point().weight() == -1)
@@ -487,21 +488,21 @@ bool SkinSurface::buildSkinCGAL() {
     upperPoints.clear();
     lowerPoints.clear();
 
-    Del1Cell *mc = new Del1Cell();
+    Del1Cell* mc = new Del1Cell();
     mc->ids[0] = refAtom1;
     mc->ids[1] = refAtom2;
 
     // collect all the points
     for (int i = 0; i < num; i++) {
-      const Cell_handle &ch = cit;
-      const Del3Cell *ci = ch->info();
+      const Cell_handle& ch = cit;
+      const Del3Cell* ci = ch->info();
 
-      double *p1 = NULL;
+      double* p1 = NULL;
 
       // search the point with the same id of the upper atom
       for (int j = 0; j < 4; j++) {
         if (ci->ids[j] == refAtom1) {
-          p1 = (double *)ci->reduced[j];
+          p1 = (double*)ci->reduced[j];
           break;
         }
       }
@@ -531,12 +532,12 @@ bool SkinSurface::buildSkinCGAL() {
           atomPatches[refAtom1]->planes.push_back(mc->upper);
       }
 
-      double *p2 = NULL;
+      double* p2 = NULL;
       // the same for the inferior point
       // search the point with the same id
       for (int j = 0; j < 4; j++) {
         if (ci->ids[j] == refAtom2) {
-          p2 = (double *)ci->reduced[j];
+          p2 = (double*)ci->reduced[j];
           break;
         }
       }
@@ -567,7 +568,7 @@ bool SkinSurface::buildSkinCGAL() {
       // printf("\n vor %x",ci->vor);
       //  store the vornoi points to infer voronoi original plane
       //  this is later used to compute the focus of the cell
-      vorFace.push_back((double *)ci->vor);
+      vorFace.push_back((double*)ci->vor);
 
       cit++;
     }
@@ -636,7 +637,7 @@ bool SkinSurface::buildSkinCGAL() {
 
     // build lateral planes
     for (int i = 0; i < num - 1; i++) {
-      double *plane = allocateVector<double>(4);
+      double* plane = allocateVector<double>(4);
       plane3points(upperPoints[i], lowerPoints[i], upperPoints[i + 1], plane);
       // orient
       sign = DOT(plane, inner) + plane[3];
@@ -646,7 +647,7 @@ bool SkinSurface::buildSkinCGAL() {
     }
 
     // add the last one
-    double *plane = allocateVector<double>(4);
+    double* plane = allocateVector<double>(4);
     plane3points(upperPoints[num - 1], lowerPoints[num - 1], upperPoints[0],
                  plane);
     // orient
@@ -744,7 +745,7 @@ bool SkinSurface::buildSkinCGAL() {
     tempMixedComplex.push_back(mc);
     mc->surface_type = DELAUNAY_EDGE_CELL;
 
-    double *QQ = allocateVector<double>(10);
+    double* QQ = allocateVector<double>(10);
     mc->quadric = QQ;
 
     // Symmetric matrix coding
@@ -785,25 +786,25 @@ bool SkinSurface::buildSkinCGAL() {
 
   Finite_Facets_Iterator ffi = rT.finite_facets_begin();
   for (; ffi != rT.finite_facets_end(); ffi++) {
-    const Cell_handle &ch = ffi->first;
+    const Cell_handle& ch = ffi->first;
     // get the mirror facet/cell go on if infinite
-    const Facet &mirrorFace = rT.mirror_facet(*ffi);
-    const Cell_handle &ch2 = mirrorFace.first;
+    const Facet& mirrorFace = rT.mirror_facet(*ffi);
+    const Cell_handle& ch2 = mirrorFace.first;
 
-    Del3Cell *ci = ch->info();
-    Del3Cell *ci2 = ch2->info();
+    Del3Cell* ci = ch->info();
+    Del3Cell* ci2 = ch2->info();
 
     // it is the local index of the tethraedron vertex
     int f_index1 = ffi->second;
     int f_index2 = mirrorFace.second;
 
-    double *vor1 = ci->vor;
-    double *vor2 = ci2->vor;
+    double* vor1 = ci->vor;
+    double* vor2 = ci2->vor;
 
     if (rT.is_infinite(ch2) || rT.is_infinite(ch))
       continue;
 
-    Del2Cell *mc = new Del2Cell();
+    Del2Cell* mc = new Del2Cell();
     mc->surface_type = DELAUNAY_FACET_CELL;
 
     int ind = 0;
@@ -834,8 +835,8 @@ bool SkinSurface::buildSkinCGAL() {
 
       ind++;
 
-      double *p1 = NULL;
-      double *p2 = NULL;
+      double* p1 = NULL;
+      double* p2 = NULL;
 
       for (int j = 0; j < 4; j++) {
         // search the corresponding reduced point
@@ -944,7 +945,7 @@ bool SkinSurface::buildSkinCGAL() {
       ASSIGN4(mc->lower, -mc->lower)
 
     // compute the lateral planes and orient
-    double *plane;
+    double* plane;
     plane = mc->planes[0];
     plane3points(mc->mc_points[0], mc->mc_points[1], mc->mc_points[2], plane);
     // orient
@@ -1044,7 +1045,7 @@ bool SkinSurface::buildSkinCGAL() {
     ////////////////////////// store equation and simplex
     ///////////////////////////////////////////////
 
-    double *QQ = allocateVector<double>(10);
+    double* QQ = allocateVector<double>(10);
     mc->quadric = QQ;
 
     /* Symmetric matrix coding
@@ -1073,9 +1074,9 @@ bool SkinSurface::buildSkinCGAL() {
   // assign pointers, consolidate mixed complex.
   numMixedCells = (int)tempMixedComplex.size();
 
-  mixedComplex = allocateVector<MixedCell *>(numMixedCells);
+  mixedComplex = allocateVector<MixedCell*>(numMixedCells);
   int k = 0, empty = 0;
-  for (vector<MixedCell *>::iterator it = tempMixedComplex.begin();
+  for (vector<MixedCell*>::iterator it = tempMixedComplex.begin();
        tempMixedComplex.end() != it; it++, k++)
     mixedComplex[k] = (*it);
 
@@ -1110,7 +1111,7 @@ bool SkinSurface::buildSkinCGAL() {
        << " rotate<0,0,clock> "
        << "translate<" << mid_x << "," << mid_y << "," << mid_z << ">}";
     for (int k = 0; k < numMixedCells; k++) {
-      MixedCell *mc = mixedComplex[k];
+      MixedCell* mc = mixedComplex[k];
       saveSkinPatch(of, mc, k, l);
     }
     logging::log<logging::level::info>("ok!");
@@ -1122,12 +1123,12 @@ bool SkinSurface::buildSkinCGAL() {
 }
 #endif
 
-void SkinSurface::saveSkinPatch(ofstream &of, MixedCell *mc, int index,
-                                vector<Indexed_weighted_point> &la) {
+void SkinSurface::saveSkinPatch(ofstream& of, MixedCell* mc, int index,
+                                vector<Indexed_weighted_point>& la) {
   char clipplanes[1000], buff2[1000];
 
   if (mc->surface_type == DELAUNAY_EDGE_CELL) {
-    Del1Cell *ec = (Del1Cell *)mc;
+    Del1Cell* ec = (Del1Cell*)mc;
     of << "\n// ---------------------------------------------//";
     of << "\n// ------------- Delunay edge cell -------------//";
     of << "\n// ---------------------------------------------//";
@@ -1141,7 +1142,7 @@ void SkinSurface::saveSkinPatch(ofstream &of, MixedCell *mc, int index,
     // little noise to avoid problems and to let povray work
     vector<Point> local;
     for (unsigned int i = 0; i < ec->mc_points.size(); i++) {
-      double *p = ec->mc_points[i];
+      double* p = ec->mc_points[i];
       local.push_back(Point(p[0] + 1e-3 * (randnum() - 0.5),
                             p[1] + 1e-3 * (randnum() - 0.5),
                             p[2] + 1e-3 * (randnum() - 0.5)));
@@ -1236,7 +1237,7 @@ void SkinSurface::saveSkinPatch(ofstream &of, MixedCell *mc, int index,
     of << "\n bounded_by { " << clipplanes << " } \n clipped_by{ bounded_by}}";
     of << "\n";
   } else if (mc->surface_type == DELAUNAY_POINT_CELL) {
-    Del0Cell *pc = (Del0Cell *)mc;
+    Del0Cell* pc = (Del0Cell*)mc;
     of << "\n// ---------------------------------------------//";
     of << "\n// ------------- Delunay point cell ------------//";
     of << "\n// ---------------------------------------------//";
@@ -1248,7 +1249,7 @@ void SkinSurface::saveSkinPatch(ofstream &of, MixedCell *mc, int index,
     of << buff2;
     of << "\n pigment{color Green}}";
   } else if (mc->surface_type == DELAUNAY_FACET_CELL) {
-    Del2Cell *fc = (Del2Cell *)mc;
+    Del2Cell* fc = (Del2Cell*)mc;
     of << "\n// ----------------------------------------------//";
     of << "\n// ------------- Delunay facet cell -------------//";
     of << "\n// ----------------------------------------------//";
@@ -1262,7 +1263,7 @@ void SkinSurface::saveSkinPatch(ofstream &of, MixedCell *mc, int index,
     // little noise to avoid problems
     vector<Point> local;
     for (unsigned int i = 0; i < fc->mc_points.size(); i++) {
-      double *p = fc->mc_points[i];
+      double* p = fc->mc_points[i];
       local.push_back(Point(p[0] + 1e-3 * (randnum() - 0.5),
                             p[1] + 1e-3 * (randnum() - 0.5),
                             p[2] + 1e-3 * (randnum() - 0.5)));
@@ -1358,7 +1359,7 @@ void SkinSurface::saveSkinPatch(ofstream &of, MixedCell *mc, int index,
     of << "\n";
 
   } else if (mc->surface_type == DELAUNAY_TETRA_CELL) {
-    Del3Cell *tc = (Del3Cell *)mc;
+    Del3Cell* tc = (Del3Cell*)mc;
     of << "\n// ----------------------------------------------------//";
     of << "\n// ------------- Delunay tethraedron cell -------------//";
     of << "\n// ----------------------------------------------------//";
@@ -1511,7 +1512,7 @@ void SkinSurface::preProcessPanel() {
 
   for (int it = 0; it < numMixedCells; it++) {
     // mixed cell points
-    vector<double *> &ll = mixedComplex[it]->mc_points;
+    vector<double*>& ll = mixedComplex[it]->mc_points;
 
     // compute bounding box object
     double downx = INFINITY;
@@ -1524,7 +1525,7 @@ void SkinSurface::preProcessPanel() {
 
     // use the cube of the atom as bounding box object for voronoi cells
     if (mixedComplex[it]->surface_type == DELAUNAY_POINT_CELL) {
-      int index = ((Del0Cell *)mixedComplex[it])->id;
+      int index = ((Del0Cell*)mixedComplex[it])->id;
 
       // avoid mapping a non atom (bounding box virtual atom)
       if (index >= delphi->numAtoms) {
@@ -1532,7 +1533,7 @@ void SkinSurface::preProcessPanel() {
       }
 
       double radius = delphi->atoms[index]->radius;
-      double *sphere_center = delphi->atoms[index]->pos;
+      double* sphere_center = delphi->atoms[index]->pos;
 
       downx = sphere_center[0] - radius;
       downy = sphere_center[1] + radius;
@@ -1543,7 +1544,7 @@ void SkinSurface::preProcessPanel() {
       upz = sphere_center[2] + radius;
     } else {
       for (unsigned int pind = 0; pind < ll.size(); pind++) {
-        double *pp = ll[pind];
+        double* pp = ll[pind];
         downx = MIN(downx, pp[0]);
         downy = MAX(downy, pp[1]);
         downz = MIN(downz, pp[2]);
@@ -1775,7 +1776,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
 
   for (int it = 0; it < numMixedCells; it++) {
     // mixed cell points
-    vector<double *> &ll = mixedComplex[it]->mc_points;
+    vector<double*>& ll = mixedComplex[it]->mc_points;
 
     // compute bounding box object
     double downx = INFINITY;
@@ -1788,14 +1789,14 @@ bool SkinSurface::buildAuxiliaryGrid() {
 
     // use the cube of the atom as bounding box object for voronoi cells
     if (mixedComplex[it]->surface_type == DELAUNAY_POINT_CELL) {
-      int index = ((Del0Cell *)mixedComplex[it])->id;
+      int index = ((Del0Cell*)mixedComplex[it])->id;
 
       // avoid mapping a non atom (bounding box virtual atom)
       if (index >= delphi->numAtoms)
         continue;
 
       double radius = delphi->atoms[index]->radius;
-      double *sphere_center = delphi->atoms[index]->pos;
+      double* sphere_center = delphi->atoms[index]->pos;
 
       downx = sphere_center[0] - radius;
       downy = sphere_center[1] + radius;
@@ -1806,7 +1807,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
       upz = sphere_center[2] + radius;
     } else {
       for (unsigned int pind = 0; pind < ll.size(); pind++) {
-        double *pp = ll[pind];
+        double* pp = ll[pind];
         downx = MIN(downx, pp[0]);
         downy = MAX(downy, pp[1]);
         downz = MIN(downz, pp[2]);
@@ -1886,7 +1887,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
 }
 
 /** save in .skin format*/
-bool SkinSurface::save(char *fileName) {
+bool SkinSurface::save(char* fileName) {
   ofstream fout;
   fout.open(fileName, ios::out);
 
@@ -1907,7 +1908,7 @@ bool SkinSurface::save(char *fileName) {
   return true;
 }
 
-bool SkinSurface::load(char *fileName) {
+bool SkinSurface::load(char* fileName) {
   int len = (int)strlen(fileName);
   if (len == 0) {
     logging::log<logging::level::warn>("Cannot load with empty file name!");
@@ -1942,22 +1943,22 @@ void SkinSurface::printSummary() {
   }
 }
 
-bool SkinSurface::isFeasible(MixedCell *mc, double *point) {
+bool SkinSurface::isFeasible(MixedCell* mc, double* point) {
   if (mc->surface_type == DELAUNAY_POINT_CELL) {
-    Del0Cell *mc0 = (Del0Cell *)mc;
+    Del0Cell* mc0 = (Del0Cell*)mc;
     int num = (int)mc0->planes.size();
     for (int it = 0; it < num; it++) {
-      double *plane = mc0->planes[it];
+      double* plane = mc0->planes[it];
       double val = DOT(plane, point) + plane[3];
       if (val < 0)
         return false;
     }
     return true;
   } else if (mc->surface_type == DELAUNAY_EDGE_CELL) {
-    Del1Cell *mc1 = (Del1Cell *)mc;
+    Del1Cell* mc1 = (Del1Cell*)mc;
     int num = (int)mc1->planes.size();
     for (int it = 0; it < num; it++) {
-      double *plane = mc1->planes[it];
+      double* plane = mc1->planes[it];
       double val = DOT(plane, point) + plane[3];
       if (val > 0)
         return false;
@@ -1974,9 +1975,9 @@ bool SkinSurface::isFeasible(MixedCell *mc, double *point) {
 
     return true;
   } else if (mc->surface_type == DELAUNAY_FACET_CELL) {
-    Del2Cell *mc2 = (Del2Cell *)mc;
+    Del2Cell* mc2 = (Del2Cell*)mc;
     for (int it = 0; it < 3; it++) {
-      double *plane = mc2->planes[it];
+      double* plane = mc2->planes[it];
       double val = DOT(plane, point) + plane[3];
       if (val > 0)
         return false;
@@ -1994,9 +1995,9 @@ bool SkinSurface::isFeasible(MixedCell *mc, double *point) {
 
     return true;
   } else if (mc->surface_type == DELAUNAY_TETRA_CELL) {
-    Del3Cell *mc3 = (Del3Cell *)mc;
+    Del3Cell* mc3 = (Del3Cell*)mc;
     for (int it = 0; it < 4; it++) {
-      double *plane = mc3->planes[it];
+      double* plane = mc3->planes[it];
       double val = DOT(plane, point) + plane[3];
       if (val > 0)
         return false;
@@ -2009,10 +2010,10 @@ bool SkinSurface::isFeasible(MixedCell *mc, double *point) {
   }
 }
 
-inline bool SkinSurface::rayQuadricIntersection(double *orig, double *dir,
-                                                double *Q, double *i1,
-                                                double *i2, int id,
-                                                double *cache) {
+inline bool SkinSurface::rayQuadricIntersection(double* orig, double* dir,
+                                                double* Q, double* i1,
+                                                double* i2, int id,
+                                                double* cache) {
   double a = 0, b = 0, c = 0;
 
   // for (int i=0;i<4;i++)
@@ -2061,10 +2062,9 @@ inline bool SkinSurface::rayQuadricIntersection(double *orig, double *dir,
   return true;
 }
 
-inline void
-SkinSurface::getRayIntersection(double pa[3], double pb[3],
-                                vector<pair<double, double *>> &intersections,
-                                int thdID, bool computeNormals) {
+inline void SkinSurface::getRayIntersection(
+    double pa[3], double pb[3], vector<pair<double, double*>>& intersections,
+    int thdID, bool computeNormals) {
   double dir[3];
   double aposx = pa[0], aposy = pa[1], aposz = pa[2];
   dir[0] = pb[0] - aposx;
@@ -2167,9 +2167,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
       if (testFeasibility) {
         // normal
         if (computeNormals) {
-          double *normal = allocateVector<double>(3);
-          MixedCell *mc = mixedComplex[it];
-          double *Q = mc->quadric;
+          double* normal = allocateVector<double>(3);
+          MixedCell* mc = mixedComplex[it];
+          double* Q = mc->quadric;
           normal[0] = 2 * (Q[0] * intPoint[0] + Q[4] * intPoint[1] +
                            Q[7] * intPoint[2] + Q[9]);
           normal[1] = 2 * (Q[1] * intPoint[1] + Q[4] * intPoint[0] +
@@ -2179,9 +2179,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
           if (mc->surface_type == DELAUNAY_TETRA_CELL) {
             CHANGE_SIGN(normal)
           }
-          intersections.push_back(pair<double, double *>(t1, normal));
+          intersections.push_back(pair<double, double*>(t1, normal));
         } else
-          intersections.push_back(pair<double, double *>(t1, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t1, (double*)NULL));
       }
 
       intPoint[0] = apos[0] + dir[0] * t2;
@@ -2197,9 +2197,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
       if (testFeasibility) {
         // normal
         if (computeNormals) {
-          double *normal = allocateVector<double>(3);
-          MixedCell *mc = mixedComplex[it];
-          double *Q = mc->quadric;
+          double* normal = allocateVector<double>(3);
+          MixedCell* mc = mixedComplex[it];
+          double* Q = mc->quadric;
           normal[0] = 2 * (Q[0] * intPoint[0] + Q[4] * intPoint[1] +
                            Q[7] * intPoint[2] + Q[9]);
           normal[1] = 2 * (Q[1] * intPoint[1] + Q[4] * intPoint[0] +
@@ -2209,9 +2209,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
           if (mc->surface_type == DELAUNAY_TETRA_CELL) {
             CHANGE_SIGN(normal)
           }
-          intersections.push_back(pair<double, double *>(t2, normal));
+          intersections.push_back(pair<double, double*>(t2, normal));
         } else
-          intersections.push_back(pair<double, double *>(t2, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t2, (double*)NULL));
       }
     }
   } else if (panel == 1) {
@@ -2290,9 +2290,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
       if (testFeasibility) {
         // normal
         if (computeNormals) {
-          double *normal = allocateVector<double>(3);
-          MixedCell *mc = mixedComplex[it];
-          double *Q = mc->quadric;
+          double* normal = allocateVector<double>(3);
+          MixedCell* mc = mixedComplex[it];
+          double* Q = mc->quadric;
           normal[0] = 2 * (Q[0] * intPoint[0] + Q[4] * intPoint[1] +
                            Q[7] * intPoint[2] + Q[9]);
           normal[1] = 2 * (Q[1] * intPoint[1] + Q[4] * intPoint[0] +
@@ -2302,9 +2302,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
           if (mc->surface_type == DELAUNAY_TETRA_CELL) {
             CHANGE_SIGN(normal)
           }
-          intersections.push_back(pair<double, double *>(t1, normal));
+          intersections.push_back(pair<double, double*>(t1, normal));
         } else
-          intersections.push_back(pair<double, double *>(t1, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t1, (double*)NULL));
       }
 
       intPoint[0] = apos[0];
@@ -2318,9 +2318,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
       if (testFeasibility) {
         // normal
         if (computeNormals) {
-          double *normal = allocateVector<double>(3);
-          MixedCell *mc = mixedComplex[it];
-          double *Q = mc->quadric;
+          double* normal = allocateVector<double>(3);
+          MixedCell* mc = mixedComplex[it];
+          double* Q = mc->quadric;
           normal[0] = 2 * (Q[0] * intPoint[0] + Q[4] * intPoint[1] +
                            Q[7] * intPoint[2] + Q[9]);
           normal[1] = 2 * (Q[1] * intPoint[1] + Q[4] * intPoint[0] +
@@ -2330,9 +2330,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
           if (mc->surface_type == DELAUNAY_TETRA_CELL) {
             CHANGE_SIGN(normal)
           }
-          intersections.push_back(pair<double, double *>(t2, normal));
+          intersections.push_back(pair<double, double*>(t2, normal));
         } else
-          intersections.push_back(pair<double, double *>(t2, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t2, (double*)NULL));
       }
     }
   } else {
@@ -2412,9 +2412,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
       if (testFeasibility) {
         // normal
         if (computeNormals) {
-          double *normal = allocateVector<double>(3);
-          MixedCell *mc = mixedComplex[it];
-          double *Q = mc->quadric;
+          double* normal = allocateVector<double>(3);
+          MixedCell* mc = mixedComplex[it];
+          double* Q = mc->quadric;
           normal[0] = 2 * (Q[0] * intPoint[0] + Q[4] * intPoint[1] +
                            Q[7] * intPoint[2] + Q[9]);
           normal[1] = 2 * (Q[1] * intPoint[1] + Q[4] * intPoint[0] +
@@ -2424,9 +2424,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
           if (mc->surface_type == DELAUNAY_TETRA_CELL) {
             CHANGE_SIGN(normal)
           }
-          intersections.push_back(pair<double, double *>(t1, normal));
+          intersections.push_back(pair<double, double*>(t1, normal));
         } else
-          intersections.push_back(pair<double, double *>(t1, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t1, (double*)NULL));
       }
 
       intPoint[0] = apos[0];
@@ -2440,9 +2440,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
       if (testFeasibility) {
         // normal
         if (computeNormals) {
-          double *normal = allocateVector<double>(3);
-          MixedCell *mc = mixedComplex[it];
-          double *Q = mc->quadric;
+          double* normal = allocateVector<double>(3);
+          MixedCell* mc = mixedComplex[it];
+          double* Q = mc->quadric;
           normal[0] = 2 * (Q[0] * intPoint[0] + Q[4] * intPoint[1] +
                            Q[7] * intPoint[2] + Q[9]);
           normal[1] = 2 * (Q[1] * intPoint[1] + Q[4] * intPoint[0] +
@@ -2452,9 +2452,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
           if (mc->surface_type == DELAUNAY_TETRA_CELL) {
             CHANGE_SIGN(normal)
           }
-          intersections.push_back(pair<double, double *>(t2, normal));
+          intersections.push_back(pair<double, double*>(t2, normal));
         } else
-          intersections.push_back(pair<double, double *>(t2, (double *)NULL));
+          intersections.push_back(pair<double, double*>(t2, (double*)NULL));
       }
     }
   }
@@ -2462,9 +2462,9 @@ SkinSurface::getRayIntersection(double pa[3], double pb[3],
     sort(intersections.begin(), intersections.end(), compKeepIndex);
 }
 
-bool SkinSurface::getProjection(double p[3], double *proj1, double *proj2,
-                                double *proj3, double *normal1, double *normal2,
-                                double *normal3) {
+bool SkinSurface::getProjection(double p[3], double* proj1, double* proj2,
+                                double* proj3, double* normal1, double* normal2,
+                                double* normal3) {
   // get the mixed cells that are associated to this grid point
   // by querying the auxiliary grid
   double dist;
@@ -2502,7 +2502,7 @@ bool SkinSurface::getProjection(double p[3], double *proj1, double *proj2,
   locNorm[2] = 0;
 
   for (it = cells.begin(); it != cells.end(); it++) {
-    double *Q = mixedComplex[(*it)]->quadric;
+    double* Q = mixedComplex[(*it)]->quadric;
     int patchType = mixedComplex[(*it)]->surface_type;
     projectToQuadric(p, Q, patchType, locProj, locNorm, dist);
 
@@ -2546,8 +2546,8 @@ bool SkinSurface::getProjection(double p[3], double *proj1, double *proj2,
   return true;
 }
 
-void SkinSurface::projectToQuadric(double *y, double *Q, int type, double *proj,
-                                   double *normal, double &dist) {
+void SkinSurface::projectToQuadric(double* y, double* Q, int type, double* proj,
+                                   double* normal, double& dist) {
   // sphere case performs fast projection
   if (type == 0 || type == 3) {
     double cc[3];

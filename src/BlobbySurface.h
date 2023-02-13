@@ -30,14 +30,14 @@ surface routines for the rest of the work.
 @date 10/01/2012
 */
 class BlobbySurface : public MeshSurface {
-private:
+ private:
   /** blobbyness*/
   double B;
   /** cut-off distance in Angstrom to speed-up computations. It is computed
   based on B value. The bigger the gaussian the less the cut-off*/
   double cutoff;
 
-public:
+ public:
   /** Default constructor*/
   BlobbySurface();
   /** set DelPhi environment*/
@@ -72,7 +72,7 @@ static class BlobbySurfaceRegister {
     return std::make_shared<BlobbySurface>(conf, ds);
   }
 
-public:
+ public:
   BlobbySurfaceRegister() {
     SurfaceFactory::getInstance().register_instantiator("blobby",
                                                         createSurface);

@@ -17,8 +17,8 @@
 #endif
 
 #include <jama_eig.h>
-#include <string>
 #include <sturm/solve.h>
+#include <string>
 
 using namespace TNT;
 using namespace JAMA;
@@ -348,16 +348,16 @@ static const int triTable[256][16] = {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_POLY_DEGREE                                                        \
-  10 // max polynomial degree supported by the bgp projection routine (6 is
-     // needed for skin, 4 by Connolly)
+#define MAX_POLY_DEGREE                                                      \
+  10  // max polynomial degree supported by the bgp projection routine (6 is \
+      // needed for skin, 4 by Connolly)
 
 /////////////////////////////////SIMPLE CLASSES
 //////////////////////////////////////////
 
 /**@brief A point in R^3*/
 class Point {
-public:
+ public:
   double pos[3];
   Point() {
     pos[0] = 0;
@@ -369,13 +369,13 @@ public:
     pos[1] = y;
     pos[2] = z;
   }
-  Point(const Point &p) {
+  Point(const Point& p) {
     pos[0] = p.pos[0];
     pos[1] = p.pos[1];
     pos[2] = p.pos[2];
   }
 
-  double squaredDist(const Point *const x) {
+  double squaredDist(const Point* const x) {
     double acc = 0;
     for (int i = 0; i < 3; i++) {
       double t = x->pos[i] - pos[i];
@@ -384,21 +384,21 @@ public:
     return acc;
   }
 
-  double dot(const Point *const x) {
+  double dot(const Point* const x) {
     double acc = 0;
     for (int i = 0; i < 3; i++)
       acc += x->pos[i] * pos[i];
     return acc;
   }
 
-  double norm(const Point *const x) {
+  double norm(const Point* const x) {
     double acc = 0;
     for (int i = 0; i < 3; i++)
       acc += (pos[i]) * (pos[i]);
     return sqrt(acc);
   }
 
-  double dist(const Point *const x) {
+  double dist(const Point* const x) {
     double acc = 0;
     for (int i = 0; i < 3; i++) {
       double t = x->pos[i] - pos[i];
@@ -407,7 +407,7 @@ public:
     return sqrt(acc);
   }
 
-  void sumInPlace(const Point *const x) {
+  void sumInPlace(const Point* const x) {
     for (int i = 0; i < 3; i++) {
       pos[0] += x->pos[0];
       pos[1] += x->pos[1];
@@ -415,8 +415,8 @@ public:
     }
   }
 
-  Point *sum(const Point *const x) {
-    Point *p = new Point();
+  Point* sum(const Point* const x) {
+    Point* p = new Point();
     for (int i = 0; i < 3; i++) {
       p->pos[0] = pos[0] + x->pos[0];
       p->pos[1] = pos[1] + x->pos[1];
@@ -427,13 +427,13 @@ public:
 };
 
 class AtomInfo {
-protected:
+ protected:
   string name;
   int resNum;
   string resName;
   string chain;
 
-public:
+ public:
   AtomInfo() {
     name = "X";
     resNum = -1;
@@ -449,31 +449,31 @@ public:
     this->chain = chain;
   }
 
-  const string &getName() { return name; }
+  const string& getName() { return name; }
 
   void setName(const string name) { this->name = name; }
 
-  const string &getResName() { return resName; }
+  const string& getResName() { return resName; }
 
   void setResName(const string res) { resName = res; }
 
-  const int &getResNum() { return resNum; }
+  const int& getResNum() { return resNum; }
 
   void setResNum(const int res) { resNum = res; }
 
   void setChain(const string ch) { chain = ch; }
 
-  const string &getChain() { return chain; }
+  const string& getChain() { return chain; }
 
   /** copy constructor*/
-  AtomInfo(const AtomInfo &p) {
+  AtomInfo(const AtomInfo& p) {
     name = p.name;
     resNum = p.resNum;
     resName = p.resName;
     chain = p.chain;
   }
 
-  void operator=(const AtomInfo &p) {
+  void operator=(const AtomInfo& p) {
     name = p.name;
     resNum = p.resNum;
     resName = p.resName;
@@ -483,14 +483,14 @@ public:
 
 /**@brief Timer: timer class. If chrono is defined use high accuracy timer*/
 class Timer {
-private:
+ private:
 #ifdef ENABLE_BOOST_CHRONO
   boost::chrono::high_resolution_clock::time_point start_t, end_t;
 #else
   time_t start_t, end_t;
 #endif
 
-public:
+ public:
   Timer() {}
 
   void start() {
@@ -518,7 +518,7 @@ public:
 /**@brief An atom: an atom is a point in R^3 with radius, charge and dielectric
  * value*/
 class Atom : public Point {
-public:
+ public:
   double radius;
   double radius2;
   double charge;
@@ -563,7 +563,7 @@ public:
   }
 
   // copy constructor
-  Atom(Atom &p) : Point(p) {
+  Atom(Atom& p) : Point(p) {
     radius = p.radius;
     charge = p.charge;
     dielectric = p.dielectric;
@@ -591,7 +591,8 @@ public:
 
 ////////////////// Memory management routines //////////////////////
 
-template <class T> void cleanDelete(T *&t) {
+template <class T>
+void cleanDelete(T*& t) {
   if (t != NULL) {
     delete t;
     t = NULL;
@@ -601,7 +602,8 @@ template <class T> void cleanDelete(T *&t) {
   }
 }
 
-template <class T> void cleanDeleteV(T *&t) {
+template <class T>
+void cleanDeleteV(T*& t) {
   if (t != NULL) {
     delete[] t;
     t = NULL;
@@ -612,7 +614,7 @@ template <class T> void cleanDeleteV(T *&t) {
 }
 
 template <class T>
-inline T read4DVector(const T *const var, const int i, const int j, const int k,
+inline T read4DVector(const T* const var, const int i, const int j, const int k,
                       const int l, const int nx, const int ny, const int nz,
                       const int nl) {
 #ifdef CHECK_BOUNDS
@@ -628,7 +630,7 @@ inline T read4DVector(const T *const var, const int i, const int j, const int k,
 }
 
 template <class T>
-inline void write4DVector(T *const var, const T val, const int i, const int j,
+inline void write4DVector(T* const var, const T val, const int i, const int j,
                           const int k, const int l, const int nx, const int ny,
                           const int nz, const int nl) {
 #ifdef CHECK_BOUNDS
@@ -644,7 +646,7 @@ inline void write4DVector(T *const var, const T val, const int i, const int j,
 }
 
 template <class T>
-inline T read3DVector(const T *const var, const int i, const int j, const int k,
+inline T read3DVector(const T* const var, const int i, const int j, const int k,
                       const int nx, const int ny, const int nz) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
@@ -658,7 +660,7 @@ inline T read3DVector(const T *const var, const int i, const int j, const int k,
 }
 
 template <class T>
-inline void write3DVector(T *const var, const T val, const int i, const int j,
+inline void write3DVector(T* const var, const T val, const int i, const int j,
                           const int k, const int nx, const int ny,
                           const int nz) {
 #ifdef CHECK_BOUNDS
@@ -673,7 +675,7 @@ inline void write3DVector(T *const var, const T val, const int i, const int j,
 }
 
 template <class T>
-inline T read2DVector(const T *const var, const int i, const int j,
+inline T read2DVector(const T* const var, const int i, const int j,
                       const int nx, const int ny) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || i < 0 || j < 0) {
@@ -687,7 +689,7 @@ inline T read2DVector(const T *const var, const int i, const int j,
 }
 
 template <class T>
-inline void write2DVector(T *const var, const T val, const int i, const int j,
+inline void write2DVector(T* const var, const T val, const int i, const int j,
                           const int nx, const int ny) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || i < 0 || j < 0) {
@@ -701,7 +703,7 @@ inline void write2DVector(T *const var, const T val, const int i, const int j,
 }
 
 template <class T>
-inline T readVector(const T *const var, const int i, const int nx) {
+inline T readVector(const T* const var, const int i, const int nx) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || i < 0) {
     logging::log<logging::level::err>("Out of bound error in reading Vector");
@@ -713,7 +715,7 @@ inline T readVector(const T *const var, const int i, const int nx) {
 }
 
 template <class T>
-inline void writeVector(T *const var, const T val, const int i, const int nx) {
+inline void writeVector(T* const var, const T val, const int i, const int nx) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || i < 0) {
     logging::log<logging::level::err>("Out of bound error in writing Vector");
@@ -723,8 +725,9 @@ inline void writeVector(T *const var, const T val, const int i, const int nx) {
   var[index] = val;
 }
 
-template <class T> T *allocateVector(size_t n) {
-  T *t = (T *)malloc(sizeof(T) * n);
+template <class T>
+T* allocateVector(size_t n) {
+  T* t = (T*)malloc(sizeof(T) * n);
   if (t == NULL) {
     logging::log<logging::level::err>("Not enough memory to allocate vector ");
     return NULL;
@@ -732,15 +735,16 @@ template <class T> T *allocateVector(size_t n) {
   return t;
 }
 
-template <class T> T **allocateMatrix2D(int nrows, int ncol) {
-  T **t = (T **)malloc(sizeof(T *) * nrows);
+template <class T>
+T** allocateMatrix2D(int nrows, int ncol) {
+  T** t = (T**)malloc(sizeof(T*) * nrows);
   if (t == NULL) {
     logging::log<logging::level::err>(
         "Not enough memory to allocate 2D matrix ");
     return NULL;
   }
   for (int i = 0; i < nrows; i++) {
-    t[i] = (T *)malloc(sizeof(T) * ncol);
+    t[i] = (T*)malloc(sizeof(T) * ncol);
 
     if (t[i] == NULL) {
       logging::log<logging::level::err>(
@@ -751,15 +755,16 @@ template <class T> T **allocateMatrix2D(int nrows, int ncol) {
   return t;
 }
 
-template <class T> T ***allocateMatrix3D(int nx, int ny, int nz) {
-  T ***t = (T ***)malloc(sizeof(T **) * nx);
+template <class T>
+T*** allocateMatrix3D(int nx, int ny, int nz) {
+  T*** t = (T***)malloc(sizeof(T**) * nx);
   if (t == NULL) {
     logging::log<logging::level::err>(
         "Not enough memory to allocate 3D matrix ");
     return NULL;
   }
   for (int i = 0; i < nx; i++) {
-    t[i] = (T **)malloc(sizeof(T *) * ny);
+    t[i] = (T**)malloc(sizeof(T*) * ny);
     if (t[i] == NULL) {
       logging::log<logging::level::err>(
           "Not enough memory to allocate 3D matrix ");
@@ -767,7 +772,7 @@ template <class T> T ***allocateMatrix3D(int nx, int ny, int nz) {
     }
 
     for (int j = 0; j < ny; j++) {
-      t[i][j] = (T *)malloc(sizeof(T) * nz);
+      t[i][j] = (T*)malloc(sizeof(T) * nz);
       if (t[i][j] == NULL) {
         logging::log<logging::level::err>(
             "Not enough memory to allocate 3D matrix ");
@@ -778,7 +783,8 @@ template <class T> T ***allocateMatrix3D(int nx, int ny, int nz) {
   return t;
 }
 
-template <class T> void deleteVector(T *&t) {
+template <class T>
+void deleteVector(T*& t) {
   if (t != NULL) {
     free(t);
     t = NULL;
@@ -788,7 +794,8 @@ template <class T> void deleteVector(T *&t) {
   }
 }
 
-template <class T> void deleteMatrix2D(int nrows, T **&t) {
+template <class T>
+void deleteMatrix2D(int nrows, T**& t) {
   if (t != NULL) {
     for (int i = 0; i < nrows; i++)
       free(t[i]);
@@ -800,7 +807,8 @@ template <class T> void deleteMatrix2D(int nrows, T **&t) {
   }
 }
 
-template <class T> void deleteMatrix3D(int nx, int ny, T ***&t) {
+template <class T>
+void deleteMatrix3D(int nx, int ny, T***& t) {
   if (t != NULL) {
     for (int i = 0; i < nx; i++) {
       for (int j = 0; j < ny; j++)
@@ -820,18 +828,18 @@ template <class T> void deleteMatrix3D(int nx, int ny, T ***&t) {
 /** a vector bool is a vector in which it is assumed that the information is
 written/read in a bitwise way to minimize memory footprint. Thus the allocator
 computes how many 32 bits words are needed to store n elements*/
-inline uint32_t *allocateVectorBool(size_t n) {
+inline uint32_t* allocateVectorBool(size_t n) {
   int nw = n / 32;
   if ((n % 32) != 0)
     nw++;
-  uint32_t *ptr = (uint32_t *)malloc(nw * 4);
+  uint32_t* ptr = (uint32_t*)malloc(nw * 4);
   if (ptr == NULL)
     logging::log<logging::level::err>(
         "Not enough memory to allocate bit vector");
   return ptr;
 }
 
-inline void deleteVectorBool(uint32_t *&t) {
+inline void deleteVectorBool(uint32_t*& t) {
   if (t != NULL) {
     free(t);
     t = NULL;
@@ -841,7 +849,7 @@ inline void deleteVectorBool(uint32_t *&t) {
   }
 }
 
-inline bool read3DVectorBool(uint32_t *const var, const int i, const int j,
+inline bool read3DVectorBool(uint32_t* const var, const int i, const int j,
                              const int k, const int nx, const int ny,
                              const int nz) {
 #ifdef CHECK_BOUNDS
@@ -858,7 +866,7 @@ inline bool read3DVectorBool(uint32_t *const var, const int i, const int j,
   return ((var[word_index] & mask) == mask);
 }
 
-inline void write3DVectorBool(uint32_t *const var, const bool val, const int i,
+inline void write3DVectorBool(uint32_t* const var, const bool val, const int i,
                               const int j, const int k, const int nx,
                               const int ny, const int nz) {
 #ifdef CHECK_BOUNDS
@@ -880,10 +888,11 @@ arrays that are heavily accessed this is the best allocation choice. For small
 arrays very often allocated/deallocated this can introduce a signifcant memory
 overhead. Free only using deleteAlignedVector. Typical bit alignement values are
 32,64,128,256*/
-template <class T> T *allocateAlignedVector(size_t n, int bitAlignment) {
-  T *mem = (T *)malloc(n * sizeof(T) + bitAlignment + sizeof(void *));
-  T **ptr =
-      (T **)((long)(mem + bitAlignment + sizeof(void *)) & ~(bitAlignment - 1));
+template <class T>
+T* allocateAlignedVector(size_t n, int bitAlignment) {
+  T* mem = (T*)malloc(n * sizeof(T) + bitAlignment + sizeof(void*));
+  T** ptr =
+      (T**)((long)(mem + bitAlignment + sizeof(void*)) & ~(bitAlignment - 1));
   ptr[-1] = mem;
 
   if (mem == NULL) {
@@ -892,29 +901,30 @@ template <class T> T *allocateAlignedVector(size_t n, int bitAlignment) {
     return NULL;
   }
 
-  return (T *)ptr;
+  return (T*)ptr;
 }
 
-template <class T> void deleteAlignedVector(T *&ptr) {
+template <class T>
+void deleteAlignedVector(T*& ptr) {
   if (ptr == NULL) {
     logging::log<logging::level::warn>(
         "Attempting to de-allocate a null aligned vector!");
     return;
   }
 
-  free(((T **)ptr)[-1]);
+  free(((T**)ptr)[-1]);
   ptr = NULL;
 }
 
 ///////////////////// STL comparators //////////////////////////////
 
 /**@brief ascending on first double of pair<double,double*> comparator*/
-bool compKeepIndex(pair<double, double *> a, pair<double, double *> b);
+bool compKeepIndex(pair<double, double*> a, pair<double, double*> b);
 
 ///////////////////////////////////////////////////////////////////
 
 typedef std::pair<double, int> indexed_double;
-bool index_double_comparator(const indexed_double &l, const indexed_double &r);
+bool index_double_comparator(const indexed_double& l, const indexed_double& r);
 
 ///////////////////// MISCELLANEAOUS ////////////////////////////////
 
@@ -937,17 +947,17 @@ eigenvalues. A root is real if its imaginary part in absolute value is less than
 a given threshold. Usually this threshold is rather conservative such that
 possibly unprecise real roots are not lost. Poly is modified in place to remove
 possible zeros*/
-void getRealRootsCompanion(double *const poly, const int degree,
-                           double *const roots, int &numroots);
+void getRealRootsCompanion(double* const poly, const int degree,
+                           double* const roots, int& numroots);
 /** get real roots by using Sturm method. Directly search real roots. Much
 faster, often less accurate than companion matrix*/
-void getRealRootsSturm(const double *const polyy, const int degree,
-                       double *const roots, int &numrootss);
+void getRealRootsSturm(const double* const polyy, const int degree,
+                       double* const roots, int& numrootss);
 /** plane by 3 points routine*/
 void plane3points(const double p1[3], const double p2[3], const double p3[3],
                   double w[4], const bool normalize = true);
 /** point to plane projection*/
-void point2plane(const double p[3], double w[4], double *const dist,
+void point2plane(const double p[3], double w[4], double* const dist,
                  double proj[3]);
 /** in place inversion of 4x4 matrix*/
 void inplace_invert4x4(double M[4][4]);
@@ -955,14 +965,14 @@ void inplace_invert4x4(double M[4][4]);
 void Matrix4x4MultiplyBy4x4(const double src1[4][4], const double src2[4][4],
                             double dest[4][4]);
 /** ray/sphere intersection. ray is o+t*dir */
-bool raySphere(const double *const orig, const double *const dir,
-               const double *const sphere_center, const double sphere_radius,
-               double *const t1, double *const t2);
+bool raySphere(const double* const orig, const double* const dir,
+               const double* const sphere_center, const double sphere_radius,
+               double* const t1, double* const t2);
 /** get the normal to a sphere*/
-void getNormalToSphere(const double *const y, const double *const center,
-                       const double radius, double *const normal);
+void getNormalToSphere(const double* const y, const double* const center,
+                       const double radius, double* const normal);
 /** project y to sphere and returns the normal*/
-void projectToSphere(const double *const y, const double *const center,
-                     const double radius, double *const proj, double &dist);
+void projectToSphere(const double* const y, const double* const center,
+                     const double radius, double* const proj, double& dist);
 
 #endif

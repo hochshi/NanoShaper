@@ -13,7 +13,7 @@
 // #else
 // template <typename... Args> using format_string_t = std::string;
 // template <typename... Args> using format_string_t = std::string_view;
-#endif // SPDLOG_ENABLED
+#endif  // SPDLOG_ENABLED
 
 namespace logging {
 
@@ -33,11 +33,11 @@ enum level : int {
 #endif
 
 template <level lvl, typename... Args>
-inline void log(std::string fmt, Args &&...args) {
+inline void log(std::string fmt, Args&&... args) {
 #ifdef SPDLOG_ENABLED
   spdlog::log(lvl, fmt, std::forward<Args>(args)...);
 #endif
 }
 
-} // namespace logging
-#endif // logging_h
+}  // namespace logging
+#endif  // logging_h

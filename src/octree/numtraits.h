@@ -18,25 +18,22 @@
 #ifndef NUMTRAITS_H
 #define NUMTRAITS_H
 
-template< typename T1, typename T2 >
-class BinaryNumericTraits
-{
-public:
-    typedef T1 OpResult;
+template <typename T1, typename T2>
+class BinaryNumericTraits {
+ public:
+  typedef T1 OpResult;
 };
 
-template<>
-class BinaryNumericTraits<int, double>
-{
-public:
-    typedef double OpResult;
+template <>
+class BinaryNumericTraits<int, double> {
+ public:
+  typedef double OpResult;
 };
 
-template<>
-class BinaryNumericTraits<double, int>
-{
-public:
-    typedef double OpResult;
+template <>
+class BinaryNumericTraits<double, int> {
+ public:
+  typedef double OpResult;
 };
 
 #endif

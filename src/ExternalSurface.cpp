@@ -4,11 +4,15 @@
 #include <logging.h>
 #include <stdexcept>
 
-void ExternalSurface::init() { surfType = GENERIC_SURFACE; }
+void ExternalSurface::init() {
+  surfType = GENERIC_SURFACE;
+}
 
 void ExternalSurface::init(ConfigurationOP cf) {}
 
-ExternalSurface::~ExternalSurface() { clear(); }
+ExternalSurface::~ExternalSurface() {
+  clear();
+}
 
 void ExternalSurface::clear() {}
 
@@ -25,13 +29,19 @@ ExternalSurface::ExternalSurface(ConfigurationOP cf, DelPhiSharedOP ds) {
   init(cf);
 }
 
-ExternalSurface::ExternalSurface() : Surface() { init(); }
+ExternalSurface::ExternalSurface() : Surface() {
+  init();
+}
 
-bool ExternalSurface::build() { return true; }
+bool ExternalSurface::build() {
+  return true;
+}
 
-bool ExternalSurface::load(char *fileName) { return true; }
+bool ExternalSurface::load(char* fileName) {
+  return true;
+}
 
-bool ExternalSurface::save(char *fileName) {
+bool ExternalSurface::save(char* fileName) {
   logging::log<logging::level::info>(
       "Saving externally loaded surface by saving DelphiShared Object");
   delphi->saveEpsMaps(fileName);
@@ -40,9 +50,11 @@ bool ExternalSurface::save(char *fileName) {
   return true;
 }
 
-void ExternalSurface::printSummary() { return; }
+void ExternalSurface::printSummary() {
+  return;
+}
 
-void ExternalSurface::getLocalArea(double gridPoint[3], double *area) {
+void ExternalSurface::getLocalArea(double gridPoint[3], double* area) {
   logging::log<logging::level::warn>(
       "Cannot compute area in an external surface!");
   (*area) = 0;
@@ -336,11 +348,11 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
         */
       }
     }
-    delphi->ibgp = (int *)realloc(delphi->ibgp, 3 * sizeof(int) * index);
+    delphi->ibgp = (int*)realloc(delphi->ibgp, 3 * sizeof(int) * index);
     delphi->scspos =
-        (double *)realloc(delphi->scspos, 3 * sizeof(double) * index);
+        (double*)realloc(delphi->scspos, 3 * sizeof(double) * index);
     delphi->scsnor =
-        (double *)realloc(delphi->scsnor, 3 * sizeof(double) * index);
+        (double*)realloc(delphi->scsnor, 3 * sizeof(double) * index);
 
     delphi->nbgp = index;
     logging::log<logging::level::info>(
@@ -358,16 +370,16 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
 }
 
 inline void ExternalSurface::getRayIntersection(
-    double pa[3], double pb[3], vector<pair<double, double *>> &intersections,
+    double pa[3], double pb[3], vector<pair<double, double*>>& intersections,
     int thdID, bool computeNormals) {
   intersections.clear();
   logging::log<logging::level::warn>(
       "Cannot perform ray intersection with an externally loaded surface");
 }
 
-bool ExternalSurface::getProjection(double p[3], double *proj1, double *proj2,
-                                    double *proj3, double *normal1,
-                                    double *normal2, double *normal3) {
+bool ExternalSurface::getProjection(double p[3], double* proj1, double* proj2,
+                                    double* proj3, double* normal1,
+                                    double* normal2, double* normal3) {
   logging::log<logging::level::warn>(
       "Cannot perform projection with an externally loaded surface");
   return false;

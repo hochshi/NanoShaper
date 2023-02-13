@@ -6,7 +6,9 @@
 // denstructor should always call a clear function
 // this makes the code clearer and it allows to reset an object
 // without really destroying it
-ExampleSurface::~ExampleSurface() { clear(); }
+ExampleSurface::~ExampleSurface() {
+  clear();
+}
 
 void ExampleSurface::clear() {}
 
@@ -29,7 +31,9 @@ ExampleSurface::ExampleSurface(DelPhiSharedOP ds) : Surface() {
   delphi = ds;
 }
 
-ExampleSurface::ExampleSurface() : Surface() { init(); }
+ExampleSurface::ExampleSurface() : Surface() {
+  init();
+}
 
 // here you can parse all the custom key words that you add in the configuration
 // file
@@ -50,7 +54,7 @@ ExampleSurface::ExampleSurface(ConfigurationOP cf, DelPhiSharedOP ds)
 }
 
 inline void ExampleSurface::getRayIntersection(
-    double pa[3], double pb[3], vector<pair<double, double *>> &intersections,
+    double pa[3], double pb[3], vector<pair<double, double*>>& intersections,
     int thdID, bool computeNormals) {
   // the ray starts from pa, arrives at pb.
   // if computeNormals is active you should provide normals
@@ -119,17 +123,17 @@ inline void ExampleSurface::getRayIntersection(
 
   if (hasIntersection) {
     if (computeNormals) {
-      double *normal1 = allocateVector<double>(3);
-      double *normal2 = allocateVector<double>(3);
+      double* normal1 = allocateVector<double>(3);
+      double* normal2 = allocateVector<double>(3);
 
       getNormalToSphere(intPoint1, center, radius, normal1);
       getNormalToSphere(intPoint2, center, radius, normal2);
 
-      intersections.push_back(pair<double, double *>(t1, normal1));
-      intersections.push_back(pair<double, double *>(t2, normal2));
+      intersections.push_back(pair<double, double*>(t1, normal1));
+      intersections.push_back(pair<double, double*>(t2, normal2));
     } else {
-      intersections.push_back(pair<double, double *>(t1, (double *)NULL));
-      intersections.push_back(pair<double, double *>(t2, (double *)NULL));
+      intersections.push_back(pair<double, double*>(t1, (double*)NULL));
+      intersections.push_back(pair<double, double*>(t2, (double*)NULL));
     }
 
     // we must sort the intersections such that Surface class can deduce in/out
@@ -138,9 +142,9 @@ inline void ExampleSurface::getRayIntersection(
   }
 }
 
-bool ExampleSurface::getProjection(double p[3], double *proj1, double *proj2,
-                                   double *proj3, double *normal1,
-                                   double *normal2, double *normal3) {
+bool ExampleSurface::getProjection(double p[3], double* proj1, double* proj2,
+                                   double* proj3, double* normal1,
+                                   double* normal2, double* normal3) {
   // You have to implement this function if you plan to interface this surface
   // to DelPhi. Only in this case it is needed that you really imnplement this
   // method As long as triangulation/cavity detectionm, area and volume are need
@@ -236,12 +240,12 @@ bool ExampleSurface::build() {
   return true;
 }
 
-bool ExampleSurface::save(char *fileName) {
+bool ExampleSurface::save(char* fileName) {
   // you should save the surface in your prefered format
   return true;
 }
 
-bool ExampleSurface::load(char *fileName) {
+bool ExampleSurface::load(char* fileName) {
   // you should load the surface in your prefered format
   return true;
 }

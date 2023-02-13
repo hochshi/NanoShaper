@@ -25,22 +25,24 @@
 *                                                                           *
 ****************************************************************************/
 
-#define PLY_FORMAT_ASCII	0
-#define PLY_FORMAT_BIN_L	1
-#define PLY_FORMAT_BIN_B	2
+#define PLY_FORMAT_ASCII 0
+#define PLY_FORMAT_BIN_L 1
+#define PLY_FORMAT_BIN_B 2
 
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
 
-inline void endian_swap_long(unsigned char *p);
-char *readLineFromFile(FILE *in, bool exit_on_eof = 1);
-bool seek_keyword(FILE *fp, const char *kw);
-inline void skipCommentAndBlankLines(FILE *fp);
-int ply_parseElements(FILE *in, const char *elname);
-void ply_checkVertexProperties(FILE *in);
-int ply_getOverhead(FILE *in, int format, const char *element);
-void ply_checkFaceProperties(FILE *in);
-void ply_readOverhead(FILE *in, int format, int oh);
-int ply_readVCoords(FILE *in, int format, int ph, int oh, float *x, float *y, float *z);
-int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y, int *z);
-int ply_readAnotherFIndex(FILE *in, int format, int *x);
+inline void endian_swap_long(unsigned char* p);
+char* readLineFromFile(FILE* in, bool exit_on_eof = 1);
+bool seek_keyword(FILE* fp, const char* kw);
+inline void skipCommentAndBlankLines(FILE* fp);
+int ply_parseElements(FILE* in, const char* elname);
+void ply_checkVertexProperties(FILE* in);
+int ply_getOverhead(FILE* in, int format, const char* element);
+void ply_checkFaceProperties(FILE* in);
+void ply_readOverhead(FILE* in, int format, int oh);
+int ply_readVCoords(FILE* in, int format, int ph, int oh, float* x, float* y,
+                    float* z);
+int ply_readFIndices(FILE* in, int format, int ph, int* nv, int* x, int* y,
+                     int* z);
+int ply_readAnotherFIndex(FILE* in, int format, int* x);
