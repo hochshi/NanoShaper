@@ -253,9 +253,9 @@ int DelPhiShared::loadAtoms(string fn) {
       }
       max_rad = MAX(r_, max_rad);
       x.push_back(x_);
-      y.push_back(x_);
-      z.push_back(x_);
-      r.push_back(x_);
+      y.push_back(y_);
+      z.push_back(z_);
+      r.push_back(r_);
     }
   }
   fin.close();
