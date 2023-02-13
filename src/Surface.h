@@ -241,7 +241,8 @@ protected:
   // current panel under analysis
   int panel;
   // delphi environment
-  DelPhiShared *delphi;
+  // DelPhiShared *delphi;
+  DelPhiSharedOP delphi;
   double totalSurfaceArea;
   double totalVolume;
 

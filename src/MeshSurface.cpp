@@ -59,7 +59,7 @@ void MeshSurface::init() {
   MAX_TRIANGLES_2D = (MAX_TRIANGLES * AUX_GRID_DIM_2D);
   surfType = GENERIC_SURFACE;
 }
-MeshSurface::MeshSurface(DelPhiShared *ds) : Surface() {
+MeshSurface::MeshSurface(DelPhiSharedOP ds) : Surface() {
   init();
   // set environment
   delphi = ds;
@@ -121,7 +121,7 @@ MeshSurface::MeshSurface() : Surface() {
   delphi = NULL;
 }
 
-MeshSurface::MeshSurface(ConfigurationOP cf, DelPhiShared *ds) : Surface(cf) {
+MeshSurface::MeshSurface(ConfigurationOP cf, DelPhiSharedOP ds) : Surface(cf) {
   init();
   init(cf);
   // set environment

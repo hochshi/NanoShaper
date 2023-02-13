@@ -28,13 +28,21 @@ void DelPhiShared::init() {
 
 DelPhiShared::DelPhiShared() { init(); }
 
+DelPhiShared::DelPhiShared(bool map, bool status, bool multi, bool atinfo)
+    : buildEpsMap(map), buildStatus(status), multi_diel(multi),
+      isAvailableAtomInfo(atinfo) {}
+
 void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
                         bool stat_flag, bool multi, bool atinfo) {
   buildEpsMap = eps_flag;
   buildStatus = stat_flag;
   multi_diel = multi;
   isAvailableAtomInfo = atinfo;
+  
+  init(scale, perfill, fn);
+}
 
+void DelPhiShared::init(double scale, double perfill, string fn) {
   logging::log<logging::level::info>("Loading atoms....");
 
   bool flag = loadAtoms(fn);
@@ -47,6 +55,26 @@ void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
   }
 
   flag = buildGrid(scale, perfill);
+  if (!flag) {
+    logging::log<logging::level::err>("Initialization failed");
+    throw std::runtime_error("Initialization failed");
+  }
+  logging::log<logging::level::info>("Initialization completed");
+}
+
+void DelPhiShared::init(double scale, double perfill, const InputData &in) {
+  logging::log<logging::level::info>("Loading atoms....");
+
+  int retNum = loadAtoms(in.na, in.x, in.y, in.z, in.r, in.q, in.d, in.ai);
+
+  if (retNum != in.na) {
+    logging::log<logging::level::err>(
+        "Missing or corrupt atoms input data. Initialization failed");
+    throw std::invalid_argument(
+        "Missing or corrupt atoms input data. Initialization failed");
+  }
+
+  bool flag = buildGrid(scale, perfill);
   if (!flag) {
     logging::log<logging::level::err>("Initialization failed");
     throw std::runtime_error("Initialization failed");

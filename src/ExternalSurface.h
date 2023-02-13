@@ -25,9 +25,9 @@ public:
   /** Default constructor*/
   ExternalSurface();
   /** set DelPhi environment*/
-  ExternalSurface(DelPhiShared *ds);
+  ExternalSurface(DelPhiSharedOP ds);
   /** set configuration and DelPhi environment*/
-  ExternalSurface(ConfigurationOP cf, DelPhiShared *ds);
+  ExternalSurface(ConfigurationOP cf, DelPhiSharedOP ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////
@@ -71,7 +71,7 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class ExternalSurfaceRegister {
-  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiSharedOP ds) {
     return std::make_shared<ExternalSurface>(conf, ds);
   }
 

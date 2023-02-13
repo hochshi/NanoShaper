@@ -32,6 +32,17 @@
 
 // extern double debug_stern;
 
+struct InputData {
+  int na;
+  vector<double> x;
+  vector<double> y;
+  vector<double> z;
+  vector<double> r;
+  vector<double> q;
+  vector<int> d;
+  vector<AtomInfo> ai;
+
+};
 /** @brief This class is the DelPhi Shared variables environment which emulates
  * the DelPhi environment.
  */
@@ -45,6 +56,7 @@ public:
   /** default init*/
   void init();
 
+  DelPhiShared(bool map, bool status, bool multi, bool atinfo);
   /** constructor. map indicates epsmap and idebmap, status is status map and
    * multi mean multidielectric*/
   DelPhiShared(double scale, double perfill, string fn, bool map, bool status,
@@ -53,6 +65,10 @@ public:
   /** init function-constructor*/
   void init(double scale, double perfill, string fn, bool eps_flag,
             bool stat_flag, bool multi, bool atinfo);
+  
+  void init(double scale, double perfill, string fn);
+  
+  void init(double scale, double perfill, const InputData &in);
 
   /** Fortran DelPhi binding function. Allows to link DelPhi old code to
       the new surface framework */

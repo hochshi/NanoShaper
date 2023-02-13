@@ -59,7 +59,7 @@ void SkinSurface::init() {
   providesAnalyticalNormals = true;
 }
 
-SkinSurface::SkinSurface(DelPhiShared *ds) : Surface() {
+SkinSurface::SkinSurface(DelPhiSharedOP ds) : Surface() {
   init();
   // set environment
   delphi = ds;
@@ -87,7 +87,7 @@ void SkinSurface::init(ConfigurationOP cf) {
   setSavePovRay(savePovRay);
 }
 
-SkinSurface::SkinSurface(ConfigurationOP cf, DelPhiShared *ds) : Surface(cf) {
+SkinSurface::SkinSurface(ConfigurationOP cf, DelPhiSharedOP ds) : Surface(cf) {
   init();
   init(cf);
   // set environment

@@ -48,13 +48,13 @@ void ConnollySurface::init(ConfigurationOP cf) {
 
 ConnollySurface::ConnollySurface() : Surface() { init(); }
 
-ConnollySurface::ConnollySurface(DelPhiShared *ds) : Surface() {
+ConnollySurface::ConnollySurface(DelPhiSharedOP ds) : Surface() {
   init();
   // set environment
   delphi = ds;
 }
 
-ConnollySurface::ConnollySurface(ConfigurationOP cf, DelPhiShared *ds)
+ConnollySurface::ConnollySurface(ConfigurationOP cf, DelPhiSharedOP ds)
     : Surface(cf) {
   init();
   // set environment

@@ -40,9 +40,9 @@ public:
   /** Default constructor*/
   ExampleSurface();
   /** set DelPhi environment*/
-  ExampleSurface(DelPhiShared *ds);
+  ExampleSurface(DelPhiSharedOP ds);
   /** set configuration and DelPhi environment*/
-  ExampleSurface(ConfigurationOP cf, DelPhiShared *ds);
+  ExampleSurface(ConfigurationOP cf, DelPhiSharedOP ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////

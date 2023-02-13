@@ -107,9 +107,9 @@ public:
 	/** Default constructor*/
 	MeshSurface();
 	/** set DelPhi environment*/
-	MeshSurface(DelPhiShared* ds);
+	MeshSurface(DelPhiSharedOP ds);
 	/** set configuration and DelPhi environment*/
-	MeshSurface(ConfigurationOP cf,DelPhiShared* ds);			
+	MeshSurface(ConfigurationOP cf,DelPhiSharedOP ds);			
 
 	//////////////////////// INTERFACE MANDATORY METHODS /////////////////////////////////
 	/** Nothing to do in this case*/
@@ -185,7 +185,7 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class MeshSurfaceRegister{ 
-	static SurfaceOP createSurface(ConfigurationOP conf,DelPhiShared* ds) 
+	static SurfaceOP createSurface(ConfigurationOP conf,DelPhiSharedOP ds) 
 	{ 
     return std::make_shared<MeshSurface>(conf,ds); 
 	} 

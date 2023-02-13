@@ -19,9 +19,9 @@ void BlobbySurface::init(ConfigurationOP cf) {
 }
 BlobbySurface::BlobbySurface() { init(); }
 
-BlobbySurface::BlobbySurface(DelPhiShared *ds) : MeshSurface(ds) { init(); }
+BlobbySurface::BlobbySurface(DelPhiSharedOP ds) : MeshSurface(ds) { init(); }
 
-BlobbySurface::BlobbySurface(ConfigurationOP cf, DelPhiShared *ds)
+BlobbySurface::BlobbySurface(ConfigurationOP cf, DelPhiSharedOP ds)
     : MeshSurface(ds) {
   init();
   init(cf);

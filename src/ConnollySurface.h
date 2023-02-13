@@ -266,9 +266,9 @@ public:
   /** Default constructor*/
   ConnollySurface();
   /** set DelPhi environment*/
-  ConnollySurface(DelPhiShared *ds);
+  ConnollySurface(DelPhiSharedOP ds);
   /** set configuration and DelPhi environment*/
-  ConnollySurface(ConfigurationOP cf, DelPhiShared *ds);
+  ConnollySurface(ConfigurationOP cf, DelPhiSharedOP ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////
@@ -396,7 +396,7 @@ private:
 
 // expand it explicitly because Swig is not able to expand it
 static class ConnollySurfaceRegister {
-  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiSharedOP ds) {
     return std::make_shared<ConnollySurface>(conf, ds);
   }
 

@@ -23,7 +23,7 @@ void ExampleSurface::init() {
   providesAnalyticalNormals = true;
 }
 
-ExampleSurface::ExampleSurface(DelPhiShared *ds) : Surface() {
+ExampleSurface::ExampleSurface(DelPhiSharedOP ds) : Surface() {
   init();
   // set the environment, i.e. the grid
   delphi = ds;
@@ -41,7 +41,7 @@ void ExampleSurface::init(ConfigurationOP cf) {
   radius = cf->radius;
 }
 
-ExampleSurface::ExampleSurface(ConfigurationOP cf, DelPhiShared *ds)
+ExampleSurface::ExampleSurface(ConfigurationOP cf, DelPhiSharedOP ds)
     : Surface(cf) {
   init();
   init(cf);

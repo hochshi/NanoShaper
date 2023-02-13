@@ -41,8 +41,8 @@ public:
   /** Default constructor*/
   BlobbySurface();
   /** set DelPhi environment*/
-  BlobbySurface(DelPhiShared *ds);
-  BlobbySurface(ConfigurationOP cf, DelPhiShared *ds);
+  BlobbySurface(DelPhiSharedOP ds);
+  BlobbySurface(ConfigurationOP cf, DelPhiSharedOP ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////
@@ -68,7 +68,7 @@ public:
 
 // expand it explicitly because Swig is not able to expand it
 static class BlobbySurfaceRegister {
-  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiSharedOP ds) {
     return std::make_shared<BlobbySurface>(conf, ds);
   }
 

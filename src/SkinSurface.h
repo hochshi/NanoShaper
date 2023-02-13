@@ -245,9 +245,9 @@ public:
   /** Default constructor*/
   SkinSurface();
   /** set DelPhi environment*/
-  SkinSurface(DelPhiShared *ds);
+  SkinSurface(DelPhiSharedOP ds);
   /** set configuration and DelPhi environment*/
-  SkinSurface(ConfigurationOP cf, DelPhiShared *ds);
+  SkinSurface(ConfigurationOP cf, DelPhiSharedOP ds);
 
   //////////////////////// INTERFACE MANDATORY METHODS
   ////////////////////////////////////
@@ -343,7 +343,7 @@ private:
 };
 
 static class SkinSurfaceRegister {
-  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiShared *ds) {
+  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiSharedOP ds) {
     return std::make_shared<SkinSurface>(conf, ds);
   }
 

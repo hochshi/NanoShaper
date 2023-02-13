@@ -12,13 +12,13 @@ ExternalSurface::~ExternalSurface() { clear(); }
 
 void ExternalSurface::clear() {}
 
-ExternalSurface::ExternalSurface(DelPhiShared *ds) : Surface() {
+ExternalSurface::ExternalSurface(DelPhiSharedOP ds) : Surface() {
   // set environment
   delphi = ds;
   init();
 }
 
-ExternalSurface::ExternalSurface(ConfigurationOP cf, DelPhiShared *ds) {
+ExternalSurface::ExternalSurface(ConfigurationOP cf, DelPhiSharedOP ds) {
   // set environment
   delphi = ds;
   init();
