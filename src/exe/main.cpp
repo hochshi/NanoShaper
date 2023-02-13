@@ -1,4 +1,4 @@
-
+// Comment to check cpplinter
 #include <DelphiShared.h>
 #include <SurfaceFactory.h>
 #include <logging.h>
