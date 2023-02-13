@@ -140,6 +140,7 @@ int main(int argc, char *argv[]) {
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
+  int retVal = 0;
   int numargs = argc - 1;
   char confFile[BUFLEN];
 
@@ -153,37 +154,42 @@ int main(int argc, char *argv[]) {
         "Ignoring additional non required parameters");
 
   // check configuration consistency, init error stream, get configuration
-  ConfigFileOP cf = load(string(confFile));
-  ConfigurationOP conf = parse(cf);
+  try {
+    ConfigFileOP cf = load(string(confFile));
+    ConfigurationOP conf = parse(cf);
 
-  // operative modes are the NanoShaper lib utilization modes.
+    // operative modes are the NanoShaper lib utilization modes.
 
-  // just build the surface
-  if (!conf->operativeMode.compare("normal")) {
-    // Set up DelPhi-like environment
-    // DelPhiShared *dg = new DelPhiShared(conf->scale, conf->perfill,
-    //                                     conf->molFile, conf->buildEpsmaps,
-    //                                     conf->buildStatus, conf->multi_diel);
-    DelPhiSharedOP dg = std::make_shared<DelPhiShared>(
-        conf->scale, conf->perfill, conf->molFile, conf->buildEpsmaps,
-        conf->buildStatus, conf->multi_diel);
-    // Get surface
-    SurfaceOP surf = SurfaceFactory::getInstance().create(conf, dg);
-    if (surf != nullptr) {
-      normalMode(surf, dg, conf);
+    // just build the surface
+    if (!conf->operativeMode.compare("normal")) {
+      // Set up DelPhi-like environment
+      // DelPhiShared *dg = new DelPhiShared(conf->scale, conf->perfill,
+      //                                     conf->molFile, conf->buildEpsmaps,
+      //                                     conf->buildStatus,
+      //                                     conf->multi_diel);
+      DelPhiSharedOP dg = std::make_shared<DelPhiShared>(
+          conf->scale, conf->perfill, conf->molFile, conf->buildEpsmaps,
+          conf->buildStatus, conf->multi_diel);
+      // Get surface
+      SurfaceOP surf = SurfaceFactory::getInstance().create(conf, dg);
+      if (surf != nullptr) {
+        normalMode(surf, dg, conf);
+      }
+      logging::log<logging::level::info>("Cleaning memory...");
+
+      // delete surf;
+      // delete dg;
+      logging::log<logging::level::info>("ok!");
     }
-    logging::log<logging::level::info>("Cleaning memory...");
-
-    // delete surf;
-    // delete dg;
-    logging::log<logging::level::info>("ok!");
-  }
-  // detect pockets
-  else if (!conf->operativeMode.compare("pockets")) {
-    pocketMode(false, conf, conf);
-  } else {
-    logging::log<logging::level::info>("Unknown operative mode");
-    return -1;
+    // detect pockets
+    else if (!conf->operativeMode.compare("pockets")) {
+      pocketMode(false, conf, conf);
+    } else {
+      logging::log<logging::level::info>("Unknown operative mode");
+      retVal = -1;
+    }
+  } catch (const std::exception &e) {
+    retVal = -1;
   }
 
   cite();
@@ -193,7 +199,7 @@ int main(int argc, char *argv[]) {
   _CrtDumpMemoryLeaks();
 #endif
 
-  return 0;
+  return retVal;
 }
 
 #endif
