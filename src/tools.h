@@ -38,7 +38,7 @@ static const int shift_map[SHIFT_MAP][3] = {
     {-1, 0, 0},   {-1, 0, -1}, {-1, 0, +1},  {-1, +1, 0},  {-1, +1, -1},
     {-1, +1, +1}, {-1, -1, 0}, {-1, -1, -1}, {-1, -1, +1}};
 
-static const boost::uint32_t MASK[32] = {
+static const uint32_t MASK[32] = {
     0x00000001, 0x00000002, 0x00000004, 0x00000008, 0x00000010, 0x00000020,
     0x00000040, 0x00000080, 0x00000100, 0x00000200, 0x00000400, 0x00000800,
     0x00001000, 0x00002000, 0x00004000, 0x00008000, 0x00010000, 0x00020000,
@@ -758,7 +758,8 @@ exit(-1);
 template <class T> T *allocateVector(size_t n) {
   T *t = (T *)malloc(sizeof(T) * n);
   if (t == NULL) {
-                logging::log<logging::level::err>("Not enough memory to allocate vector ");
+                logging::log<logging::level::err>(
+                    "Not enough memory to allocate vector ");
                 return NULL;
   }
   return t;
@@ -767,14 +768,16 @@ template <class T> T *allocateVector(size_t n) {
 template <class T> T **allocateMatrix2D(int nrows, int ncol) {
   T **t = (T **)malloc(sizeof(T *) * nrows);
   if (t == NULL) {
-                logging::log<logging::level::err>("Not enough memory to allocate 2D matrix ");
+                logging::log<logging::level::err>(
+                    "Not enough memory to allocate 2D matrix ");
                 return NULL;
   }
   for (int i = 0; i < nrows; i++) {
                 t[i] = (T *)malloc(sizeof(T) * ncol);
 
                 if (t[i] == NULL) {
-                  logging::log<logging::level::err>("Not enough memory to allocate 2D matrix ");
+                  logging::log<logging::level::err>(
+                      "Not enough memory to allocate 2D matrix ");
                   return NULL;
                 }
   }
@@ -784,20 +787,23 @@ template <class T> T **allocateMatrix2D(int nrows, int ncol) {
 template <class T> T ***allocateMatrix3D(int nx, int ny, int nz) {
   T ***t = (T ***)malloc(sizeof(T **) * nx);
   if (t == NULL) {
-                logging::log<logging::level::err>("Not enough memory to allocate 3D matrix ");
+                logging::log<logging::level::err>(
+                    "Not enough memory to allocate 3D matrix ");
                 return NULL;
   }
   for (int i = 0; i < nx; i++) {
                 t[i] = (T **)malloc(sizeof(T *) * ny);
                 if (t[i] == NULL) {
-                  logging::log<logging::level::err>("Not enough memory to allocate 3D matrix ");
+                  logging::log<logging::level::err>(
+                      "Not enough memory to allocate 3D matrix ");
                   return NULL;
                 }
 
                 for (int j = 0; j < ny; j++) {
                   t[i][j] = (T *)malloc(sizeof(T) * nz);
                   if (t[i][j] == NULL) {
-                    logging::log<logging::level::err>("Not enough memory to allocate 3D matrix ");
+                    logging::log<logging::level::err>(
+                        "Not enough memory to allocate 3D matrix ");
                     return NULL;
                   }
                 }
@@ -847,17 +853,18 @@ template <class T> void deleteMatrix3D(int nx, int ny, T ***&t) {
 /** a vector bool is a vector in which it is assumed that the information is
 written/read in a bitwise way to minimize memory footprint. Thus the allocator
 computes how many 32 bits words are needed to store n elements*/
-inline boost::uint32_t *allocateVectorBool(size_t n) {
+inline uint32_t *allocateVectorBool(size_t n) {
   int nw = n / 32;
   if ((n % 32) != 0)
                 nw++;
-  boost::uint32_t *ptr = (boost::uint32_t *)malloc(nw * 4);
+  uint32_t *ptr = (uint32_t *)malloc(nw * 4);
   if (ptr == NULL)
-                logging::log<logging::level::err>("Not enough memory to allocate bit vector");
+                logging::log<logging::level::err>(
+                    "Not enough memory to allocate bit vector");
   return ptr;
 }
 
-inline void deleteVectorBool(boost::uint32_t *&t) {
+inline void deleteVectorBool(uint32_t *&t) {
   if (t != NULL) {
                 free(t);
                 t = NULL;
@@ -867,9 +874,9 @@ inline void deleteVectorBool(boost::uint32_t *&t) {
   }
 }
 
-inline bool read3DVectorBool(boost::uint32_t *const var, const int i,
-                             const int j, const int k, const int nx,
-                             const int ny, const int nz) {
+inline bool read3DVectorBool(uint32_t *const var, const int i, const int j,
+                             const int k, const int nx, const int ny,
+                             const int nz) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
                 logging::log<logging::level::err>( "Out of bound error in reading 3DVector";
@@ -884,13 +891,13 @@ exit(-1);
   size_t index = i + nx * (j + ny * k);
   size_t word_index = index / 32;
   size_t position = index % 32;
-  boost::uint32_t mask = MASK[position];
+  uint32_t mask = MASK[position];
   return ((var[word_index] & mask) == mask);
 }
 
-inline void write3DVectorBool(boost::uint32_t *const var, const bool val,
-                              const int i, const int j, const int k,
-                              const int nx, const int ny, const int nz) {
+inline void write3DVectorBool(uint32_t *const var, const bool val, const int i,
+                              const int j, const int k, const int nx,
+                              const int ny, const int nz) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
                 logging::log<logging::level::err>( "Out of bound error in reading 3DVector";
@@ -905,7 +912,7 @@ exit(-1);
   size_t index = i + nx * (j + ny * k);
   size_t word_index = index / 32;
   size_t position = index % 32;
-  boost::uint32_t mask = MASK[position];
+  uint32_t mask = MASK[position];
   var[word_index] = val ? (var[word_index] | mask) : (var[word_index] & ~mask);
 }
 
@@ -921,7 +928,8 @@ template <class T> T *allocateAlignedVector(size_t n, int bitAlignment) {
   ptr[-1] = mem;
 
   if (mem == NULL) {
-                logging::log<logging::level::err>("Not enough memory to allocate aligned vector ");
+                logging::log<logging::level::err>(
+                    "Not enough memory to allocate aligned vector ");
                 return NULL;
   }
 
