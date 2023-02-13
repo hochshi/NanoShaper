@@ -134,7 +134,7 @@
         @date 25-07-2014
         @version 0.7.5
         */
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 #ifdef DBGMEM_CRT
   //		 _crtBreakAlloc = 16222;
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -188,7 +188,7 @@ int main(int argc, char *argv[]) {
       logging::log<logging::level::info>("Unknown operative mode");
       retVal = -1;
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     retVal = -1;
   }
 

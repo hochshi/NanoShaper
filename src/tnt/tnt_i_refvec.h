@@ -52,36 +52,39 @@ namespace TNT {
 
 
 */
-template <class T> class i_refvec {
+template <class T>
+class i_refvec {
 
-private:
-  T *data_;
-  int *ref_count_;
+ private:
+  T* data_;
+  int* ref_count_;
 
-public:
+ public:
   i_refvec();
   explicit i_refvec(int n);
-  inline i_refvec(T *data);
-  inline i_refvec(const i_refvec &v);
-  inline T *begin();
-  inline const T *begin() const;
-  inline T &operator[](int i);
-  inline const T &operator[](int i) const;
-  inline i_refvec<T> &operator=(const i_refvec<T> &V);
-  void copy_(T *p, const T *q, const T *e);
-  void set_(T *p, const T *b, const T *e);
+  inline i_refvec(T* data);
+  inline i_refvec(const i_refvec& v);
+  inline T* begin();
+  inline const T* begin() const;
+  inline T& operator[](int i);
+  inline const T& operator[](int i) const;
+  inline i_refvec<T>& operator=(const i_refvec<T>& V);
+  void copy_(T* p, const T* q, const T* e);
+  void set_(T* p, const T* b, const T* e);
   inline int ref_count() const;
   inline int is_null() const;
   inline void destroy();
   ~i_refvec();
 };
 
-template <class T> void i_refvec<T>::copy_(T *p, const T *q, const T *e) {
-  for (T *t = p; q < e; t++, q++)
+template <class T>
+void i_refvec<T>::copy_(T* p, const T* q, const T* e) {
+  for (T* t = p; q < e; t++, q++)
     *t = *q;
 }
 
-template <class T> i_refvec<T>::i_refvec() : data_(NULL), ref_count_(NULL) {}
+template <class T>
+i_refvec<T>::i_refvec() : data_(NULL), ref_count_(NULL) {}
 
 /**
         In case n is 0 or negative, it does NOT call new.
@@ -99,26 +102,37 @@ i_refvec<T>::i_refvec(int n) : data_(NULL), ref_count_(NULL) {
 }
 
 template <class T>
-inline i_refvec<T>::i_refvec(const i_refvec<T> &V)
+inline i_refvec<T>::i_refvec(const i_refvec<T>& V)
     : data_(V.data_), ref_count_(V.ref_count_) {
   if (V.ref_count_ != NULL)
     (*(V.ref_count_))++;
 }
 
 template <class T>
-i_refvec<T>::i_refvec(T *data) : data_(data), ref_count_(NULL) {}
+i_refvec<T>::i_refvec(T* data) : data_(data), ref_count_(NULL) {}
 
-template <class T> inline T *i_refvec<T>::begin() { return data_; }
+template <class T>
+inline T* i_refvec<T>::begin() {
+  return data_;
+}
 
-template <class T> inline const T &i_refvec<T>::operator[](int i) const {
+template <class T>
+inline const T& i_refvec<T>::operator[](int i) const {
   return data_[i];
 }
 
-template <class T> inline T &i_refvec<T>::operator[](int i) { return data_[i]; }
+template <class T>
+inline T& i_refvec<T>::operator[](int i) {
+  return data_[i];
+}
 
-template <class T> inline const T *i_refvec<T>::begin() const { return data_; }
+template <class T>
+inline const T* i_refvec<T>::begin() const {
+  return data_;
+}
 
-template <class T> i_refvec<T> &i_refvec<T>::operator=(const i_refvec<T> &V) {
+template <class T>
+i_refvec<T>& i_refvec<T>::operator=(const i_refvec<T>& V) {
   if (this == &V)
     return *this;
 
@@ -137,7 +151,8 @@ template <class T> i_refvec<T> &i_refvec<T>::operator=(const i_refvec<T> &V) {
   return *this;
 }
 
-template <class T> void i_refvec<T>::destroy() {
+template <class T>
+void i_refvec<T>::destroy() {
   if (ref_count_ != NULL) {
 #ifdef TNT_DEBUG
     logging::log<logging::level::debug>("destorying data... ");
@@ -162,7 +177,8 @@ template <class T> void i_refvec<T>::destroy() {
  * if is_null() is false and ref_count() is 0, then
  *
  */
-template <class T> int i_refvec<T>::is_null() const {
+template <class T>
+int i_refvec<T>::is_null() const {
   return (data_ == NULL ? 1 : 0);
 }
 
@@ -172,14 +188,16 @@ template <class T> int i_refvec<T>::is_null() const {
  *  otherwise returns the positive number of vectors sharing
  *  		this data space.
  */
-template <class T> int i_refvec<T>::ref_count() const {
+template <class T>
+int i_refvec<T>::ref_count() const {
   if (data_ == NULL)
     return 0;
   else
     return (ref_count_ != NULL ? *ref_count_ : -1);
 }
 
-template <class T> i_refvec<T>::~i_refvec() {
+template <class T>
+i_refvec<T>::~i_refvec() {
   if (ref_count_ != NULL) {
     (*ref_count_)--;
 

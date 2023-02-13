@@ -1,5 +1,6 @@
 #include <BlobbySurface.h>
 #include <ConfigFile.h>
+#include <Configuration.h>
 #include <ConnollySurface.h>
 #include <DelphiShared.h>
 #include <ExampleSurface.h>
@@ -10,9 +11,8 @@
 #include <globals.h>
 #include <logging.h>
 #include <main_functions.h>
-#include <memory>
 #include <pybind11/pybind11.h>
-#include <Configuration.h>
+#include <memory>
 
 namespace py = pybind11;
 
@@ -126,8 +126,8 @@ PYBIND11_MODULE(NanoShaper, m) {
       .def("stopDebug", &Configuration::stopDebug)
       .def("restartDebug", &Configuration::restartDebug);
   py::class_<ConfigFile, std::shared_ptr<ConfigFile>>(m, "ConfigFile")
-      .def(py::init<const std::string &, const std::string &,
-                    const std::string &, const std::string &, std::string &>(),
+      .def(py::init<const std::string&, const std::string&, const std::string&,
+                    const std::string&, std::string&>(),
            py::arg("filename"), py::arg("delimiter") = "=",
            py::arg("comment") = "#", py::arg("sentry") = "EndConfigFile",
            py::arg("format") = "plain")
@@ -136,8 +136,8 @@ PYBIND11_MODULE(NanoShaper, m) {
       .def("getString", &ConfigFile::readString, py::arg("key"))
       .def("getDouble", &ConfigFile::readFloat, py::arg("key"));
   py::class_<DelPhiShared, std::shared_ptr<DelPhiShared>>(m, "DelphiShared")
-      .def(py::init<const double &, const double &, const std::string &,
-                    const bool &, const bool &, const bool &, const bool &>(),
+      .def(py::init<const double&, const double&, const std::string&,
+                    const bool&, const bool&, const bool&, const bool&>(),
            py::arg("scale"), py::arg("perfill"), py::arg("fn"),
            py::arg("eps_flag"), py::arg("stat_flag"), py::arg("multi"),
            py::arg("atinfo") = false);

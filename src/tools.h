@@ -348,7 +348,7 @@ static const int triTable[256][16] = {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_POLY_DEGREE                                                      \
+#define MAX_POLY_DEGREE \
   10  // max polynomial degree supported by the bgp projection routine (6 is \
       // needed for skin, 4 by Connolly)
 
