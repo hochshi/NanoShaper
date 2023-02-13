@@ -1,6 +1,7 @@
 #include <BlobbySurface.h>
 #include <globals.h>
 #include <logging.h>
+#include <stdexcept>
 
 void BlobbySurface::init() {
   B = DEFAULT_BLOBBYNESS;
@@ -61,11 +62,7 @@ bool BlobbySurface::build() {
 
   if (scalarField == NULL) {
     logging::log<logging::level::err>("Cannot allocate scalar field!");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::overflow_error("Cannot allocate scalar field!");
   }
 
   for (int i = 0; i < delphi->nx; i++)

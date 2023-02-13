@@ -6,6 +6,7 @@
 //---------------------------------------------------------
 
 #include <Surface.h>
+#include <stdexcept>
 #include <tuple>
 #include <logging.h>
 
@@ -745,11 +746,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 				else
 				{
 					logging::log<logging::level::err>("Non existing direction during octree assembling!");
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+          throw std::runtime_error("Non existing direction during octree assembling!");
 				}
 
 				vertList.push_back(intersec);
@@ -928,11 +925,7 @@ exit(-1);
 		{
 			logging::log<logging::level::err>( "Number of bgp is {} and the maximum allowed is {}", bgp.size(), delphi->maxbgp);
 			logging::log<logging::level::err>("Please increase ibmx in DelPhi and recompile");
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+      throw std::logic_error("Number of bgp is larger than the the maximum allowed. Please increase ibmx in DelPhi and recompile");
 		}
 
 		if (bgp_type!=NULL)
@@ -1130,11 +1123,7 @@ void Surface::buildAtomsMap()
 		if (max_ind>=MAX_ATOMS_MULTI_GRID)
 		{
 			logging::log<logging::level::err>( "Increase Max_Atoms_Multi_Grid. Current value is {}", MAX_ATOMS_MULTI_GRID);
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+      throw std::logic_error("Increase Max_Atoms_Multi_Grid.");
 		}
 
 		//GRID_MULTI_MAP(ix,iy,iz,0,ggrid,ggrid,ggrid)=max_ind;
@@ -1282,11 +1271,7 @@ int Surface::getCavities(int idStart)
 	{
 		logging::log<logging::level::err>("Cannot do cavity detection without a status map");
 		logging::log<logging::level::info>("{} Please set Build_status_map = true", REMARK);
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif	
+    throw std::runtime_error("Cannot do cavity detection without a status map. Please set Build_status_map = true");
 	}
 
 	// free memory 
@@ -1966,12 +1951,7 @@ void Surface::floodFill(int ix,int iy,int iz,int idold,int idnew)
 					if (vec==NULL)
 					{
 						logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
-												
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+            throw std::overflow_error("Not enough memory to complete cavity detection, stopping");
 					}
 					delphi->cavitiesVec->push_back(vec);
 				}
@@ -1984,12 +1964,7 @@ exit(-1);
 				if (v==NULL)
 				{
 					logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
-					
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+          throw std::overflow_error("Not enough memory to complete cavity detection, stopping");
 				}
 				v[0] = cix;
 				v[1] = ciy;
@@ -2580,12 +2555,7 @@ void Surface::floodFill3(	pair<pair<int,int>,int > ind,
 							if (vec==NULL)
 							{
 								logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
-														
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+                throw std::overflow_error("Not enough memory to complete cavity detection, stopping");
 							}
 							delphi->cavitiesVec->push_back(vec);
 						}
@@ -2598,12 +2568,7 @@ exit(-1);
 						if (v==NULL)
 						{
 							logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
-							
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+              throw std::overflow_error("Not enough memory to complete cavity detection, stopping");
 						}
 						v[0] = ix;
 						v[1] = y1;
@@ -2733,13 +2698,8 @@ void Surface::floodFill2(int ix,int iy,int iz,int idold,int idnew)
 							vec = new vector<int*>();
 							if (vec==NULL)
 							{
-								logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
-														
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+                  logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
+                  throw std::overflow_error("Not enough memory to complete cavity detection, stopping");
 							}
 							delphi->cavitiesVec->push_back(vec);
 						}
@@ -2752,12 +2712,7 @@ exit(-1);
 						if (v==NULL)
 						{
 							logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
-							
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+              throw std::overflow_error("Not enough memory to complete cavity detection, stopping");
 						}
 						v[0] = ix;
 						v[1] = y1;
@@ -6531,11 +6486,7 @@ int Surface::linkCavities(short* st1,short* st2)
 			if (minDist2==INFINITY)
 			{
 				logging::log<logging::level::err>("During linkage, two non null cavities/pockets have no minimum distance bgps");
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+        throw std::runtime_error("During linkage, two non null cavities/pockets have no minimum distance bgps");
 			}
 
 			bool merge = false;
@@ -6634,11 +6585,7 @@ exit(-1);
 			if ((*sizeIt)!=0)
 			{
 				logging::log<logging::level::err>("Inconsistent volume agregation");
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+        throw std::runtime_error("Inconsistent volume agregation");
 			}
 
 			// delete size (already aggregated)
@@ -7095,11 +7042,7 @@ bool Surface::isCompletelyOut(double* pos)
 	if (delphi->status == NULL)
 	{
 		logging::log<logging::level::err>("Cannot compute if a point is completely out without the status map");
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
+    throw std::runtime_error("Cannot compute if a point is completely out without the status map");
 	}
 
 	int nx = delphi->nx;

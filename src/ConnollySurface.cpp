@@ -2,6 +2,7 @@
 #include <ConnollySurface.h>
 #include <globals.h>
 #include <logging.h>
+#include <stdexcept>
 #include <tools.h>
 #include <tuple>
 
@@ -257,11 +258,9 @@ bool ConnollySurface::buildAuxiliaryGrid() {
             logging::log<logging::level::err>(
                 "Number of connolly cells is superior to maximum allowed, "
                 "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of connolly cells is superior to maximum allowed, "
+                "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_CONNOLLY_CELL_MAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) =
               it;
@@ -1018,22 +1017,16 @@ bool ConnollySurface::buildConnollyCGAL() {
             logging::log<logging::level::err>(
                 "Too big probe, to support this probe increase "
                 "Self_Intersections_Grid_Coefficient\n");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Too big probe, to support this probe increase "
+                "Self_Intersections_Grid_Coefficient\n");
           }
 
           size_t max_ind = (size_t)SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid);
           max_ind++;
           if ((int)max_ind >= MAX_PROBES) {
             logging::log<logging::level::err>("Increase MAX_PROBES");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error("Increase MAX_PROBES");
           }
           SELF_MAP(ix, iy, iz, 0, ggrid, ggrid, ggrid) = (FacetCell *)max_ind;
           SELF_MAP(ix, iy, iz, max_ind, ggrid, ggrid, ggrid) = fc1;
@@ -1262,11 +1255,8 @@ bool ConnollySurface::buildConnollyCGAL() {
                                             ec->id[1]);
           logging::log<logging::level::err>(
               "Regular edge with no probe stations?");
-#ifdef PYTHON
-          throw std::exception();
-#else
-          exit(-1);
-#endif
+          throw std::runtime_error(
+              "Error at atoms. Regular edge with no probe stations?");
         }
 
         // now get the two planes that clip the torus and decide
@@ -1298,11 +1288,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           if (!found) {
             logging::log<logging::level::err>("Cannot detect correct plane!");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error("Cannot detect correct plane!");
           }
 
           found = false;
@@ -1327,11 +1313,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
           if (!found) {
             logging::log<logging::level::err>("Cannot detect correct plane!");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error("Cannot detect correct plane!");
           }
 
           // get the two reference vectors of the planes.
@@ -1353,11 +1335,8 @@ bool ConnollySurface::buildConnollyCGAL() {
           if ((index % 2) != 0) {
             logging::log<logging::level::err>(
                 "Torus circulator gives an odd number of probes!");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Torus circulator gives an odd number of probes!");
           }
 
           // manage this situation by explictly trasversing the set of stations
@@ -1385,11 +1364,7 @@ bool ConnollySurface::buildConnollyCGAL() {
               else {
                 logging::log<logging::level::err>(
                     "Incosistency in torus circulator");
-#ifdef PYTHON
-                throw std::exception();
-#else
-                exit(-1);
-#endif
+                throw std::runtime_error("Incosistency in torus circulator");
               }
 
               break;
@@ -1422,11 +1397,7 @@ bool ConnollySurface::buildConnollyCGAL() {
             }
             if (!found) {
               logging::log<logging::level::err>("Cannot identify plane!");
-#ifdef PYTHON
-              throw std::exception();
-#else
-              exit(-1);
-#endif
+              throw std::runtime_error("Cannot identify plane!");
             }
 
             double test = -DOT(mid2, plane);
@@ -1471,11 +1442,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
             if (!found) {
               logging::log<logging::level::err>("Cannot detect correct plane!");
-#ifdef PYTHON
-              throw std::exception();
-#else
-              exit(-1);
-#endif
+              throw std::runtime_error("Cannot detect correct plane!");
             }
 
             found = false;
@@ -1503,11 +1470,7 @@ bool ConnollySurface::buildConnollyCGAL() {
 
             if (!found) {
               logging::log<logging::level::err>("Cannot detect correct plane!");
-#ifdef PYTHON
-              throw std::exception();
-#else
-              exit(-1);
-#endif
+              throw std::runtime_error("Cannot detect correct plane!");
             }
 
             // get the two reference vectors of the planes.
@@ -2088,11 +2051,9 @@ void ConnollySurface::preProcessPanel() {
             logging::log<logging::level::err>(
                 "Number of connolly cells is superior to maximum allowed, "
                 "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of connolly cells is superior to maximum allowed, "
+                "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_CONNOLLY_CELL_MAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) =
               it;
@@ -2112,11 +2073,9 @@ void ConnollySurface::preProcessPanel() {
             logging::log<logging::level::err>(
                 "Number of connolly cells is superior to maximum allowed, "
                 "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of connolly cells is superior to maximum allowed, "
+                "please increase Max_ses_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_CONNOLLY_CELL_MAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) =
               it;
@@ -2134,11 +2093,9 @@ void ConnollySurface::preProcessPanel() {
             logging::log<logging::level::err>(
                 "Number of connolly cells is superior to maximum allowed, "
                 "please increase Max_ses_patches_per_auxiliary_grid_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of connolly cells is superior to maximum allowed, "
+                "please increase Max_ses_patches_per_auxiliary_grid_cell");
           }
           GRID_CONNOLLY_CELL_MAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) =
               it;

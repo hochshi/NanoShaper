@@ -1,6 +1,7 @@
 
 #include <DelphiShared.h>
 #include <logging.h>
+#include <stdexcept>
 #include <tools.h>
 
 void DelPhiShared::init() {
@@ -41,21 +42,14 @@ void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
   if (!flag) {
     logging::log<logging::level::err>(
         "Missing or corrupt atoms file. Initialization failed");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::invalid_argument(
+        "Missing or corrupt atoms file. Initialization failed");
   }
 
   flag = buildGrid(scale, perfill);
   if (!flag) {
     logging::log<logging::level::err>("Initialization failed");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::runtime_error("Initialization failed");
   }
   logging::log<logging::level::info>("Initialization completed");
 }
@@ -242,11 +236,9 @@ int DelPhiShared::loadAtoms(string fn) {
               "Cannot get the dielectric value of the atom number {}; please "
               "add it after radius entry to the xyzr input file",
               x.size());
-#ifdef PYTHON
-          throw std::exception();
-#else
-          exit(-1);
-#endif
+          throw std::runtime_error(
+              "Cannot get the dielectric value of an atom number; please "
+              "add it after radius entry to the xyzr input file");
         }
         d.push_back(d_);
         ai.emplace_back(string(name), resid, string(resName), string(chain));
@@ -271,22 +263,16 @@ int DelPhiShared::loadAtoms(string fn) {
         REMARK);
     logging::log<logging::level::info>(
         "{} at the same centers of the real atoms", REMARK);
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::invalid_argument("NanoShaper needs at least 4 atoms to work.");
   }
 
   if (max_rad == 0) {
     logging::log<logging::level::err>(
         "All null radii? If you are using place holders atoms please "
         "set at least one radius > 0");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::invalid_argument(
+        "All null radii? If you are using place holders atoms please "
+        "set at least one radius > 0");
   }
 
   return loadAtoms(numAtoms, x.data(), y.data(), z.data(), r.data(), q.data(),
@@ -550,11 +536,7 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
     if (status == NULL) {
       logging::log<logging::level::err>(
           "Not enough memory to allocate status map");
-#ifdef PYTHON
-      throw std::exception();
-#else
-      exit(-1);
-#endif
+      throw std::runtime_error("Not enough memory to allocate status map");
     }
 
     for (int i = 0; i < tot; i++)
@@ -939,11 +921,7 @@ int DelPhiShared::cavitiesToAtoms(double rad) {
 
     if (count == 0) {
       logging::log<logging::level::err>("Zero support atoms to save");
-#ifdef PYTHON
-      throw std::exception();
-#else
-      exit(-1);
-#endif
+      throw std::runtime_error("Zero support atoms to save");
     }
 
     // clone atoms to let NanoShaper work on this set of points

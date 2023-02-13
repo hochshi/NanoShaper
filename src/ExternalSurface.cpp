@@ -2,6 +2,7 @@
 #include <ExternalSurface.h>
 #include <globals.h>
 #include <logging.h>
+#include <stdexcept>
 
 void ExternalSurface::init() { surfType = GENERIC_SURFACE; }
 
@@ -128,11 +129,7 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
         if (check <= 0) {
           logging::log<logging::level::err>(
               "Error in reading from external surface");
-#ifdef PYTHON
-          throw std::exception();
-#else
-          exit(-1);
-#endif
+          throw std::runtime_error("Error in reading from external surface");
         }
         if (tempint)
           inside = tempint;
@@ -155,11 +152,7 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
         if (check <= 0) {
           logging::log<logging::level::err>(
               "Error in reading from external surface");
-#ifdef PYTHON
-          throw std::exception();
-#else
-          exit(-1);
-#endif
+          throw std::runtime_error("Error in reading from external surface");
         }
         // delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ)=tempint;
         write4DVector<int>(delphi->epsmap, tempint, ix, iy, iz, 1, NX, NY, NZ,
@@ -179,11 +172,7 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
         if (check <= 0) {
           logging::log<logging::level::err>(
               "Error in reading from external surface");
-#ifdef PYTHON
-          throw std::exception();
-#else
-          exit(-1);
-#endif
+          throw std::runtime_error("Error in reading from external surface");
         }
         // delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ)=tempint;
         write4DVector<int>(delphi->epsmap, tempint, ix, iy, iz, 2, NX, NY, NZ,
@@ -199,11 +188,7 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
   int check = fscanf(fproj, "%d", &nbgp);
   if (check <= 0) {
     logging::log<logging::level::err>("Error in reading from external surface");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::runtime_error("Error in reading from external surface");
   }
 
   if (nbgp <= 0) {
@@ -230,11 +215,7 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
     if (check <= 0) {
       logging::log<logging::level::err>(
           "Error in reading from external surface");
-#ifdef PYTHON
-      throw std::exception();
-#else
-      exit(-1);
-#endif
+      throw std::runtime_error("Error in reading from external surface");
     }
 
     ind[0] -= 1;
@@ -268,11 +249,7 @@ bool ExternalSurface::getSurf(bool fillCav, double vol) {
         if (check <= 0) {
           logging::log<logging::level::err>(
               "Error in reading from external surface");
-#ifdef PYTHON
-          throw std::exception();
-#else
-          exit(-1);
-#endif
+          throw std::runtime_error("Error in reading from external surface");
         }
         // delphi->status[ix][iy][iz]=((char)tempint);
         // delphi->STATUSMAP(ix,iy,iz,NX,NY)=((short)tempint);

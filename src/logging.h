@@ -1,19 +1,18 @@
 #ifndef logging_h
 #define logging_h
 
-#include "spdlog/common.h"
 #include <string>
 #include <utility>
 
 #ifdef SPDLOG_ENABLED
 #include <spdlog/spdlog.h>
 
-template <typename... Args>
-using format_string_t = spdlog::format_string_t<Args...>;
+// template <typename... Args>
+// using format_string_t = spdlog::format_string_t<Args...>;
 
-#else
-template <typename... Args> using format_string_t = std::string_view;
-
+// #else
+// template <typename... Args> using format_string_t = std::string;
+// template <typename... Args> using format_string_t = std::string_view;
 #endif // SPDLOG_ENABLED
 
 namespace logging {

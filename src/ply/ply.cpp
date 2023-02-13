@@ -215,11 +215,7 @@ void ply_readOverhead(FILE *in, int format, int oh) {
       int check = fscanf(in, "%s", token);
       if (check <= 0) {
         logging::log<logging::level::err>("Error in reading ply file");
-#ifdef PYTHON
         throw std::domain_error("Error in reading ply file!");
-#else
-        exit(-1);
-#endif
       }
     }
   else
@@ -266,11 +262,7 @@ int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y,
     int check = fscanf(in, "%d %d %d %d", nv, x, y, z);
     if (check <= 0) {
       logging::log<logging::level::err>("Error in reading ply file!");
-#ifdef PYTHON
       throw std::domain_error("Error in reading ply file!");
-#else
-      exit(-1);
-#endif
     }
     return 1;
   }
@@ -278,21 +270,13 @@ int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y,
   size_t check = fread(&nvs, 1, 1, in);
   if (check <= (size_t)0) {
     logging::log<logging::level::err>("Error in reading ply file!");
-#ifdef PYTHON
     throw std::domain_error("Error in reading ply file!");
-#else
-    exit(-1);
-#endif
   }
   *nv = (int)nvs;
   check = fread(vc, 4, 3, in);
   if (check <= (size_t)0) {
     logging::log<logging::level::err>("Error in reading ply file!");
-#ifdef PYTHON
     throw std::domain_error("Error in reading ply file!");
-#else
-    exit(-1);
-#endif
   }
   *x = vc[0];
   *y = vc[1];

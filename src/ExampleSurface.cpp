@@ -1,6 +1,7 @@
 #include <ExampleSurface.h>
 #include <globals.h>
 #include <logging.h>
+#include <stdexcept>
 
 // denstructor should always call a clear function
 // this makes the code clearer and it allows to reset an object
@@ -113,11 +114,7 @@ inline void ExampleSurface::getRayIntersection(
     }
   } else {
     logging::log<logging::level::err>("Panel does not exist!");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::runtime_error("Panel does not exist!");
   }
 
   if (hasIntersection) {

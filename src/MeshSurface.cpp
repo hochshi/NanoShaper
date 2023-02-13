@@ -2,6 +2,7 @@
 #include <MeshSurface.h>
 #include <globals.h>
 #include <logging.h>
+#include <stdexcept>
 
 void MeshSurface::clear() {
   if (faceMatrix != NULL)
@@ -94,11 +95,7 @@ void MeshSurface::init(ConfigurationOP cf) {
     bool load_f = load((char *)fname.c_str());
     if (!load_f) {
       logging::log<logging::level::err>("Cannot load {}", fname);
-#ifdef PYTHON
-      throw std::exception();
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument("Cannot load off file");
     }
   } else if (!ext.compare("vert") || !ext.compare("face")) {
     // Load MSMS surface[s]
@@ -106,11 +103,7 @@ void MeshSurface::init(ConfigurationOP cf) {
                            numMSMSFiles);
     if (!load_f) {
       logging::log<logging::level::err>("Cannot load {}", fname);
-#ifdef PYTHON
-      throw std::exception();
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument("Cannot load MSMS file");
     }
     char cc[BUFLEN];
     strcpy(cc, "msms.off");
@@ -118,11 +111,8 @@ void MeshSurface::init(ConfigurationOP cf) {
   } else {
     logging::log<logging::level::err>(
         "Unknown surface type, please check extension/type");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::invalid_argument(
+        "Unknown surface type, please check extension/type");
   }
 }
 
@@ -292,11 +282,9 @@ void MeshSurface::preProcessPanel() {
             logging::log<logging::level::err>(
                 "Number of triangles is superior to maximum allowed, please "
                 "increase Max_mesh_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of triangles is superior to maximum allowed, please "
+                "increase Max_mesh_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_TRIANGLEMAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) = it;
           ind_2d[iy][iz]++;
@@ -315,11 +303,9 @@ void MeshSurface::preProcessPanel() {
             logging::log<logging::level::err>(
                 "Number of triangles is superior to maximum allowed, please "
                 "increase Max_mesh_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of triangles is superior to maximum allowed, please "
+                "increase Max_mesh_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_TRIANGLEMAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) = it;
           ind_2d[ix][iy]++;
@@ -336,11 +322,9 @@ void MeshSurface::preProcessPanel() {
             logging::log<logging::level::err>(
                 "Number of triangles is superior to maximum allowed, please "
                 "increase Max_mesh_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of triangles is superior to maximum allowed, please "
+                "increase Max_mesh_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_TRIANGLEMAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) = it;
           ind_2d[ix][iz]++;
@@ -571,11 +555,8 @@ bool MeshSurface::buildAuxiliaryGrid() {
         iy_end >= ny || iz_end >= nz) {
       logging::log<logging::level::err>(
           "Triangle bounding box out of grid. Increase perfil");
-#ifdef PYTHON
-      throw std::exception();
-#else
-      exit(-1);
-#endif
+      throw std::runtime_error(
+          "Triangle bounding box out of grid. Increase perfil");
     }
 
     bool assigned = false;
@@ -592,11 +573,9 @@ bool MeshSurface::buildAuxiliaryGrid() {
             logging::log<logging::level::err>(
                 "Number of triangles is superior to maximum allowed, please "
                 "increase Max_mesh_patches_per_auxiliary_grid_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of triangles is superior to maximum allowed, please "
+                "increase Max_mesh_patches_per_auxiliary_grid_cell");
           }
           // gridTriangleMap[ix][iy][iz][ind[ix][iy][iz]]=it;
           GRIDTRIANGLEMAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) = it;

@@ -4,6 +4,7 @@
 #include <logging.h>
 #include <main_functions.h>
 #include <memory>
+#include <stdexcept>
 
 // init streams, check configuration file for errors and read variables
 ConfigFileOP load(std::string confFile, string delimiter, string comment,
@@ -18,11 +19,7 @@ ConfigFileOP load(std::string confFile, string delimiter, string comment,
                                       sentry, format);
   } catch (...) {
     logging::log<logging::level::err>("Cannot read {}", confFile);
-#ifdef PYTHON
-    throw std::invalid_argument("");
-#else
-    exit(-1);
-#endif
+    throw std::invalid_argument("Cannog read config file");
   }
 
   return cf;
@@ -57,11 +54,8 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "Asked to save epsmap without builiding it");
       logging::log<logging::level::info>(
           "{} Please set Build_epsilon_maps = true", REMARK);
-#ifdef PYTHON
-      throw std::invalid_argument("");
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument("Asked to save epsmap without building it! "
+                                  "Please set Build_epsilon_maps to true.");
     }
 
     if (!conf->buildEpsmaps && conf->projBGP) {
@@ -69,11 +63,9 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "Cannot project boundary grid points without an epsilon map.");
       logging::log<logging::level::info>(
           "{} Please set Build_epsilon_maps = true", REMARK);
-#ifdef PYTHON
-      throw std::invalid_argument("");
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument(
+          "Cannot project boundary grid points without an epsilon map. Please "
+          "set Build_epsilon_maps = true");
     }
 
     if (!conf->accTri && !conf->buildStatus && conf->tri) {
@@ -82,11 +74,9 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "If non analytical triangulation is enabled status map is needed.");
       logging::log<logging::level::info>(
           "{} Please set Build_status_map = true", REMARK);
-#ifdef PYTHON
-      throw std::invalid_argument("");
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument(
+          "If non analytical triangulation is enabled status map is needed. "
+          "Please set Build_status_map = true");
     }
 
     if (conf->fillCavities && !conf->buildStatus) {
@@ -95,11 +85,9 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "If cavity detection is enabled status map is needed.");
       logging::log<logging::level::info>(
           "{} Please set Build_status_map = true", REMARK);
-#ifdef PYTHON
-      throw std::invalid_argument("");
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument(
+          "If cavity detection is enabled status map is needed. Please set "
+          "Build_status_map = true");
     }
 
     if (conf->saveIdebmap && !conf->buildEpsmaps) {
@@ -107,11 +95,9 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "Idebmap is computed only if epsilon map is enabled");
       logging::log<logging::level::info>(
           "{} Please set Build_epsilon_maps = true", REMARK);
-#ifdef PYTHON
-      throw std::invalid_argument("");
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument(
+          "Idebmap is computed only if epsilon map is enabled. Please set "
+          "Build_epsilon_maps = true");
     }
 
     if (!conf->operativeMode.compare("pockets") && !conf->buildStatus) {
@@ -119,12 +105,8 @@ ConfigurationOP parse(ConfigFileOP cf) {
           "Cannot do pocket detection without status map");
       logging::log<logging::level::info>(
           "{} Please set Build_status_map = true", REMARK);
-
-#ifdef PYTHON
-      throw std::invalid_argument("");
-#else
-      exit(-1);
-#endif
+      throw std::invalid_argument("Cannot do pocket detection without status "
+                                  "map. Please set Build_status_map = true");
     }
   }
 
@@ -244,11 +226,7 @@ void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf) {
 
   if (!outsurf) {
     logging::log<logging::level::err>("Surface construction failed!");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::runtime_error("Surface construction failed!");
   }
 
   // Build DelPhi stuff
@@ -370,11 +348,7 @@ void pocketMode(bool hasAtomInfo, ConfigurationOP cf, ConfigurationOP conf) {
 
   if (!outsurf) {
     logging::log<logging::level::err>("Surface 1 construction failed!");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::runtime_error("Surface 1 construction failed!");
   }
 
   // fat connolly cancel each cavity (anyway they are smaller than they should
@@ -412,11 +386,7 @@ void pocketMode(bool hasAtomInfo, ConfigurationOP cf, ConfigurationOP conf) {
 
   if (!outsurf) {
     logging::log<logging::level::err>("Surface 2 construction failed!");
-#ifdef PYTHON
-    throw std::exception();
-#else
-    exit(-1);
-#endif
+    throw std::runtime_error("Surface 2 construction failed!");
   }
 
   // if cav and pockets together -> do not perform cavity detection (keep all)
@@ -464,11 +434,7 @@ exit(-1);
 
     if (!outsurf) {
       logging::log<logging::level::err>("Surface 3 construction failed!");
-#ifdef PYTHON
-      throw std::exception();
-#else
-      exit(-1);
-#endif
+      throw std::runtime_error("Surface 3 construction failed!");
     }
     // keep original surface
     surf3->getSurf(false);
@@ -593,11 +559,9 @@ exit(-1);
                 "{} You have to enable Cavities and pockets flag to "
                 "do a distinction between a pocket and a cavity",
                 REMARK);
-#ifdef PYTHON
-            throw std::invalid_argument("");
-#else
-            exit(-1);
-#endif
+            throw std::invalid_argument(
+                " You have to enalbe Cavities and pockets flag to do a "
+                "distinction between a pocket and a cavity.");
           }
         } else {
           // is a pocket, we can identify the entrance
@@ -710,8 +674,8 @@ exit(-1);
                 areas[i], areas2[ii]);
             if (conf->debugStatus) {
               logging::log<logging::level::debug>("pocket_vol {}", volumes[i]);
-              logging::log<logging::level::debug>("pocket_area {} pocket_body_area {}", areas[i],
-                            areas2[i]);
+              logging::log<logging::level::debug>(
+                  "pocket_area {} pocket_body_area {}", areas[i], areas2[i]);
             }
             ii++;
           } else {

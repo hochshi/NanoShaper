@@ -1,6 +1,7 @@
 #include <SkinSurface.h>
 #include <globals.h>
 #include <logging.h>
+#include <stdexcept>
 
 void SkinSurface::clear() {
   if (gridMixedCellMap != NULL)
@@ -119,11 +120,8 @@ bool SkinSurface::build() {
 #else
   logging::log<logging::level::err>(
       "Skin surface cannot be used, please install CGAL and rebuild\n");
-#ifdef PYTHON
-  throw std::exception();
-#else
-  exit(-1);
-#endif
+  throw std::logic_error(
+      "Skin surface cannot be used, please install CGAL and rebuild\n");
 #endif
   if (!f) {
     logging::log<logging::level::err>("Error during skin build-up");
@@ -1608,11 +1606,10 @@ void SkinSurface::preProcessPanel() {
                 "Number of mixed cells is superior to maximum allowed, "
                 "please increase "
                 "Max_skin_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase "
+                "Max_skin_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_MIXEDCELLMAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) = it;
           ind_2d[iy][iz]++;
@@ -1632,11 +1629,10 @@ void SkinSurface::preProcessPanel() {
                 "Number of mixed cells is superior to maximum allowed, "
                 "please increase "
                 "Max_skin_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase "
+                "Max_skin_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_MIXEDCELLMAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) = it;
           ind_2d[ix][iy]++;
@@ -1654,11 +1650,10 @@ void SkinSurface::preProcessPanel() {
                 "Number of mixed cells is superior to maximum allowed, "
                 "please increase "
                 "Max_skin_patches_per_auxiliary_grid_2d_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase "
+                "Max_skin_patches_per_auxiliary_grid_2d_cell");
           }
           GRID_MIXEDCELLMAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) = it;
           ind_2d[ix][iz]++;
@@ -1872,11 +1867,9 @@ bool SkinSurface::buildAuxiliaryGrid() {
             logging::log<logging::level::err>(
                 "Number of mixed cells is superior to maximum allowed, "
                 "please increase Max_skin_patches_per_auxiliary_grid_cell");
-#ifdef PYTHON
-            throw std::exception();
-#else
-            exit(-1);
-#endif
+            throw std::runtime_error(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase Max_skin_patches_per_auxiliary_grid_cell");
           }
           GRIDMIXEDCELLMAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) = it;
           ind[ix][iy][iz]++;
