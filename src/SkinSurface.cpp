@@ -1,9 +1,6 @@
-#include "globals.h"
 #include <SkinSurface.h>
-
-#ifdef SPDLOG
-#include <spdlog/spdlog.h>
-#endif
+#include <globals.h>
+#include <logging.h>
 
 void SkinSurface::clear() {
   if (gridMixedCellMap != NULL)
@@ -120,15 +117,16 @@ bool SkinSurface::build() {
 #ifdef ENABLE_CGAL
   f = buildSkinCGAL();
 #else
-  spdlog::error("Skin surface cannot be used, please install CGAL and rebuild\n");
+  logging::log<logging::level::err>(
+      "Skin surface cannot be used, please install CGAL and rebuild\n");
 #ifdef PYTHON
-throw std::exception();
+  throw std::exception();
 #else
-exit(-1);
+  exit(-1);
 #endif
 #endif
   if (!f) {
-    spdlog::error("Error during skin build-up");
+    logging::log<logging::level::err>("Error during skin build-up");
   }
   return f;
 }
@@ -162,7 +160,7 @@ bool SkinSurface::buildSkinCGAL() {
   time_t start, end;
   time(&start);
 
-  spdlog::info("Building skin surface..");
+  logging::log<logging::level::info>("Building skin surface..");
 
   for (int i = 0; i < delphi->numAtoms; i++) {
     delphi->atoms[i]->pos[0] =
@@ -220,16 +218,16 @@ bool SkinSurface::buildSkinCGAL() {
   l.emplace_back(Weighted_point(Point(mid_x, mid_y, max_z), -1),
                  delphi->numAtoms + 5);
 
-  spdlog::info("Regular triangulation....");
+  logging::log<logging::level::info>("Regular triangulation....");
 
   rT.insert(l.begin(), l.end());
 
   assert(rT.is_valid());
   assert(rT.dimension() == 3);
 
-  spdlog::info("ok!");
+  logging::log<logging::level::info>("ok!");
 
-  spdlog::info("Computing 3-Delaunay patches...");
+  logging::log<logging::level::info>("Computing 3-Delaunay patches...");
 
   int currentCell = 0;
   int num_d3_v0_patches = 0;
@@ -357,7 +355,7 @@ bool SkinSurface::buildSkinCGAL() {
     ///////////////////////////////////////////////
   }
 
-  spdlog::info("ok!");
+  logging::log<logging::level::info>("ok!");
   currentCell--;
   type[DELAUNAY_TETRA_CELL] = currentCell;
 
@@ -366,7 +364,7 @@ bool SkinSurface::buildSkinCGAL() {
   ///(Skin) //////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  spdlog::info("Computing 0-Delaunay patches...");
+  logging::log<logging::level::info>("Computing 0-Delaunay patches...");
 
   vector<Cell_handle> cells;
   cells.reserve(1000);
@@ -438,7 +436,7 @@ bool SkinSurface::buildSkinCGAL() {
     numPoints = 0;
   }
 
-  spdlog::info("ok!");
+  logging::log<logging::level::info>("ok!");
   type[DELAUNAY_POINT_CELL] = cellCount;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -446,7 +444,7 @@ bool SkinSurface::buildSkinCGAL() {
   ////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  spdlog::info("Computing 1-Delaunay patches...");
+  logging::log<logging::level::info>("Computing 1-Delaunay patches...");
 
   // Skin Surface needs the remaining solids
   int num_d1_v2_patches = 0;
@@ -512,10 +510,10 @@ bool SkinSurface::buildSkinCGAL() {
 
       if (p1 == NULL) {
         for (int j = 0; j < 4; j++)
-          spdlog::error(ci->ids[j]);
+          logging::log<logging::level::err>("{}", ci->ids[j]);
 
-        spdlog::error("Index not found");
-        spdlog::error(refAtom1);
+        logging::log<logging::level::err>("Index not found");
+        logging::log<logging::level::err>("{}", refAtom1);
 
         for (unsigned int i = 0; i < tempMixedComplex.size(); i++)
           delete tempMixedComplex[i];
@@ -547,10 +545,10 @@ bool SkinSurface::buildSkinCGAL() {
 
       if (p2 == NULL) {
         for (int j = 0; j < 4; j++)
-          spdlog::error(ci->ids[j]);
+          logging::log<logging::level::err>("{}", ci->ids[j]);
 
-        spdlog::error("Index not found");
-        spdlog::error(refAtom2);
+        logging::log<logging::level::err>("Index not found");
+        logging::log<logging::level::err>("{}", refAtom2);
         for (unsigned int i = 0; i < tempMixedComplex.size(); i++)
           delete tempMixedComplex[i];
         return false;
@@ -779,10 +777,10 @@ bool SkinSurface::buildSkinCGAL() {
   ////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  spdlog::info("ok!");
+  logging::log<logging::level::info>("ok!");
   int num_d2_v1_patches = 0;
 
-  spdlog::info("Computing 2-Delaunay patches...");
+  logging::log<logging::level::info>("Computing 2-Delaunay patches...");
 
   upperPoints.reserve(3);
   lowerPoints.reserve(3);
@@ -859,7 +857,8 @@ bool SkinSurface::buildSkinCGAL() {
 
       // weird..
       if (p2 == NULL || p1 == NULL) {
-        spdlog::error("Two adjacent tethraedra does not share the same 3 atoms!");
+        logging::log<logging::level::err>(
+            "Two adjacent tethraedra does not share the same 3 atoms!");
         for (unsigned int i = 0; i < tempMixedComplex.size(); i++)
           delete tempMixedComplex[i];
         return false;
@@ -1082,18 +1081,20 @@ bool SkinSurface::buildSkinCGAL() {
        tempMixedComplex.end() != it; it++, k++)
     mixedComplex[k] = (*it);
 
-  spdlog::info("ok!");
+  logging::log<logging::level::info>("ok!");
   double duration;
   time(&end);
   duration = difftime(end, start);
-  spdlog::info("Surface build-up time.. {} [s]", duration);
+  logging::log<logging::level::info>("Surface build-up time.. {} [s]",
+                                     duration);
 
   // remove references to atom patches
   free(atomPatches);
 
   if (savePovRay) {
     ofstream of;
-    spdlog::info("Saving surface in Pov-Ray in skin.pov...");
+    logging::log<logging::level::info>(
+        "Saving surface in Pov-Ray in skin.pov...");
     of.open("skin.pov");
     of << "#include \"shapes.inc\" ";
     of << "\n#include \"colors.inc\" ";
@@ -1114,7 +1115,7 @@ bool SkinSurface::buildSkinCGAL() {
       MixedCell *mc = mixedComplex[k];
       saveSkinPatch(of, mc, k, l);
     }
-    spdlog::info("ok!");
+    logging::log<logging::level::info>("ok!");
     of.close();
   }
 
@@ -1505,7 +1506,8 @@ void SkinSurface::preProcessPanel() {
   unsigned int max_t = 0;
 
   if (mixedComplex == NULL) {
-    spdlog::warn("Cannot get surface without a computed mixed complex!");
+    logging::log<logging::level::warn>(
+        "Cannot get surface without a computed mixed complex!");
     return;
   }
 
@@ -1602,11 +1604,14 @@ void SkinSurface::preProcessPanel() {
             max_t = ind_2d[iy][iz];
 
           if (ind_2d[iy][iz] >= MAX_MIXEDCELLS_2D) {
-            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
+            logging::log<logging::level::err>(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase "
+                "Max_skin_patches_per_auxiliary_grid_2d_cell");
 #ifdef PYTHON
-throw std::exception();
+            throw std::exception();
 #else
-exit(-1);
+            exit(-1);
 #endif
           }
           GRID_MIXEDCELLMAP_2D(iy, iz, (ind_2d[iy][iz]), ny_2d, nz_2d) = it;
@@ -1623,11 +1628,14 @@ exit(-1);
             max_t = ind_2d[ix][iy];
 
           if (ind_2d[ix][iy] >= MAX_MIXEDCELLS_2D) {
-            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
+            logging::log<logging::level::err>(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase "
+                "Max_skin_patches_per_auxiliary_grid_2d_cell");
 #ifdef PYTHON
-throw std::exception();
+            throw std::exception();
 #else
-exit(-1);
+            exit(-1);
 #endif
           }
           GRID_MIXEDCELLMAP_2D(ix, iy, (ind_2d[ix][iy]), nx_2d, ny_2d) = it;
@@ -1642,11 +1650,14 @@ exit(-1);
             max_t = ind_2d[ix][iz];
 
           if (ind_2d[ix][iz] >= MAX_MIXEDCELLS_2D) {
-            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase " "Max_skin_patches_per_auxiliary_grid_2d_cell");
+            logging::log<logging::level::err>(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase "
+                "Max_skin_patches_per_auxiliary_grid_2d_cell");
 #ifdef PYTHON
-throw std::exception();
+            throw std::exception();
 #else
-exit(-1);
+            exit(-1);
 #endif
           }
           GRID_MIXEDCELLMAP_2D(ix, iz, (ind_2d[ix][iz]), nx_2d, nz_2d) = it;
@@ -1698,7 +1709,7 @@ bool SkinSurface::buildAuxiliaryGrid() {
   // auxiliary scale
   scale = delphi->scale / ((double)gridMul);
 
-  spdlog::info("Auxiliary grid is {}", igrid);
+  logging::log<logging::level::info>("Auxiliary grid is {}", igrid);
 
   xmin = delphi->baricenter[0] - (igrid - 1) / (2 * scale);
   ymin = delphi->baricenter[1] - (igrid - 1) / (2 * scale);
@@ -1733,7 +1744,9 @@ bool SkinSurface::buildAuxiliaryGrid() {
   if (gridMixedCellMap != NULL)
     deleteVector<int>(gridMixedCellMap);
 
-  spdlog::info("Allocating {} MB for the auxiliary grid...", (nx * ny * nz * MAX_MIXEDCELLS) * sizeof(int) / 1024.0 / 1024.0);
+  logging::log<logging::level::info>(
+      "Allocating {} MB for the auxiliary grid...",
+      (nx * ny * nz * MAX_MIXEDCELLS) * sizeof(int) / 1024.0 / 1024.0);
   gridMixedCellMap = allocateVector<int>(nx * ny * nz * MAX_MIXEDCELLS);
 
   ind = allocateMatrix3D<unsigned short>(nx, ny, nz);
@@ -1751,18 +1764,19 @@ bool SkinSurface::buildAuxiliaryGrid() {
   for (int i = 0; i < nz; i++)
     z[i] = zmin + i * side;
 
-  spdlog::info("ok!");
+  logging::log<logging::level::info>("ok!");
   //////////////////////////////////////////////////////////////////////////
 
   if (mixedComplex == NULL) {
-    spdlog::warn("Cannot get surface without a computed mixed complex!");
+    logging::log<logging::level::warn>(
+        "Cannot get surface without a computed mixed complex!");
     return false;
   }
   // build a bounding box for each mixed cell and map it to
   // the auxiliary grid
   int max_t = 0;
 
-  spdlog::info("Mapping auxiliary grid...");
+  logging::log<logging::level::info>("Mapping auxiliary grid...");
 
   for (int it = 0; it < numMixedCells; it++) {
     // mixed cell points
@@ -1855,11 +1869,13 @@ bool SkinSurface::buildAuxiliaryGrid() {
             max_t = ind[ix][iy][iz];
 
           if (ind[ix][iy][iz] >= MAX_MIXEDCELLS) {
-            spdlog::error("Number of mixed cells is superior to maximum allowed, " "please increase Max_skin_patches_per_auxiliary_grid_cell");
+            logging::log<logging::level::err>(
+                "Number of mixed cells is superior to maximum allowed, "
+                "please increase Max_skin_patches_per_auxiliary_grid_cell");
 #ifdef PYTHON
-throw std::exception();
+            throw std::exception();
 #else
-exit(-1);
+            exit(-1);
 #endif
           }
           GRIDMIXEDCELLMAP(ix, iy, iz, (ind[ix][iy][iz]), nx, ny, nz) = it;
@@ -1869,8 +1885,9 @@ exit(-1);
     // printf(" out");
   }
 
-  spdlog::info("ok!");
-  spdlog::info("Max mixed cells per auxiliary cell -> {}", max_t);
+  logging::log<logging::level::info>("ok!");
+  logging::log<logging::level::info>("Max mixed cells per auxiliary cell -> {}",
+                                     max_t);
 
   return true;
 }
@@ -1880,15 +1897,16 @@ bool SkinSurface::save(char *fileName) {
   ofstream fout;
   fout.open(fileName, ios::out);
 
-  spdlog::info("Writing skin in .skin file format in {}", fileName);
+  logging::log<logging::level::info>("Writing skin in .skin file format in {}",
+                                     fileName);
 
   if (fout.fail()) {
-    spdlog::warn("Cannot write file {}", fileName);
+    logging::log<logging::level::warn>("Cannot write file {}", fileName);
     return false;
   }
 
   if (mixedComplex == NULL) {
-    spdlog::warn("Cannot write null mesh!");
+    logging::log<logging::level::warn>("Cannot write null mesh!");
     return false;
   }
 
@@ -1899,7 +1917,7 @@ bool SkinSurface::save(char *fileName) {
 bool SkinSurface::load(char *fileName) {
   int len = (int)strlen(fileName);
   if (len == 0) {
-    spdlog::warn("Cannot load with empty file name!");
+    logging::log<logging::level::warn>("Cannot load with empty file name!");
     return false;
   }
 
@@ -1908,23 +1926,26 @@ bool SkinSurface::load(char *fileName) {
 }
 
 void SkinSurface::printSummary() {
-  spdlog::info("Shrinking value {}", getShrinking());
+  logging::log<logging::level::info>("Shrinking value {}", getShrinking());
   if (mixedComplex == NULL) {
-    spdlog::warn("Skin surface not loaded!");
+    logging::log<logging::level::warn>("Skin surface not loaded!");
   } else {
-    spdlog::info("Number of mixed cells -> {}", numMixedCells);
-    spdlog::info("Number of del_point/vor_cell -> {}", type[0]);
-    spdlog::info("Number of del_edge/vor_facet -> {}", type[1]);
-    spdlog::info("Number of del_facet/vor_edge -> {}", type[2]);
-    spdlog::info("Number of del_cell/vor_point -> {}", type[3]);
+    logging::log<logging::level::info>("Number of mixed cells -> {}",
+                                       numMixedCells);
+    logging::log<logging::level::info>("Number of del_point/vor_cell -> {}",
+                                       type[0]);
+    logging::log<logging::level::info>("Number of del_edge/vor_facet -> {}",
+                                       type[1]);
+    logging::log<logging::level::info>("Number of del_facet/vor_edge -> {}",
+                                       type[2]);
+    logging::log<logging::level::info>("Number of del_cell/vor_point -> {}",
+                                       type[3]);
 
-#ifdef SPDLOG
-    spdlog::info("mixedcells {}", numMixedCells);
-    spdlog::info("del_point {}", type[0]);
-    spdlog::info("del_edge {}", type[1]);
-    spdlog::info("del_facet {}", type[2]);
-    spdlog::info("del_cell {}", type[3]);
-#endif
+    logging::log<logging::level::info>("mixedcells {}", numMixedCells);
+    logging::log<logging::level::info>("del_point {}", type[0]);
+    logging::log<logging::level::info>("del_edge {}", type[1]);
+    logging::log<logging::level::info>("del_facet {}", type[2]);
+    logging::log<logging::level::info>("del_cell {}", type[3]);
   }
 }
 
@@ -1990,7 +2011,7 @@ bool SkinSurface::isFeasible(MixedCell *mc, double *point) {
 
     return true;
   } else {
-    spdlog::error("Unrecognized patch type!");
+    logging::log<logging::level::err>("Unrecognized patch type!");
     return false;
   }
 }
@@ -2516,9 +2537,7 @@ bool SkinSurface::getProjection(double p[3], double *proj1, double *proj2,
 #ifdef ENABLE_BOOST_THREADS
       boost::mutex::scoped_lock scopedLock(mutex);
 #endif
-#ifdef SPDLOG
-      spdlog::warn("Approximating bgp with grid point");
-#endif
+      logging::log<logging::level::warn>("Approximating bgp with grid point");
     }
     (*proj1) = p[0];
     (*proj2) = p[1];

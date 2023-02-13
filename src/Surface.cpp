@@ -7,10 +7,7 @@
 
 #include <Surface.h>
 #include <tuple>
-
-#ifdef SPDLOG
-#include <spdlog/spdlog.h>
-#endif
+#include <logging.h>
 
 void Surface::init()
 {
@@ -207,26 +204,26 @@ Surface::~Surface()
 
 bool Surface::build()
 {
-	spdlog::warn("Build surface not supported!");
+	logging::log<logging::level::warn>("Build surface not supported!");
 	return false;
 }
 
 
 bool Surface::save(char* fileName)
 {
-	spdlog::warn("Save surface not supported!");
+	logging::log<logging::level::warn>("Save surface not supported!");
 	return false;
 }
 
 bool Surface::load(char* fileName)
 {
-	spdlog::warn("Load surface not supported");
+	logging::log<logging::level::warn>("Load surface not supported");
 	return false;
 }
 
 void Surface::printSummary()
 {
-	spdlog::warn("Print summary not supported!");
+	logging::log<logging::level::warn>("Print summary not supported!");
 }
 
 
@@ -289,7 +286,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 
 	if (delphi == NULL)
 	{
-		spdlog::warn("Cannot get surface without DelPhi environment!");
+		logging::log<logging::level::warn>("Cannot get surface without DelPhi environment!");
 		return false;
 	}
 
@@ -302,17 +299,17 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	{
 		#ifdef ENABLE_BOOST_THREADS
 
-		spdlog::info( "Use load balancing: {}", useLoadBalancing);
+		logging::log<logging::level::info>( "Use load balancing: {}", useLoadBalancing);
 
 		if (num_cores<=0)
 		{
-			spdlog::info( "Detected {} logical cores", (int)boost::thread::hardware_concurrency());
+			logging::log<logging::level::info>( "Detected {} logical cores", (int)boost::thread::hardware_concurrency());
 			num_thd = MIN(MIN(MIN(delphi->nx,delphi->ny),delphi->nz), (int)boost::thread::hardware_concurrency());
-			spdlog::info( "Setting {} threads", num_thd);
+			logging::log<logging::level::info>( "Setting {} threads", num_thd);
 		}
 		else
 		{
-			spdlog::info( "User selected num threads {}", num_cores);
+			logging::log<logging::level::info>( "User selected num threads {}", num_cores);
 			num_thd = num_cores;
 		}
 
@@ -358,7 +355,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 		int na,nb;
 				
 		if (!delphi->getMultiDiel())
-			spdlog::info( "Inside id value is {}", inside);
+			logging::log<logging::level::info>( "Inside id value is {}", inside);
 		
 		#ifdef DEBUG_SURFACE
 			// force 1 thread for debug
@@ -405,7 +402,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 
 			preProcessPanel();
 			
-			spdlog::info( "Ray-tracing panel {} ", panel);
+			logging::log<logging::level::info>( "Ray-tracing panel {} ", panel);
 			volPanel[panel]=0;
 		
 			// left y,z panel
@@ -502,17 +499,17 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 				numint = numIntersections[0];
 			#endif
 			
-			spdlog::info("ok!");		
+			logging::log<logging::level::info>("ok!");		
 		}       
 
 		double ray_time = chrono_ray.stop();
-		spdlog::info( "Ray-tracing computation time.. {} [s]", ray_time);
+		logging::log<logging::level::info>( "Ray-tracing computation time.. {} [s]", ray_time);
 		
 		// assuming squared grid for this stat
 		if (accurateTriangulation && !isAvailableScalarField)
-			spdlog::info("Approximated {} rays ({} {})",numint,numint/(6*(float)delphi->nx*delphi->ny)*100);
+			logging::log<logging::level::info>("Approximated {} rays ({} {})",numint,numint/(6*(float)delphi->nx*delphi->ny)*100);
 		else
-			spdlog::info("Approximated {} rays ({} {})",numint,numint/(3*(float)delphi->nx*delphi->ny)*100);
+			logging::log<logging::level::info>("Approximated {} rays ({} {})",numint,numint/(3*(float)delphi->nx*delphi->ny)*100);
 	}
 
 	Timer chrono_cav;
@@ -521,27 +518,27 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	// before bgp identification and vertices storage, cavities are filled if requested
 	if (fillCav)
 	{
-		spdlog::info( "Performing cavity detection and conditional filling...");
+		logging::log<logging::level::info>( "Performing cavity detection and conditional filling...");
 		
 		int cav = getCavities();
-		spdlog::info("ok!");
-		spdlog::info( "Detected {} cavitiy[ies]", cav);		
+		logging::log<logging::level::info>("ok!");
+		logging::log<logging::level::info>( "Detected {} cavitiy[ies]", cav);		
 		
 		fillCavities(vol);
 		if (wellShaped)
 		{
-			spdlog::info( "Performing cavities shape filtering..");
+			logging::log<logging::level::info>( "Performing cavities shape filtering..");
 			
 			filterCavities();
 		}
-		spdlog::info( "Recovering cavities atoms....");
+		logging::log<logging::level::info>( "Recovering cavities atoms....");
 		
 		getCavitiesAtoms();
-		spdlog::info("ok!");
+		logging::log<logging::level::info>("ok!");
 	}
 
 	duration = chrono_cav.stop();
-	spdlog::info( "Cavity detection time is {} [s]", duration);
+	logging::log<logging::level::info>( "Cavity detection time is {} [s]", duration);
 
 	vector<int*> bgp;
 	vector<int> bgp_type_temp;
@@ -549,7 +546,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 	// after cavity detection assemble Octree, such that vertices that are switched off, can be removed now
 	if (isRCbased)
 	{
-		spdlog::info( "Assembling octrees..");
+		logging::log<logging::level::info>( "Assembling octrees..");
 		
 		// clean if required
 		
@@ -747,7 +744,7 @@ bool Surface::getSurf(bool fillCav,double vol, int num_cores)
 				}
 				else
 				{
-					spdlog::error("Non existing direction during octree assembling!");
+					logging::log<logging::level::err>("Non existing direction during octree assembling!");
 #ifdef PYTHON
 throw std::exception();
 #else
@@ -764,7 +761,7 @@ exit(-1);
 			}
 		}
 
-		spdlog::info("ok!");
+		logging::log<logging::level::info>("ok!");
 		
 		num_thd = old_num_thd;
 
@@ -779,7 +776,7 @@ exit(-1);
 	
 	if (delphi->buildEpsMap && delphi->buildStatus)
 	{
-		spdlog::info( "Writing idebmap...");
+		logging::log<logging::level::info>( "Writing idebmap...");
 		int NX = delphi->nx;
 		int NY = delphi->ny;
 		int NZ = delphi->nz;
@@ -806,7 +803,7 @@ exit(-1);
 							write3DVector<bool>(idebmap,true,i,j,k,NX,NY,NZ);
 						}
 					}
-		spdlog::info("ok!");
+		logging::log<logging::level::info>("ok!");
 	}
 
 	// Stern Layer
@@ -814,9 +811,9 @@ exit(-1);
 	// TODO if (sternLayer>0 && (delphi->buildEpsMap or getDelphiBinding()))
 	if (sternLayer>0 && delphi->buildEpsMap)
 	{
-		spdlog::info( "Computing Stern Layer...");	
+		logging::log<logging::level::info>( "Computing Stern Layer...");	
 		buildSternLayer();
-		spdlog::info("ok!");
+		logging::log<logging::level::info>("ok!");
 	}
 
 	int NX = delphi->nx;
@@ -834,18 +831,18 @@ exit(-1);
 	{
 		if (surfType != MOLECULAR_SURFACE)
 		{
-			spdlog::warn("Cannot use multi-dielectric in a non molecular surface");		
+			logging::log<logging::level::warn>("Cannot use multi-dielectric in a non molecular surface");		
 		}
 		else if (!delphi->buildEpsMap)
 		{
-			spdlog::warn("Cannot apply multi-dielectric correction without epsilon map");
+			logging::log<logging::level::warn>("Cannot apply multi-dielectric correction without epsilon map");
 		}
 		else
 		{
-			spdlog::info( "Applying multiple dielectric correction..");
+			logging::log<logging::level::info>( "Applying multiple dielectric correction..");
 			buildAtomsMap();
 			applyMultidielectric();
-			spdlog::info("ok!");
+			logging::log<logging::level::info>("ok!");
 		}
 	}
 
@@ -856,7 +853,7 @@ exit(-1);
 	if (projBGP)
 	{
 		preBoundaryProjection();
-		spdlog::info( "Detecting boundary grid points...");
+		logging::log<logging::level::info>( "Detecting boundary grid points...");
 		for (int iz=0;iz<NZ;iz++)	
 		{
 			for (int iy=0;iy<NY;iy++)
@@ -929,8 +926,8 @@ exit(-1);
 
 		if (delphi->getDelphiBinding() && bgp.size()>=((unsigned)delphi->maxbgp))
 		{
-			spdlog::error( "Number of bgp is {} and the maximum allowed is {}", bgp.size(), delphi->maxbgp);
-			spdlog::error("Please increase ibmx in DelPhi and recompile");
+			logging::log<logging::level::err>( "Number of bgp is {} and the maximum allowed is {}", bgp.size(), delphi->maxbgp);
+			logging::log<logging::level::err>("Please increase ibmx in DelPhi and recompile");
 #ifdef PYTHON
 throw std::exception();
 #else
@@ -960,10 +957,10 @@ exit(-1);
 		for (unsigned int l=0;l<bgp_type_temp.size();l++)
 			bgp_type[l]=bgp_type_temp[l];
 
-		spdlog::info("ok!");
-		spdlog::info( "Detected {} boundary grid points (bgp)", delphi->nbgp);
-		spdlog::info( "Detected {} external bgps, and {} internal bgps", external_bgps, internal_bgps);
-		spdlog::info( "Scaling bgps...");
+		logging::log<logging::level::info>("ok!");
+		logging::log<logging::level::info>( "Detected {} boundary grid points (bgp)", delphi->nbgp);
+		logging::log<logging::level::info>( "Detected {} external bgps, and {} internal bgps", external_bgps, internal_bgps);
+		logging::log<logging::level::info>( "Scaling bgps...");
 
 		#ifdef ENABLE_BOOST_THREADS
 			boost::thread_group thdGroup; 
@@ -1018,7 +1015,7 @@ exit(-1);
 			thdGroup.join_all();
 		#endif
 
-		spdlog::info("ok!");		
+		logging::log<logging::level::info>("ok!");		
 
 		deleteVector<int>(bgp_type);
 		bgp_type = NULL;
@@ -1028,7 +1025,7 @@ exit(-1);
 		// setting atsurf = NULL it is a way to avoid this computation
 		if (delphi->getDelphiBinding() && atsurf!=NULL)
 		{
-			spdlog::info( "Linking boundary grid points to nearest atom");
+			logging::log<logging::level::info>( "Linking boundary grid points to nearest atom");
 			// if multi-diel is enabled the atoms map is already available
 			// if not we have to build it
 			if (!delphi->getMultiDiel())
@@ -1042,7 +1039,7 @@ exit(-1);
 				double* v = &(l_scspos[3*i]);
 				vdwAccessible(v,nearestAtom);
 				if (nearestAtom==-1) 
-					spdlog::warn( "Cannot detect nearest atom for bgp index {}", i);	
+					logging::log<logging::level::warn>( "Cannot detect nearest atom for bgp index {}", i);	
 				atsurf[i]=nearestAtom;
 			}
 		}		
@@ -1132,7 +1129,7 @@ void Surface::buildAtomsMap()
 		max_ind++;
 		if (max_ind>=MAX_ATOMS_MULTI_GRID)
 		{
-			spdlog::error( "Increase Max_Atoms_Multi_Grid. Current value is {}", MAX_ATOMS_MULTI_GRID);
+			logging::log<logging::level::err>( "Increase Max_Atoms_Multi_Grid. Current value is {}", MAX_ATOMS_MULTI_GRID);
 #ifdef PYTHON
 throw std::exception();
 #else
@@ -1163,7 +1160,7 @@ void Surface::applyMultidielectric()
 
 	if (gridMultiMap==NULL)
 	{
-		spdlog::warn("Cannot apply multi-dielectric correction without atoms map");
+		logging::log<logging::level::warn>("Cannot apply multi-dielectric correction without atoms map");
 		return;
 	}
 		
@@ -1251,7 +1248,7 @@ void Surface::swap2multi(double gxmin,double gymin,double gzmin,double gside,uns
 	
 	if (winner == -1)
 	{
-		spdlog::warn("No winner atom found!");
+		logging::log<logging::level::warn>("No winner atom found!");
 		return;
 	}
 
@@ -1283,8 +1280,8 @@ int Surface::getCavities(int idStart)
 
 	if (status==NULL)
 	{
-		spdlog::error("Cannot do cavity detection without a status map");
-		spdlog::info("{} Please set Build_status_map = true", REMARK);
+		logging::log<logging::level::err>("Cannot do cavity detection without a status map");
+		logging::log<logging::level::info>("{} Please set Build_status_map = true", REMARK);
 #ifdef PYTHON
 throw std::exception();
 #else
@@ -1400,7 +1397,7 @@ void Surface::getCavitiesAtoms()
 
 	if (delphi->buildStatus==false)
 	{
-		spdlog::warn("Cannot get cavity atoms without status map");
+		logging::log<logging::level::warn>("Cannot get cavity atoms without status map");
 		return;
 	}
 
@@ -1493,7 +1490,7 @@ void Surface::getCavitiesAtoms()
 				}	
 			}
 			if (first==-1)
-				spdlog::warn("No nearest atom in cavity/pocket!");
+				logging::log<logging::level::warn>("No nearest atom in cavity/pocket!");
 						
 			cav2atoms[i]->insert(first);			
 		}
@@ -1505,7 +1502,7 @@ void Surface::fillCavities(double vol,bool silent)
 {
 	if (vol<0)
 	{
-		spdlog::warn( "Cannot fill with a negative volume. Setting {}", DEFAULT_VOLUME);
+		logging::log<logging::level::warn>( "Cannot fill with a negative volume. Setting {}", DEFAULT_VOLUME);
 		vol = DEFAULT_VOLUME;
 	}
 	// analyze each cavity and fill if required
@@ -1519,21 +1516,19 @@ void Surface::fillCavities(double vol,bool silent)
 
 	if (!silent)
 	{
-		spdlog::info( "Threshold volume is {}", vol);
-		spdlog::info( "Tot num cavities is {}", delphi->cavitiesVec->size());
+		logging::log<logging::level::info>( "Threshold volume is {}", vol);
+		logging::log<logging::level::info>( "Tot num cavities is {}", delphi->cavitiesVec->size());
 	}
 	for (it=delphi->cavitiesVec->begin();it!=delphi->cavitiesVec->end();it++)
 	{
 		if (!silent)
-			spdlog::info( "Cavity {}", i );
+			logging::log<logging::level::info>( "Cavity {}", i );
 		
 		double cavVol = (*it)->size()*cubeVol;
 		if (!silent)
-			spdlog::info("vol is {} [A^3] ",cavVol);
+			logging::log<logging::level::info>("vol is {} [A^3] ",cavVol);
 
-    #ifdef SPDLOG
-      spdlog::info("cav {}", cavVol);
-    #endif
+      logging::log<logging::level::info>("cav {}", cavVol);
 
 		delphi->cavitiesSize[i]=cavVol;
 		delphi->cavitiesFlag[i]=false;
@@ -1610,13 +1605,13 @@ void Surface::fillCavities(double vol,bool silent)
 				}
 			}
 			if (!silent)		
-				spdlog::info("filled");
+				logging::log<logging::level::info>("filled");
 
 		}
 		else
 		{
 			if (!silent)
-				spdlog::info("non filled");
+				logging::log<logging::level::info>("non filled");
 
 		}
 		i++;
@@ -1637,7 +1632,7 @@ void Surface::cav2out()
 
 	if (delphi->cavitiesVec==NULL)
 	{
-    spdlog::warn("Cannot convert cavities to out flags if cavities are absent!");
+    logging::log<logging::level::warn>("Cannot convert cavities to out flags if cavities are absent!");
 		return;
 	}
 
@@ -1970,7 +1965,7 @@ void Surface::floodFill(int ix,int iy,int iz,int idold,int idnew)
 					vec = new vector<int*>();
 					if (vec==NULL)
 					{
-						spdlog::error("Not enough memory to complete cavity detection, stopping");
+						logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
 												
 #ifdef PYTHON
 throw std::exception();
@@ -1988,7 +1983,7 @@ exit(-1);
 				int* v = allocateVector<int>(3);
 				if (v==NULL)
 				{
-					spdlog::error("Not enough memory to complete cavity detection, stopping");
+					logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
 					
 #ifdef PYTHON
 throw std::exception();
@@ -2085,7 +2080,7 @@ void Surface::floodFill4(int ix,int iy,int iz, int idold, int idnew, int num_cor
 	int iy_or = iy;
 	int iz_or = iz;
 
-	spdlog::info( "Z-percolation...");
+	logging::log<logging::level::info>( "Z-percolation...");
 	
 
 	/////////////////////////////////
@@ -2343,13 +2338,13 @@ void Surface::floodFill4(int ix,int iy,int iz, int idold, int idnew, int num_cor
 	// split load evenly between threads
 	int num_z = z_max-z_min+1;
 
-	spdlog::info("ok!");
+	logging::log<logging::level::info>("ok!");
 		
 
 	if (num_cores<=0 || num_cores>=num_z/2)
 	{
 		num_thd = 4;
-		spdlog::info( "Setting {} threads for floodfill", num_thd);
+		logging::log<logging::level::info>( "Setting {} threads for floodfill", num_thd);
 	}
 
 	#ifdef ENABLE_BOOST_THREADS
@@ -2401,10 +2396,10 @@ void Surface::floodFill4(int ix,int iy,int iz, int idold, int idnew, int num_cor
 		pair<int,int> limits(start+z_min,stop+z_min);
 		ind = zz[start];
 
-    spdlog::info("--------------------------------------");
-    spdlog::info("{} {}", start, stop);
-    spdlog::info("{} {}", start+z_min, stop+z_min);
-    spdlog::info("Start at {} {} {}", ind.first.first, ind.first.second, ind.second); 
+    logging::log<logging::level::info>("--------------------------------------");
+    logging::log<logging::level::info>("{} {}", start, stop);
+    logging::log<logging::level::info>("{} {}", start+z_min, stop+z_min);
+    logging::log<logging::level::info>("Start at {} {} {}", ind.first.first, ind.first.second, ind.second); 
 
 		pair< queue< pair<pair<int,int>,int> > *, queue< pair<pair<int,int>,int > > * > queues;
 		
@@ -2584,7 +2579,7 @@ void Surface::floodFill3(	pair<pair<int,int>,int > ind,
 							vec = new vector<int*>();
 							if (vec==NULL)
 							{
-								spdlog::error("Not enough memory to complete cavity detection, stopping");
+								logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
 														
 #ifdef PYTHON
 throw std::exception();
@@ -2602,7 +2597,7 @@ exit(-1);
 						int* v = allocateVector<int>(3);
 						if (v==NULL)
 						{
-							spdlog::error("Not enough memory to complete cavity detection, stopping");
+							logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
 							
 #ifdef PYTHON
 throw std::exception();
@@ -2738,7 +2733,7 @@ void Surface::floodFill2(int ix,int iy,int iz,int idold,int idnew)
 							vec = new vector<int*>();
 							if (vec==NULL)
 							{
-								spdlog::error("Not enough memory to complete cavity detection, stopping");
+								logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
 														
 #ifdef PYTHON
 throw std::exception();
@@ -2756,7 +2751,7 @@ exit(-1);
 						int* v = allocateVector<int>(3);
 						if (v==NULL)
 						{
-							spdlog::error("Not enough memory to complete cavity detection, stopping");
+							logging::log<logging::level::err>("Not enough memory to complete cavity detection, stopping");
 							
 #ifdef PYTHON
 throw std::exception();
@@ -2908,13 +2903,13 @@ void Surface::buildSternLayer()
 bool Surface::getProjection(double p[3],double* proj1,double* proj2,
 		double* proj3,double* normal1,double* normal2,double* normal3)
 {
-	spdlog::warn("Projection not supported!");
+	logging::log<logging::level::warn>("Projection not supported!");
 	return false;
 }
 
 void Surface::getRayIntersection(double p1[3],double p2[3],vector<pair<double,double*> >& intersections,int thdID,bool computeNormals)
 {
-	spdlog::warn("Ray-Patch intersection not supported!");
+	logging::log<logging::level::warn>("Ray-Patch intersection not supported!");
 }
 
 
@@ -4316,7 +4311,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 
 	if (verticesInsidenessMap==NULL && accurateTriangulation && !isAvailableScalarField)
 	{
-		spdlog::warn("Cannot triangulate without inside/out info for grid points");
+		logging::log<logging::level::warn>("Cannot triangulate without inside/out info for grid points");
 		return 0;
 	}
 
@@ -4327,11 +4322,11 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 		#ifdef ENABLE_BOOST_THREADS
 			num_thd = (int)boost::thread::hardware_concurrency();		
 		#endif
-		spdlog::info( "Setting {} threads", num_thd);
+		logging::log<logging::level::info>( "Setting {} threads", num_thd);
 	}
 	else
 	{
-		spdlog::info( "User selected num threads {}", num_cores);
+		logging::log<logging::level::info>( "User selected num threads {}", num_cores);
 		num_thd = num_cores;
 	}
 
@@ -4370,7 +4365,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	// differently, in case of analytical intersections, this step will be very fast
 	// and only used to repair variations done by the cavity filling or by rays that missed the target
 
-	spdlog::info( "Generating MC vertices...");
+	logging::log<logging::level::info>( "Generating MC vertices...");
 	
 
 	// load balanced and cache friendly thread dispatch
@@ -4446,10 +4441,10 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 			}
 		}
 	
-	spdlog::info("ok!");
+	logging::log<logging::level::info>("ok!");
 	
 
-	spdlog::info( "MC added {} non analytical vertices", addedVertices);
+	logging::log<logging::level::info>( "MC added {} non analytical vertices", addedVertices);
 
 	// trivial split
 	int chunk = NZ/num_thd;
@@ -4477,7 +4472,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 		// join
 		thdGroup.join_all();
 
-		spdlog::info( "Triangles done");
+		logging::log<logging::level::info>( "Triangles done");
 		
 
 		// reduce
@@ -4508,14 +4503,14 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	}
 
 	double duration = chrono.stop();
-	spdlog::info( "MC time is {} [s]", duration);
+	logging::log<logging::level::info>( "MC time is {} [s]", duration);
 
-	spdlog::info( "Total, grid conformant, surface area is {} [A^2]", totalSurfaceArea);
+	logging::log<logging::level::info>( "Total, grid conformant, surface area is {} [A^2]", totalSurfaceArea);
 	
 	int numVertexes = (int)vertList.size();
 	int numTriangles = (int)triList.size();
 
-	spdlog::info( "Number of vertices {} number of triangles {}", numVertexes, numTriangles);
+	logging::log<logging::level::info>( "Number of vertices {} number of triangles {}", numVertexes, numTriangles);
 
 	if (vertexAtomsMapFlag && vertexAtomsMap!=NULL)
 		deleteVector<int>(vertexAtomsMap);
@@ -4525,17 +4520,17 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	{	
 		vertexAtomsMap = allocateVector<int>(numVertexes);
 		buildAtomsMap();
-		spdlog::info( "Connecting vertices to atoms..");
+		logging::log<logging::level::info>( "Connecting vertices to atoms..");
 		
 		for (int i=0;i<numVertexes;i++)			
 		{			
 			vdwAccessible(vertList[i],vertexAtomsMap[i]);
 			if (vertexAtomsMap[i]==-1)
 			{
-				spdlog::warn( "Cannot detect nearest atom for vertex {}", i);
+				logging::log<logging::level::warn>( "Cannot detect nearest atom for vertex {}", i);
 			}
 		}
-		spdlog::info("ok!");
+		logging::log<logging::level::info>("ok!");
 		
 	}
 
@@ -4563,13 +4558,13 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 	{	
 		if (appNormals.size()!=0)
 		{
-			spdlog::info( "Some analytical normals will be approximated...");		
+			logging::log<logging::level::info>( "Some analytical normals will be approximated...");		
 			approximateNormals(appNormals,true);
 		}
 	}	
 	else if (computeNormals && !providesAnalyticalNormals)
 	{
-		spdlog::info( "Approximating vertices normals by triangulation...");
+		logging::log<logging::level::info>( "Approximating vertices normals by triangulation...");
 		approximateNormals(appNormals,false);
 	}
 
@@ -4581,7 +4576,7 @@ double Surface::triangulateSurface(double isolevel,const char* fileName,bool rev
 
 	if (!f)
 	{
-		spdlog::error("Errors in saving the mesh!");
+		logging::log<logging::level::err>("Errors in saving the mesh!");
 	}
 
 	return totalSurfaceArea;
@@ -4704,7 +4699,7 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 
 		if (fp==NULL)
 		{
-			spdlog::warn( "Cannot write file {}", fileName);
+			logging::log<logging::level::warn>( "Cannot write file {}", fileName);
 			return false;
 		}
 
@@ -4712,47 +4707,47 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 		{
 			if (vertexAtomsMap==NULL)
 			{
-				spdlog::error("Cannot save in OFF+A format if nearest atom info is not available");
+				logging::log<logging::level::err>("Cannot save in OFF+A format if nearest atom info is not available");
 				fclose(fp);
 				return false;
 			}
 			fprintf(fp,"OFF+A\n");
-			spdlog::info( "Writing triangulated surface in OFF+A file format in {}", fileName);
+			logging::log<logging::level::info>( "Writing triangulated surface in OFF+A file format in {}", fileName);
 		}
 		else if (format==OFF_N)
 		{			
 			if (normalsList.size()==0)
 			{
-				spdlog::error("Cannot save in OFF+N format if normals are not available");
+				logging::log<logging::level::err>("Cannot save in OFF+N format if normals are not available");
 				fclose(fp);
 				return false;
 			}
 			fprintf(fp,"OFF+N\n");
-			spdlog::info( "Writing triangulated surface in OFF+N file format in {}", fileName);
+			logging::log<logging::level::info>( "Writing triangulated surface in OFF+N file format in {}", fileName);
 		}
 		else if (format==OFF_N_A)
 		{		
 			if (normalsList.size()==0)
 			{
-				spdlog::error("Cannot save in OFF+N+A format if normals are not available");
+				logging::log<logging::level::err>("Cannot save in OFF+N+A format if normals are not available");
 				fclose(fp);
 				return false;
 			}
 
 			if (vertexAtomsMap==NULL)
 			{
-				spdlog::error("Cannot save in OFF+N+A format if nearest atom info is not available");
+				logging::log<logging::level::err>("Cannot save in OFF+N+A format if nearest atom info is not available");
 				fclose(fp);
 				return false;
 			}
 
 			fprintf(fp,"OFF+N+A\n");
-			spdlog::info( "Writing triangulated surface in OFF+N+A file format in {}", fileName);
+			logging::log<logging::level::info>( "Writing triangulated surface in OFF+N+A file format in {}", fileName);
 		}
 		else
 		{
 			fprintf(fp,"OFF\n");
-			spdlog::info( "Writing triangulated surface in OFF file format in {}", fileName);
+			logging::log<logging::level::info>( "Writing triangulated surface in OFF file format in {}", fileName);
 		}
 
 		
@@ -4786,21 +4781,21 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 	{
 		if (normalsList.size()==0)
 		{
-			spdlog::error("Cannot save in MSMS format if normals are not available");		
+			logging::log<logging::level::err>("Cannot save in MSMS format if normals are not available");		
 			return false;
 		}
 
 		if (format==MSMS)
 		{
-			spdlog::info( "Saving in MSMS format, no patch info...");
+			logging::log<logging::level::info>( "Saving in MSMS format, no patch info...");
 			if (vertexAtomsMap==NULL)
 			{
-				spdlog::error("Cannot save in MSMS format if nearest atom info is not available");
+				logging::log<logging::level::err>("Cannot save in MSMS format if nearest atom info is not available");
 				return false;
 			}
 		}
 		else if (format == MSMS_NO_A)
-			spdlog::info( "Saving in MSMS format, no patch info, no nearest atom..");
+			logging::log<logging::level::info>( "Saving in MSMS format, no patch info, no nearest atom..");
 
 		FILE *fp1,*fp2;
 		snprintf(fullName, sizeof(fullName), "%s.face",fileName);
@@ -4810,7 +4805,7 @@ bool Surface::saveMesh(int format,bool revert,const char* fileName,vector<double
 
 		if (fp1==NULL || fp2==NULL)
 		{
-			spdlog::error("Error in writing MSMS files");
+			logging::log<logging::level::err>("Error in writing MSMS files");
 			return false;
 		}
 
@@ -5056,15 +5051,15 @@ void Surface::tri2Balls()
 {
 	if (vertList.size()==0)
 	{
-		spdlog::warn("Triangulation not available, cannot build set of balls approximation!");
-		spdlog::info("{} Please enable triangulation by 'Triangulation = true' ", REMARK);
+		logging::log<logging::level::warn>("Triangulation not available, cannot build set of balls approximation!");
+		logging::log<logging::level::info>("{} Please enable triangulation by 'Triangulation = true' ", REMARK);
 		return;
 	}
 	
 	if (delphi->status==NULL)
 	{
-		spdlog::warn("Status map not computed, cannot build set of balls approximation!");
-		spdlog::info("{} Please enable status map by 'Build_status_map = true'", REMARK);
+		logging::log<logging::level::warn>("Status map not computed, cannot build set of balls approximation!");
+		logging::log<logging::level::info>("{} Please enable status map by 'Build_status_map = true'", REMARK);
 		return;
 	}
 
@@ -5073,8 +5068,8 @@ void Surface::tri2Balls()
 	int NZ = delphi->nz;
 
 	#ifndef ENABLE_CGAL 	
-	spdlog::warn("CGAL is required by tri2Balls function!");
-	spdlog::info("{} Recompile enabling CGAL support", REMARK);
+	logging::log<logging::level::warn>("CGAL is required by tri2Balls function!");
+	logging::log<logging::level::info>("{} Recompile enabling CGAL support", REMARK);
 	return;
 	#else
 
@@ -5484,7 +5479,7 @@ void Surface::smoothSurface(const char* fn,bool revert)
 	int format = deduceFormat();		
 	bool f = saveMesh(format,revert,fn,vertList,triList,normalsList);
 	if (!f)
-		spdlog::error("Problems in saving the mesh!");
+		logging::log<logging::level::err>("Problems in saving the mesh!");
 
 	return;
 }
@@ -6122,7 +6117,7 @@ char Surface::getInsidness(int i, int j, int k, int vertInd)
 	}
 	else
 	{
-		spdlog::error("Unknown vertex index!");
+		logging::log<logging::level::err>("Unknown vertex index!");
 		return false;
 	}
 	
@@ -6346,17 +6341,17 @@ inline int Surface::getTriangles(double* vertexValues,double** vertexPos,double 
    {
       if (vertlist_indexes[triTable[cubeindex][i  ]]==-1)
 	  {		  
-		  spdlog::warn("Mesh with hole!");
+		  logging::log<logging::level::warn>("Mesh with hole!");
 		  continue;
 	  }
 	  if (vertlist_indexes[triTable[cubeindex][i+1  ]]==-1)
 	  {
-		  spdlog::warn("Mesh with hole!");
+		  logging::log<logging::level::warn>("Mesh with hole!");
 		  continue;
 	  }
 	  if (vertlist_indexes[triTable[cubeindex][i+2  ]]==-1)
 	  {
-		  spdlog::warn("Mesh with hole!");
+		  logging::log<logging::level::warn>("Mesh with hole!");
 		  continue;
 	  }
 
@@ -6373,7 +6368,7 @@ void Surface::backupStatus()
 {
 	if (delphi==NULL)
 	{
-		spdlog::warn("Cannot backup status if grid is not allocated");
+		logging::log<logging::level::warn>("Cannot backup status if grid is not allocated");
 		return;
 	}
 	int tot = delphi->nx*delphi->ny*delphi->nz;
@@ -6403,7 +6398,7 @@ int Surface::linkCavities(short* st1,short* st2)
 
 	if (tempStatus==NULL)
 	{
-		spdlog::warn("I cannot reconstruct links if I have not reference status");
+		logging::log<logging::level::warn>("I cannot reconstruct links if I have not reference status");
 		return 0;
 	}
 		
@@ -6532,7 +6527,7 @@ int Surface::linkCavities(short* st1,short* st2)
 
 			if (minDist2==INFINITY)
 			{
-				spdlog::error("During linkage, two non null cavities/pockets have no minimum distance bgps");
+				logging::log<logging::level::err>("During linkage, two non null cavities/pockets have no minimum distance bgps");
 #ifdef PYTHON
 throw std::exception();
 #else
@@ -6635,7 +6630,7 @@ exit(-1);
 			// double check it is the right guy
 			if ((*sizeIt)!=0)
 			{
-				spdlog::error("Inconsistent volume agregation");
+				logging::log<logging::level::err>("Inconsistent volume agregation");
 #ifdef PYTHON
 throw std::exception();
 #else
@@ -6700,7 +6695,7 @@ Surface& Surface::operator-=(Surface& surf2)
 	difference(&surf2);
 	
 	duration = chrono.stop();
-	spdlog::info( "Diff. Step 1 {} [s]", duration);
+	logging::log<logging::level::info>( "Diff. Step 1 {} [s]", duration);
 	
 	///////////////////// connolly filter /////////////////////////////////
 	setProbeRadius(1.4);			
@@ -6713,7 +6708,7 @@ Surface& Surface::operator-=(Surface& surf2)
 
 	duration = chrono2.stop();
 	
-	spdlog::info( "Diff. Step 2 {} [s]", duration);
+	logging::log<logging::level::info>( "Diff. Step 2 {} [s]", duration);
 	
 	
 	chrono2.start();	
@@ -6726,7 +6721,7 @@ Surface& Surface::operator-=(Surface& surf2)
 	}
 
 	duration = chrono2.stop();
-	spdlog::info( "Diff. Step 3 {} [s]", duration);
+	logging::log<logging::level::info>( "Diff. Step 3 {} [s]", duration);
 	
 
 	
@@ -7096,7 +7091,7 @@ bool Surface::isCompletelyOut(double* pos)
 {	
 	if (delphi->status == NULL)
 	{
-		spdlog::error("Cannot compute if a point is completely out without the status map");
+		logging::log<logging::level::err>("Cannot compute if a point is completely out without the status map");
 #ifdef PYTHON
 throw std::exception();
 #else
@@ -7250,13 +7245,13 @@ double Surface::saveTriSubSet(char* triSubset,vector<bool>& results,bool revert)
 
 	if (triList.size()==0)
 	{
-		spdlog::error("Cannot save a reduced set of triangles if triangulation is absent");
+		logging::log<logging::level::err>("Cannot save a reduced set of triangles if triangulation is absent");
 		return 0.;
 	}
 
 	if (results.size()!=vertList.size())
 	{
-		spdlog::error("Cannot save a reduced set of triangles if number of vertices is unconsistent between current mesh and vertices flags");
+		logging::log<logging::level::err>("Cannot save a reduced set of triangles if number of vertices is unconsistent between current mesh and vertices flags");
 		return 0.;
 	}
 

@@ -26,12 +26,8 @@
  ****************************************************************************/
 
 #include <globals.h>
+#include <logging.h>
 #include <ply/ply.h>
-
-#ifdef SPDLOG
-#include <spdlog/spdlog.h>
-#endif
-
 // Swap endian-ness for four-byte elements
 
 inline void endian_swap_long(unsigned char *p) {
@@ -58,7 +54,7 @@ char *readLineFromFile(FILE *in, bool exit_on_eof) {
   while ((c = fgetc(in)) != '\n' && i < (MAX_READLINE_CHARS - 1))
     if (c == EOF) {
       if (exit_on_eof)
-        spdlog::error("\nUnexpected end of file!\n");
+        logging::log<logging::level::err>("\nUnexpected end of file!\n");
       else
         return NULL;
     } else if (c != '\r')
@@ -66,7 +62,8 @@ char *readLineFromFile(FILE *in, bool exit_on_eof) {
   line[i] = '\0';
 
   if (i == MAX_READLINE_CHARS - 1)
-    spdlog::warn("readLineFromFile: Line is too long. Truncated !\n");
+    logging::log<logging::level::warn>(
+        "readLineFromFile: Line is too long. Truncated !\n");
 
   return line;
 }
@@ -105,24 +102,25 @@ int ply_parseElements(FILE *in, const char *elname) {
   int num;
   // skip comments
   if (!fscanf(in, "%64s ", keyword))
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   while (!strcmp(keyword, "comment") || !strcmp(keyword, "obj_info")) {
     while ((c = fgetc(in)) != '\n')
       if (c == EOF)
-        spdlog::error("\nUnexpected end of file!\n");
+        logging::log<logging::level::err>("\nUnexpected end of file!\n");
     if (!fscanf(in, "%64s ", keyword))
-      spdlog::error("Unexpected token or end of file!\n");
+      logging::log<logging::level::err>("Unexpected token or end of file!\n");
   }
   if (strcmp(keyword, "element"))
-    spdlog::error("element definition expected!\n");
+    logging::log<logging::level::err>("element definition expected!\n");
   if (!fscanf(in, "%64s ", keyword))
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   if (strcmp(keyword, elname))
-    spdlog::error("Sorry. Element type '%s' is not supported!\n", keyword);
+    logging::log<logging::level::err>(
+        "Sorry. Element type '%s' is not supported!\n", keyword);
   if (!fscanf(in, "%d\n", &num))
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   if (num <= 0)
-    spdlog::error("Unexpected empty element list!\n");
+    logging::log<logging::level::err>("Unexpected empty element list!\n");
 
   return num;
 }
@@ -130,29 +128,29 @@ int ply_parseElements(FILE *in, const char *elname) {
 void ply_checkVertexProperties(FILE *in) {
   char keyword[64], dtype[64], dval[64];
   if (fscanf(in, "%64s %64s %64s\n", keyword, dtype, dval) < 3)
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   if (strcmp(keyword, "property"))
-    spdlog::error("property definition expected!\n");
+    logging::log<logging::level::err>("property definition expected!\n");
   if (strcmp(dtype, "float") && strcmp(dtype, "float32"))
-    spdlog::error("float property expected!\n");
+    logging::log<logging::level::err>("float property expected!\n");
   if (strcmp(dval, "x"))
-    spdlog::error("'x' float property expected!\n");
+    logging::log<logging::level::err>("'x' float property expected!\n");
   if (fscanf(in, "%64s %64s %64s\n", keyword, dtype, dval) < 3)
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   if (strcmp(keyword, "property"))
-    spdlog::error("property definition expected!\n");
+    logging::log<logging::level::err>("property definition expected!\n");
   if (strcmp(dtype, "float") && strcmp(dtype, "float32"))
-    spdlog::error("float property expected!\n");
+    logging::log<logging::level::err>("float property expected!\n");
   if (strcmp(dval, "y"))
-    spdlog::error("'y' float property expected!\n");
+    logging::log<logging::level::err>("'y' float property expected!\n");
   if (fscanf(in, "%64s %64s %64s\n", keyword, dtype, dval) < 3)
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   if (strcmp(keyword, "property"))
-    spdlog::error("property definition expected!\n");
+    logging::log<logging::level::err>("property definition expected!\n");
   if (strcmp(dtype, "float") && strcmp(dtype, "float32"))
-    spdlog::error("float property expected!\n");
+    logging::log<logging::level::err>("float property expected!\n");
   if (strcmp(dval, "z"))
-    spdlog::error("'z' float property expected!\n");
+    logging::log<logging::level::err>("'z' float property expected!\n");
 }
 
 int ply_getOverhead(FILE *in, int format, const char *element) {
@@ -161,10 +159,10 @@ int ply_getOverhead(FILE *in, int format, const char *element) {
   long pos = ftell(in);
   char *rline = readLineFromFile(in);
   if (!sscanf(rline, "%64s ", keyword))
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   while (!strcmp(keyword, "property")) {
     if (sscanf(rline, "%64s %64s %64s", keyword, ptype, pname) < 3)
-      spdlog::error("Unexpected token or end of file!\n");
+      logging::log<logging::level::err>("Unexpected token or end of file!\n");
     if (!strcmp(element, "vertex") && !strcmp(pname, "x"))
       break;
     else if (!strcmp(element, "face") && !strcmp(ptype, "list"))
@@ -180,12 +178,12 @@ int ply_getOverhead(FILE *in, int format, const char *element) {
     else if (!strcmp(ptype, "double"))
       oh += (format) ? (8) : 1;
     else if (!strcmp(ptype, "list"))
-      spdlog::error(
+      logging::log<logging::level::err>(
           "list properties other than face indices are not supported!\n");
     else
-      spdlog::error("Unrecognized property type!\n");
+      logging::log<logging::level::err>("Unrecognized property type!\n");
     if (!sscanf(readLineFromFile(in), "%64s ", keyword))
-      spdlog::error("Unexpected token or end of file!\n");
+      logging::log<logging::level::err>("Unexpected token or end of file!\n");
   }
   fseek(in, pos, SEEK_SET);
 
@@ -196,17 +194,17 @@ void ply_checkFaceProperties(FILE *in) {
   char keyword[64], ltype[64], uctype[64], dtype[64], dval[64];
   if (fscanf(in, "%64s %64s %64s %64s %64s\n", keyword, ltype, uctype, dtype,
              dval) < 5)
-    spdlog::error("Unexpected token or end of file!\n");
+    logging::log<logging::level::err>("Unexpected token or end of file!\n");
   if (strcmp(keyword, "property"))
-    spdlog::error("property definition expected!\n");
+    logging::log<logging::level::err>("property definition expected!\n");
   if (strcmp(ltype, "list"))
-    spdlog::error("list property expected!\n");
+    logging::log<logging::level::err>("list property expected!\n");
   if (strcmp(uctype, "uchar") && strcmp(uctype, "uint8"))
-    spdlog::error("uchar property expected!\n");
+    logging::log<logging::level::err>("uchar property expected!\n");
   if (strcmp(dtype, "int") && strcmp(dtype, "int32"))
-    spdlog::error("int property expected!\n");
+    logging::log<logging::level::err>("int property expected!\n");
   if (strcmp(dval, "vertex_indices"))
-    spdlog::error("vertex_indices property expected!\n");
+    logging::log<logging::level::err>("vertex_indices property expected!\n");
 }
 
 void ply_readOverhead(FILE *in, int format, int oh) {
@@ -216,7 +214,7 @@ void ply_readOverhead(FILE *in, int format, int oh) {
     for (i = 0; i < oh; i++) {
       int check = fscanf(in, "%s", token);
       if (check <= 0) {
-        spdlog::error("Error in reading ply file");
+        logging::log<logging::level::err>("Error in reading ply file");
 #ifdef PYTHON
         throw std::domain_error("Error in reading ply file!");
 #else
@@ -237,10 +235,10 @@ int ply_readVCoords(FILE *in, int format, int ph, int oh, float *x, float *y,
 
   if (format == PLY_FORMAT_ASCII) {
     if (fscanf(in, "%f %f %f", x, y, z) < 3)
-      spdlog::error("Unexpected token or end of file!\n");
+      logging::log<logging::level::err>("Unexpected token or end of file!\n");
   } else {
     if (fread(vc, 4, 3, in) < 3)
-      spdlog::error("Unexpected end of file!\n");
+      logging::log<logging::level::err>("Unexpected end of file!\n");
     *x = vc[0];
     *y = vc[1];
     *z = vc[2];
@@ -267,7 +265,7 @@ int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y,
   if (format == PLY_FORMAT_ASCII) {
     int check = fscanf(in, "%d %d %d %d", nv, x, y, z);
     if (check <= 0) {
-      spdlog::error("Error in reading ply file!");
+      logging::log<logging::level::err>("Error in reading ply file!");
 #ifdef PYTHON
       throw std::domain_error("Error in reading ply file!");
 #else
@@ -279,7 +277,7 @@ int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y,
 
   size_t check = fread(&nvs, 1, 1, in);
   if (check <= (size_t)0) {
-    spdlog::error("Error in reading ply file!");
+    logging::log<logging::level::err>("Error in reading ply file!");
 #ifdef PYTHON
     throw std::domain_error("Error in reading ply file!");
 #else
@@ -289,7 +287,7 @@ int ply_readFIndices(FILE *in, int format, int ph, int *nv, int *x, int *y,
   *nv = (int)nvs;
   check = fread(vc, 4, 3, in);
   if (check <= (size_t)0) {
-    spdlog::error("Error in reading ply file!");
+    logging::log<logging::level::err>("Error in reading ply file!");
 #ifdef PYTHON
     throw std::domain_error("Error in reading ply file!");
 #else
@@ -314,7 +312,7 @@ int ply_readAnotherFIndex(FILE *in, int format, int *x) {
     return (fscanf(in, "%d", x));
 
   if (fread(x, 4, 1, in) < 1)
-    spdlog::error("Unexpected end of file!\n");
+    logging::log<logging::level::err>("Unexpected end of file!\n");
 
   if (format == PLY_FORMAT_BIN_B)
     endian_swap_long((unsigned char *)(x));

@@ -12,6 +12,7 @@
 #include <Surface.h>
 #include <SurfaceFactory.h>
 #include <globals.h>
+#include <logging.h>
 #include <memory>
 
 #ifdef DBGMEM_CRT
@@ -309,7 +310,7 @@ public:
     if (pr > e) {
       probe_radius = pr;
     } else {
-      spdlog::warn("Cannot set {}<={}. Setting {}", pr, e,
+      logging::log<logging::level::warn>("Cannot set {}<={}. Setting {}", pr, e,
                    DEFAULT_PROBE_RADIUS);
       probe_radius = DEFAULT_PROBE_RADIUS;
     }
@@ -341,7 +342,7 @@ public:
   The higher the probe radius the higher this parameter should be.*/
   void setMaxProbes(int m) {
     if (m <= 0) {
-      spdlog::warn("Cannot set max probes <0");
+      logging::log<logging::level::warn>("Cannot set max probes <0");
       return;
     }
     MAX_PROBES = m;

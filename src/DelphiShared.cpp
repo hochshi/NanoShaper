@@ -1,6 +1,6 @@
 
 #include <DelphiShared.h>
-#include <boost/math/special_functions/sign.hpp>
+#include <logging.h>
 #include <tools.h>
 
 void DelPhiShared::init() {
@@ -34,12 +34,13 @@ void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
   multi_diel = multi;
   isAvailableAtomInfo = atinfo;
 
-  spdlog::info("Loading atoms....");
+  logging::log<logging::level::info>("Loading atoms....");
 
   bool flag = loadAtoms(fn);
 
   if (!flag) {
-    spdlog::error("Missing or corrupt atoms file. Initialization failed");
+    logging::log<logging::level::err>(
+        "Missing or corrupt atoms file. Initialization failed");
 #ifdef PYTHON
     throw std::exception();
 #else
@@ -49,14 +50,14 @@ void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
 
   flag = buildGrid(scale, perfill);
   if (!flag) {
-    spdlog::error("Initialization failed");
+    logging::log<logging::level::err>("Initialization failed");
 #ifdef PYTHON
     throw std::exception();
 #else
     exit(-1);
 #endif
   }
-  spdlog::info("Initialization completed");
+  logging::log<logging::level::info>("Initialization completed");
 }
 
 DelPhiShared::DelPhiShared(double scale, double perfill, string fn,
@@ -74,7 +75,7 @@ void DelPhiShared::DelPhiBinding(double xmin, double ymin, double zmin,
                                  double *local_i_scsnor, bool *local_i_idebmap,
                                  int *local_i_ibgp, int maxbgp, bool bstatus,
                                  int *_atsurf) {
-  spdlog::info("DelPhi Binding...");
+  logging::log<logging::level::info>("DelPhi Binding...");
   delphiBinding = true;
   buildStatus = bstatus;
   atsurf = _atsurf;
@@ -159,8 +160,9 @@ void DelPhiShared::DelPhiBinding(double xmin, double ymin, double zmin,
   // set max bgp
   this->maxbgp = maxbgp;
 
-  spdlog::info("ok!");
-  spdlog::info("Max number of bgps was set from DelPhi to {}", maxbgp);
+  logging::log<logging::level::info>("ok!");
+  logging::log<logging::level::info>(
+      "Max number of bgps was set from DelPhi to {}", maxbgp);
 }
 
 void DelPhiShared::finalizeBinding(int *ibnum) {
@@ -194,13 +196,13 @@ int DelPhiShared::loadAtoms(string fn) {
   double max_rad = 0;
 
   if (multi_diel)
-    spdlog::info("Atom dielectric info is available..");
+    logging::log<logging::level::info>("Atom dielectric info is available..");
 
   if (isAvailableAtomInfo)
-    spdlog::info("Atom Info is available..");
+    logging::log<logging::level::info>("Atom Info is available..");
 
   if (fin.fail()) {
-    spdlog::warn("Cannot read file {}", fn);
+    logging::log<logging::level::warn>("Cannot read file {}", fn);
     return 0;
   }
 
@@ -236,7 +238,7 @@ int DelPhiShared::loadAtoms(string fn) {
 
       if (isAvailableAtomInfo || multi_diel) {
         if (-1 == d_) {
-          spdlog::error(
+          logging::log<logging::level::err>(
               "Cannot get the dielectric value of the atom number {}; please "
               "add it after radius entry to the xyzr input file",
               x.size());
@@ -259,14 +261,16 @@ int DelPhiShared::loadAtoms(string fn) {
   fin.close();
 
   numAtoms = (int)x.size();
-  spdlog::info("Read {} atoms", numAtoms);
+  logging::log<logging::level::info>("Read {} atoms", numAtoms);
 
   if (numAtoms < 4) {
-    spdlog::error("NanoShaper needs at least 4 atoms to work.");
-    spdlog::info(
+    logging::log<logging::level::err>(
+        "NanoShaper needs at least 4 atoms to work.");
+    logging::log<logging::level::info>(
         "{} To emulate 4 atoms you can place dummy atoms with null radius",
         REMARK);
-    spdlog::info("{} at the same centers of the real atoms", REMARK);
+    logging::log<logging::level::info>(
+        "{} at the same centers of the real atoms", REMARK);
 #ifdef PYTHON
     throw std::exception();
 #else
@@ -275,8 +279,9 @@ int DelPhiShared::loadAtoms(string fn) {
   }
 
   if (max_rad == 0) {
-    spdlog::error("All null radii? If you are using place holders atoms please "
-                  "set at least one radius > 0");
+    logging::log<logging::level::err>(
+        "All null radii? If you are using place holders atoms please "
+        "set at least one radius > 0");
 #ifdef PYTHON
     throw std::exception();
 #else
@@ -290,10 +295,10 @@ int DelPhiShared::loadAtoms(string fn) {
 
 int DelPhiShared::loadAtoms(int na, double *pos, double *rad, double *charge,
                             int *dielec, char *atinf) {
-  spdlog::info("Read {} atoms", na);
+  logging::log<logging::level::info>("Read {} atoms", na);
 
   if (rad == NULL || pos == NULL) {
-    spdlog::warn("Atoms info not available!");
+    logging::log<logging::level::warn>("Atoms info not available!");
     return 0;
   }
 
@@ -350,9 +355,9 @@ int DelPhiShared::loadAtoms(int na, double *pos, double *rad, double *charge,
       chain = str.substr(10, 1);
       ai.emplace_back(name, resName, resid, chain);
     }
-    x.push_back(pos[i*3]);
-    y.push_back(pos[i*3 + 1]);
-    z.push_back(pos[i*3 + 2]);
+    x.push_back(pos[i * 3]);
+    y.push_back(pos[i * 3 + 1]);
+    z.push_back(pos[i * 3 + 2]);
     r.push_back(r[i]);
     q.push_back(q_);
     d.push_back(d_);
@@ -403,17 +408,19 @@ int DelPhiShared::loadAtoms(int na, const double *x, const double *y,
 
 bool DelPhiShared::buildGrid(double scale, double perfill) {
   if (atoms == NULL) {
-    spdlog::error("Cannot build grid with no atoms!");
+    logging::log<logging::level::err>("Cannot build grid with no atoms!");
     return false;
   }
 
   if (scale < 0) {
-    spdlog::warn("Cannot use a <0 scale: setting {}", DEFAULT_SCALE);
+    logging::log<logging::level::warn>("Cannot use a <0 scale: setting {}",
+                                       DEFAULT_SCALE);
     scale = DEFAULT_SCALE;
   }
 
   if (perfill < 0 || perfill > 100) {
-    spdlog::warn("Perfil is in (0,100). Setting {}", DEFAULT_PERFIL);
+    logging::log<logging::level::warn>("Perfil is in (0,100). Setting {}",
+                                       DEFAULT_PERFIL);
     scale = DEFAULT_PERFIL;
   }
 
@@ -438,8 +445,8 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
   oldmid[1] = (cmax[1] + cmin[1]) / 2.;
   oldmid[2] = (cmax[2] + cmin[2]) / 2.;
 
-  spdlog::info("Geometric baricenter ->  {} {} {}", oldmid[0], oldmid[1],
-               oldmid[2]);
+  logging::log<logging::level::info>("Geometric baricenter ->  {} {} {}",
+                                     oldmid[0], oldmid[1], oldmid[2]);
 
   double v[6];
   v[0] = fabs(cmax[0] - oldmid[0]);
@@ -462,7 +469,7 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
   if ((igrid % 2) == 0)
     igrid++;
 
-  spdlog::info("Grid is {}", igrid);
+  logging::log<logging::level::info>("Grid is {}", igrid);
 
   baricenter[0] = oldmid[0];
   baricenter[1] = oldmid[1];
@@ -476,12 +483,12 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
   ymax = oldmid[1] + (igrid - 1) / (2 * scale);
   zmax = oldmid[2] + (igrid - 1) / (2 * scale);
 
-  spdlog::info("MAX {} {} {}", xmax, ymax, zmax);
-  spdlog::info("MIN {} {} {}", xmin, ymin, zmin);
-  spdlog::info("Perfil {}%", perfill);
-  spdlog::info("Rmaxdim {}", rmaxdim);
+  logging::log<logging::level::info>("MAX {} {} {}", xmax, ymax, zmax);
+  logging::log<logging::level::info>("MIN {} {} {}", xmin, ymin, zmin);
+  logging::log<logging::level::info>("Perfil {}%", perfill);
+  logging::log<logging::level::info>("Rmaxdim {}", rmaxdim);
 
-  spdlog::info("Allocating memory...");
+  logging::log<logging::level::info>("Allocating memory...");
 
   if (x != NULL)
     deleteVector<double>(x);
@@ -541,7 +548,8 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
     // status = allocateAlignedVector<short>(tot,alignementBits);
 
     if (status == NULL) {
-      spdlog::error("Not enough memory to allocate status map");
+      logging::log<logging::level::err>(
+          "Not enough memory to allocate status map");
 #ifdef PYTHON
       throw std::exception();
 #else
@@ -553,7 +561,7 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
       status[i] = STATUS_POINT_TEMPORARY_OUT;
   }
 
-  spdlog::info("ok!");
+  logging::log<logging::level::info>("ok!");
   return true;
 }
 
@@ -565,7 +573,7 @@ bool DelPhiShared::clearAndAllocEpsMaps() {
   epsmap = allocateVector<int>(tot);
 
   if (epsmap == NULL) {
-    spdlog::error("Error allocating epsmap!");
+    logging::log<logging::level::err>("Error allocating epsmap!");
     return false;
   }
 
@@ -579,7 +587,7 @@ bool DelPhiShared::clearAndAllocEpsMaps() {
 void DelPhiShared::clearEpsMaps() {
 
   if (epsmap == NULL) {
-    spdlog::error("Cannot clear null map!");
+    logging::log<logging::level::err>("Cannot clear null map!");
     return;
   }
 
@@ -601,7 +609,7 @@ void DelPhiShared::clearEpsMaps() {
 
 void DelPhiShared::saveIdebMap(char *fname) {
   if (idebmap == NULL) {
-    spdlog::warn("Cannot save null idebmap!");
+    logging::log<logging::level::warn>("Cannot save null idebmap!");
     return;
   }
 
@@ -626,7 +634,7 @@ void DelPhiShared::saveIdebMap(char *fname) {
 
 void DelPhiShared::saveEpsMaps(char *fname) {
   if (epsmap == NULL) {
-    spdlog::warn("Cannot save null epsmap!");
+    logging::log<logging::level::warn>("Cannot save null epsmap!");
     return;
   }
 
@@ -726,7 +734,7 @@ void DelPhiShared::clear() {
 
 void DelPhiShared::saveBGP(char *fname) {
   if (scspos == NULL || scsnor == NULL) {
-    spdlog::warn("Cannot save null scspos or scsnor!");
+    logging::log<logging::level::warn>("Cannot save null scspos or scsnor!");
     return;
   }
 
@@ -756,7 +764,7 @@ void DelPhiShared::saveBGP(char *fname) {
 
 void DelPhiShared::saveStatus(char *fname) {
   if (status == NULL) {
-    spdlog::warn("Cannot save null status!");
+    logging::log<logging::level::warn>("Cannot save null status!");
     return;
   }
   char ff[BUFLEN];
@@ -803,13 +811,15 @@ void DelPhiShared::markPockets(short *stat, vector<bool> &isPocket) {
   int num = (int)cavitiesVec->size();
 
   if (stat == NULL) {
-    spdlog::warn("Cannot mark pockets with a reference status map!");
+    logging::log<logging::level::warn>(
+        "Cannot mark pockets with a reference status map!");
     return;
   }
 
   if (stat == status) {
-    spdlog::warn("In marking pockets the status map passed must be from "
-                 "another reference object; here the same was passed");
+    logging::log<logging::level::warn>(
+        "In marking pockets the status map passed must be from "
+        "another reference object; here the same was passed");
     return;
   }
 
@@ -928,7 +938,7 @@ int DelPhiShared::cavitiesToAtoms(double rad) {
     }
 
     if (count == 0) {
-      spdlog::error("Zero support atoms to save");
+      logging::log<logging::level::err>("Zero support atoms to save");
 #ifdef PYTHON
       throw std::exception();
 #else
@@ -994,7 +1004,8 @@ void DelPhiShared::saveCavities2(bool onlySaveNonFilled, string sysName) {
 }
 void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
   if (status == NULL) {
-    spdlog::warn("Cannot save cavities with null status!");
+    logging::log<logging::level::warn>(
+        "Cannot save cavities with null status!");
     return;
   }
 
@@ -1063,7 +1074,8 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
 
   if (isAvailableAtomInfo) {
     FILE *fp3;
-    // spdlog::info("Atoms info is available I am saving also residues");
+    // logging::log<logging::level::info>("Atoms info is available I am saving
+    // also residues");
     fp2 = fopen("residues.txt", "w");
     fp3 = fopen("residues_vmd.txt", "w");
 

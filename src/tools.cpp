@@ -1,6 +1,6 @@
 
 #include <tools.h>
-#include <spdlog/spdlog.h>
+#include <logging.h>
 
 /**@brief ascending on first double of pair<double,double*> comparator*/
 bool compKeepIndex(pair<double,double*> a, pair<double,double*> b)
@@ -55,7 +55,7 @@ string toLowerCase(string str)
 
 void cleanLine()
 {
-	spdlog::info("--------------------------------------------------------------------------");
+	logging::log<logging::level::info>("--------------------------------------------------------------------------");
 }
 
 
@@ -227,7 +227,7 @@ void getRealRootsSturm(const double *const polyy,const int degree,double *const 
 
 	if (nchanges != atmin) 
 	{
-		spdlog::info("solve: unable to bracket all negative roots");
+		logging::log<logging::level::info>("solve: unable to bracket all negative roots");
 		atmin = nchanges;
 	}
 
@@ -241,7 +241,7 @@ void getRealRootsSturm(const double *const polyy,const int degree,double *const 
 
 	if (nchanges != atmax) 
 	{
-		spdlog::info("solve: unable to bracket all positive roots");
+		logging::log<logging::level::info>("solve: unable to bracket all positive roots");
 		atmax = nchanges;
 	}
 
@@ -321,7 +321,7 @@ void inplace_invert4x4(double M[4][4])
         M[3][0] /=D; M[3][1] /=D; M[3][2] /=D; M[3][3] /=D;
     }
 	else
-    spdlog::info("Singular 4x4 matrix inversion!");
+    logging::log<logging::level::info>("Singular 4x4 matrix inversion!");
 }
 
 /** unrolled 4x4 matrix multiply*/

@@ -8,10 +8,10 @@
 #include <Surface.h>
 #include <SurfaceFactory.h>
 #include <globals.h>
+#include <logging.h>
 #include <main_functions.h>
 #include <memory>
 #include <pybind11/pybind11.h>
-#include <spdlog/spdlog.h>
 #include <Configuration.h>
 
 namespace py = pybind11;

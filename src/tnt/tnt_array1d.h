@@ -33,9 +33,7 @@
 #include <tnt_i_refvec.h>
 
 #ifdef TNT_DEBUG
-#ifdef SPDLOG
-#include <spdlog/spdlog.h>
-#endif
+#include <logging.h>
 #endif
 
 namespace TNT
@@ -101,7 +99,7 @@ Array1D<T>::Array1D(const Array1D<T> &A) : v_(A.v_),  n_(A.n_),
 		data_(A.data_)
 {
 #ifdef TNT_DEBUG
-	spdlog::debug("Created Array1D(const Array1D<T> &A) ");
+	logging::log<logging::level::debug>("Created Array1D(const Array1D<T> &A) ");
 #endif
 
 }
@@ -111,7 +109,7 @@ template <class T>
 Array1D<T>::Array1D(int n) : v_(n), n_(n), data_(v_.begin())
 {
 #ifdef TNT_DEBUG
-	spdlog::debug("Created Array1D(int n) ");
+	logging::log<logging::level::debug>("Created Array1D(int n) ");
 #endif
 }
 
@@ -119,7 +117,7 @@ template <class T>
 Array1D<T>::Array1D(int n, const T &val) : v_(n), n_(n), data_(v_.begin()) 
 {
 #ifdef TNT_DEBUG
-	spdlog::debug("Created Array1D(int n, const T& val) ");
+	logging::log<logging::level::debug>("Created Array1D(int n, const T& val) ");
 #endif
 	set_(data_, data_+ n, val);
 
@@ -129,7 +127,7 @@ template <class T>
 Array1D<T>::Array1D(int n, T *a) : v_(a), n_(n) , data_(v_.begin())
 {
 #ifdef TNT_DEBUG
-	spdlog::debug("Created Array1D(int n, T* a) ");
+	logging::log<logging::level::debug>("Created Array1D(int n, T* a) ");
 #endif
 }
 

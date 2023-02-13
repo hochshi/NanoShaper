@@ -30,9 +30,7 @@
 #include <tnt_i_refvec.h>
 
 #ifdef TNT_DEBUG
-#ifdef SPDLOG
-#include <spdlog/spdlog.h>
-#endif
+#include <logging.h>
 #endif
 
 namespace TNT {
@@ -83,14 +81,14 @@ template <class T>
 Fortran_Array1D<T>::Fortran_Array1D(const Fortran_Array1D<T> &A)
     : v_(A.v_), n_(A.n_), data_(A.data_) {
 #ifdef TNT_DEBUG
-  spdlog::debug("Created Fortran_Array1D(const Fortran_Array1D<T> &A) ");
+  logging::log<logging::level::debug>("Created Fortran_Array1D(const Fortran_Array1D<T> &A) ");
 #endif
 }
 
 template <class T>
 Fortran_Array1D<T>::Fortran_Array1D(int n) : v_(n), n_(n), data_(v_.begin()) {
 #ifdef TNT_DEBUG
-  spdlog::debug("Created Fortran_Array1D(int n) ");
+  logging::log<logging::level::debug>("Created Fortran_Array1D(int n) ");
 #endif
 }
 
@@ -98,7 +96,7 @@ template <class T>
 Fortran_Array1D<T>::Fortran_Array1D(int n, const T &val)
     : v_(n), n_(n), data_(v_.begin()) {
 #ifdef TNT_DEBUG
-  spdlog::debug("Created Fortran_Array1D(int n, const T& val) ");
+  logging::log<logging::level::debug>("Created Fortran_Array1D(int n, const T& val) ");
 #endif
   set_(data_, data_ + n, val);
 }
@@ -107,7 +105,7 @@ template <class T>
 Fortran_Array1D<T>::Fortran_Array1D(int n, T *a)
     : v_(a), n_(n), data_(v_.begin()) {
 #ifdef TNT_DEBUG
-  spdlog::debug("Created Fortran_Array1D(int n, T* a) ");
+  logging::log<logging::level::debug>("Created Fortran_Array1D(int n, T* a) ");
 #endif
 }
 
@@ -178,7 +176,7 @@ template <class T> inline int Fortran_Array1D<T>::ref_count() const {
 template <class T>
 inline Fortran_Array1D<T> Fortran_Array1D<T>::subarray(int i0, int i1) {
 #ifdef TNT_DEBUG
-  spdlog::debug("entered subarray. ");
+  logging::log<logging::level::debug>("entered subarray. ");
 #endif
   if ((i0 > 0) && (i1 < n_) || (i0 <= i1)) {
     Fortran_Array1D<T> X(*this); /* create a new instance of this array. */
@@ -188,7 +186,7 @@ inline Fortran_Array1D<T> Fortran_Array1D<T>::subarray(int i0, int i1) {
     return X;
   } else {
 #ifdef TNT_DEBUG
-    spdlog::debug("subarray:  null return.");
+    logging::log<logging::level::debug>("subarray:  null return.");
 #endif
     return Fortran_Array1D<T>();
   }

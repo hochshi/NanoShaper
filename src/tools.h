@@ -9,6 +9,7 @@
 #define tools_h
 
 #include <globals.h>
+#include <logging.h>
 
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
@@ -18,10 +19,6 @@
 #include <jama_eig.h>
 #include <string>
 #include <sturm/solve.h>
-
-#ifdef SPDLOG
-#include <spdlog/spdlog.h>
-#endif // SPDLOG
 
 using namespace TNT;
 using namespace JAMA;
@@ -476,7 +473,7 @@ public:
     chain = p.chain;
   }
 
-  void operator=( const AtomInfo &p ) {
+  void operator=(const AtomInfo &p) {
     name = p.name;
     resNum = p.resNum;
     resName = p.resName;
@@ -577,17 +574,18 @@ public:
   }
 
   void print() {
-    spdlog::info("Atom Info:");
-    spdlog::info("\tname -> {}", ai.getName());
-    spdlog::info("\tresidue name -> {}", ai.getResName());
-    spdlog::info("\tresidue number -> {}", ai.getResNum());
-    spdlog::info("\tchain -> {}", ai.getChain());
-    spdlog::info("\tposx -> {}", pos[0]);
-    spdlog::info("\tposy -> {}", pos[1]);
-    spdlog::info("\tposz -> {}", pos[2]);
-    spdlog::info("\tcharge -> {}", charge);
-    spdlog::info("\tradius -> {}", radius);
-    spdlog::info("\tdielectric -> {}", dielectric);
+    logging::log<logging::level::info>("Atom Info:");
+    logging::log<logging::level::info>("\tname -> {}", ai.getName());
+    logging::log<logging::level::info>("\tresidue name -> {}", ai.getResName());
+    logging::log<logging::level::info>("\tresidue number -> {}",
+                                       ai.getResNum());
+    logging::log<logging::level::info>("\tchain -> {}", ai.getChain());
+    logging::log<logging::level::info>("\tposx -> {}", pos[0]);
+    logging::log<logging::level::info>("\tposy -> {}", pos[1]);
+    logging::log<logging::level::info>("\tposz -> {}", pos[2]);
+    logging::log<logging::level::info>("\tcharge -> {}", charge);
+    logging::log<logging::level::info>("\tradius -> {}", radius);
+    logging::log<logging::level::info>("\tdielectric -> {}", dielectric);
   }
 };
 
@@ -598,7 +596,8 @@ template <class T> void cleanDelete(T *&t) {
     delete t;
     t = NULL;
   } else {
-    spdlog::warn("Attempting to de-allocate a null object!");
+    logging::log<logging::level::warn>(
+        "Attempting to de-allocate a null object!");
   }
 }
 
@@ -607,7 +606,8 @@ template <class T> void cleanDeleteV(T *&t) {
     delete[] t;
     t = NULL;
   } else {
-    spdlog::warn("Attempting to de-allocate a null vector object!");
+    logging::log<logging::level::warn>(
+        "Attempting to de-allocate a null vector object!");
   }
 }
 
@@ -618,7 +618,7 @@ inline T read4DVector(const T *const var, const int i, const int j, const int k,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || l >= nl || i < 0 || j < 0 || k < 0 ||
       l < 0) {
-                spdlog::error( "Out of bound error in reading 4DVector";
+                logging::log<logging::level::err>( "Out of bound error in reading 4DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -638,7 +638,7 @@ inline void write4DVector(T *const var, const T val, const int i, const int j,
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || l >= nl || i < 0 || j < 0 || k < 0 ||
       l < 0) {
-                spdlog::error( "Out of bound error in writing 4DVector";
+                logging::log<logging::level::err>( "Out of bound error in writing 4DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -656,7 +656,7 @@ inline T read3DVector(const T *const var, const int i, const int j, const int k,
                       const int nx, const int ny, const int nz) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
-                spdlog::error( "Out of bound error in reading 3DVector";
+                logging::log<logging::level::err>( "Out of bound error in reading 3DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -675,7 +675,7 @@ inline void write3DVector(T *const var, const T val, const int i, const int j,
                           const int nz) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
-                spdlog::error( "Out of bound error in writing 3DVector";
+                logging::log<logging::level::err>( "Out of bound error in writing 3DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -693,7 +693,7 @@ inline T read2DVector(const T *const var, const int i, const int j,
                       const int nx, const int ny) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || i < 0 || j < 0) {
-                spdlog::error( "Out of bound error in reading 2DVector";
+                logging::log<logging::level::err>( "Out of bound error in reading 2DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -711,7 +711,7 @@ inline void write2DVector(T *const var, const T val, const int i, const int j,
                           const int nx, const int ny) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || i < 0 || j < 0) {
-                spdlog::error( "Out of bound error in reading 2DVector";
+                logging::log<logging::level::err>( "Out of bound error in reading 2DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -728,7 +728,7 @@ template <class T>
 inline T readVector(const T *const var, const int i, const int nx) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || i < 0) {
-                spdlog::error( "Out of bound error in reading Vector";
+                logging::log<logging::level::err>( "Out of bound error in reading Vector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -744,7 +744,7 @@ template <class T>
 inline void writeVector(T *const var, const T val, const int i, const int nx) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || i < 0) {
-                spdlog::error( "Out of bound error in writing Vector";
+                logging::log<logging::level::err>( "Out of bound error in writing Vector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -758,7 +758,7 @@ exit(-1);
 template <class T> T *allocateVector(size_t n) {
   T *t = (T *)malloc(sizeof(T) * n);
   if (t == NULL) {
-                spdlog::error("Not enough memory to allocate vector ");
+                logging::log<logging::level::err>("Not enough memory to allocate vector ");
                 return NULL;
   }
   return t;
@@ -767,14 +767,14 @@ template <class T> T *allocateVector(size_t n) {
 template <class T> T **allocateMatrix2D(int nrows, int ncol) {
   T **t = (T **)malloc(sizeof(T *) * nrows);
   if (t == NULL) {
-                spdlog::error("Not enough memory to allocate 2D matrix ");
+                logging::log<logging::level::err>("Not enough memory to allocate 2D matrix ");
                 return NULL;
   }
   for (int i = 0; i < nrows; i++) {
                 t[i] = (T *)malloc(sizeof(T) * ncol);
 
                 if (t[i] == NULL) {
-                  spdlog::error("Not enough memory to allocate 2D matrix ");
+                  logging::log<logging::level::err>("Not enough memory to allocate 2D matrix ");
                   return NULL;
                 }
   }
@@ -784,20 +784,20 @@ template <class T> T **allocateMatrix2D(int nrows, int ncol) {
 template <class T> T ***allocateMatrix3D(int nx, int ny, int nz) {
   T ***t = (T ***)malloc(sizeof(T **) * nx);
   if (t == NULL) {
-                spdlog::error("Not enough memory to allocate 3D matrix ");
+                logging::log<logging::level::err>("Not enough memory to allocate 3D matrix ");
                 return NULL;
   }
   for (int i = 0; i < nx; i++) {
                 t[i] = (T **)malloc(sizeof(T *) * ny);
                 if (t[i] == NULL) {
-                  spdlog::error("Not enough memory to allocate 3D matrix ");
+                  logging::log<logging::level::err>("Not enough memory to allocate 3D matrix ");
                   return NULL;
                 }
 
                 for (int j = 0; j < ny; j++) {
                   t[i][j] = (T *)malloc(sizeof(T) * nz);
                   if (t[i][j] == NULL) {
-                    spdlog::error("Not enough memory to allocate 3D matrix ");
+                    logging::log<logging::level::err>("Not enough memory to allocate 3D matrix ");
                     return NULL;
                   }
                 }
@@ -810,7 +810,8 @@ template <class T> void deleteVector(T *&t) {
                 free(t);
                 t = NULL;
   } else {
-                spdlog::warn("Attempting to de-allocate a null vector!");
+                logging::log<logging::level::warn>(
+                    "Attempting to de-allocate a null vector!");
   }
 }
 
@@ -821,7 +822,8 @@ template <class T> void deleteMatrix2D(int nrows, T **&t) {
                 free(t);
                 t = NULL;
   } else {
-                spdlog::warn("Attempting to de-allocate a null vector!");
+                logging::log<logging::level::warn>(
+                    "Attempting to de-allocate a null vector!");
   }
 }
 
@@ -835,7 +837,8 @@ template <class T> void deleteMatrix3D(int nx, int ny, T ***&t) {
                 free(t);
                 t = NULL;
   } else {
-                spdlog::warn("Attempting to de-allocate a null vector!");
+                logging::log<logging::level::warn>(
+                    "Attempting to de-allocate a null vector!");
   }
 }
 
@@ -850,7 +853,7 @@ inline boost::uint32_t *allocateVectorBool(size_t n) {
                 nw++;
   boost::uint32_t *ptr = (boost::uint32_t *)malloc(nw * 4);
   if (ptr == NULL)
-                spdlog::error("Not enough memory to allocate bit vector");
+                logging::log<logging::level::err>("Not enough memory to allocate bit vector");
   return ptr;
 }
 
@@ -859,7 +862,8 @@ inline void deleteVectorBool(boost::uint32_t *&t) {
                 free(t);
                 t = NULL;
   } else {
-                spdlog::warn("Attempting to de-allocate a null bool vector!");
+                logging::log<logging::level::warn>(
+                    "Attempting to de-allocate a null bool vector!");
   }
 }
 
@@ -868,7 +872,7 @@ inline bool read3DVectorBool(boost::uint32_t *const var, const int i,
                              const int ny, const int nz) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
-                spdlog::error( "Out of bound error in reading 3DVector";
+                logging::log<logging::level::err>( "Out of bound error in reading 3DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -889,7 +893,7 @@ inline void write3DVectorBool(boost::uint32_t *const var, const bool val,
                               const int nx, const int ny, const int nz) {
 #ifdef CHECK_BOUNDS
   if (i >= nx || j >= ny || k >= nz || i < 0 || j < 0 || k < 0) {
-                spdlog::error( "Out of bound error in reading 3DVector";
+                logging::log<logging::level::err>( "Out of bound error in reading 3DVector";
 #ifdef PYTHON
 throw std::out_of_range("Out of bound error");
 #else
@@ -917,7 +921,7 @@ template <class T> T *allocateAlignedVector(size_t n, int bitAlignment) {
   ptr[-1] = mem;
 
   if (mem == NULL) {
-                spdlog::error("Not enough memory to allocate aligned vector ");
+                logging::log<logging::level::err>("Not enough memory to allocate aligned vector ");
                 return NULL;
   }
 
@@ -926,7 +930,7 @@ template <class T> T *allocateAlignedVector(size_t n, int bitAlignment) {
 
 template <class T> void deleteAlignedVector(T *&ptr) {
   if (ptr == NULL) {
-                spdlog::warn(
+                logging::log<logging::level::warn>(
                     "Attempting to de-allocate a null aligned vector!");
                 return;
   }

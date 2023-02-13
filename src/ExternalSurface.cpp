@@ -1,424 +1,397 @@
 
-#include <globals.h>
 #include <ExternalSurface.h>
+#include <globals.h>
+#include <logging.h>
 
-void ExternalSurface::init()
-{
-	surfType = GENERIC_SURFACE;
+void ExternalSurface::init() { surfType = GENERIC_SURFACE; }
+
+void ExternalSurface::init(ConfigurationOP cf) {}
+
+ExternalSurface::~ExternalSurface() { clear(); }
+
+void ExternalSurface::clear() {}
+
+ExternalSurface::ExternalSurface(DelPhiShared *ds) : Surface() {
+  // set environment
+  delphi = ds;
+  init();
 }
 
-void ExternalSurface::init(ConfigurationOP cf)
-{
-	
+ExternalSurface::ExternalSurface(ConfigurationOP cf, DelPhiShared *ds) {
+  // set environment
+  delphi = ds;
+  init();
+  init(cf);
 }
 
-ExternalSurface::~ExternalSurface()
-{
-	clear();
+ExternalSurface::ExternalSurface() : Surface() { init(); }
+
+bool ExternalSurface::build() { return true; }
+
+bool ExternalSurface::load(char *fileName) { return true; }
+
+bool ExternalSurface::save(char *fileName) {
+  logging::log<logging::level::info>(
+      "Saving externally loaded surface by saving DelphiShared Object");
+  delphi->saveEpsMaps(fileName);
+  delphi->saveStatus(fileName);
+  delphi->saveBGP(fileName);
+  return true;
 }
 
-void ExternalSurface::clear()
-{	
+void ExternalSurface::printSummary() { return; }
+
+void ExternalSurface::getLocalArea(double gridPoint[3], double *area) {
+  logging::log<logging::level::warn>(
+      "Cannot compute area in an external surface!");
+  (*area) = 0;
 }
 
-ExternalSurface::ExternalSurface(DelPhiShared* ds):Surface()
-{
-	// set environment
-	delphi = ds;	
-	init();
+double ExternalSurface::getSurfaceArea() {
+  logging::log<logging::level::warn>(
+      "Cannot compute area in an external surface!");
+  return 0.0;
 }
 
-ExternalSurface::ExternalSurface(ConfigurationOP cf, DelPhiShared* ds)
-{
-	// set environment
-	delphi = ds;	
-	init();
-	init(cf);
+double ExternalSurface::getVolume() {
+  int NX = delphi->nx;
+  int NY = delphi->ny;
+  int NZ = delphi->nz;
+  int ix, iy, iz;
+
+  double cubeVol = delphi->side * delphi->side * delphi->side;
+  int count = 0;
+  int value[6];
+  for (ix = 0; ix < NX; ix++)
+    for (iy = 0; iy < NY; iy++)
+      for (iz = 0; iz < NZ; iz++) {
+        /*
+        value[0] = delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ);
+        value[1] = delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ);
+        value[2] = delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ);
+        value[3] = delphi->EPSMAP(ix-1,iy,iz,0,NX,NY,NZ);
+        value[4] = delphi->EPSMAP(ix,iy-1,iz,1,NX,NY,NZ);
+        value[5] = delphi->EPSMAP(ix,iy,iz-1,2,NX,NY,NZ);
+        */
+
+        value[0] =
+            read4DVector<int>(delphi->epsmap, ix, iy, iz, 0, NX, NY, NZ, 3);
+        value[1] =
+            read4DVector<int>(delphi->epsmap, ix, iy, iz, 1, NX, NY, NZ, 3);
+        value[2] =
+            read4DVector<int>(delphi->epsmap, ix, iy, iz, 2, NX, NY, NZ, 3);
+        value[3] =
+            read4DVector<int>(delphi->epsmap, ix - 1, iy, iz, 0, NX, NY, NZ, 3);
+        value[4] =
+            read4DVector<int>(delphi->epsmap, ix, iy - 1, iz, 1, NX, NY, NZ, 3);
+        value[5] =
+            read4DVector<int>(delphi->epsmap, ix, iy, iz - 1, 2, NX, NY, NZ, 3);
+
+        count = 0;
+        for (int j = 0; j < 6; j++) {
+          if (value[j] != 0)
+            count++;
+        }
+        totalVolume += cubeVol * (count / 6);
+      }
+  return totalVolume;
 }
 
-ExternalSurface::ExternalSurface():Surface()
-{
-	init();
-}
+bool ExternalSurface::getSurf(bool fillCav, double vol) {
+  logging::log<logging::level::info>("Loading external surface...");
 
-bool ExternalSurface::build()
-{
-	return true;
-}
+  FILE *fepsx, *fepsy, *fepsz, *fproj, *fstatus;
+  fepsx = fopen("epsmapx.txt", "r");
+  fepsy = fopen("epsmapy.txt", "r");
+  fepsz = fopen("epsmapz.txt", "r");
+  fproj = fopen("projections.txt", "r");
+  fstatus = fopen("status.txt", "r");
 
+  if (fepsx == NULL || fepsy == NULL || fepsz == NULL || fproj == NULL ||
+      fstatus == NULL) {
+    logging::log<logging::level::warn>(
+        "Cannot open one of the external surface file");
+    return false;
+  }
 
-bool ExternalSurface::load(char* fileName) 
-{
-	return true;
-}
+  int tempint;
+  int NX = delphi->nx;
+  int NY = delphi->ny;
+  int NZ = delphi->nz;
+  int ix, iy, iz;
+  int nbgp;
 
-
-bool ExternalSurface::save(char* fileName)
-{
-	spdlog::info("Saving externally loaded surface by saving DelphiShared Object");
-	delphi->saveEpsMaps(fileName);
-	delphi->saveStatus(fileName);
-	delphi->saveBGP(fileName);
-	return true;
-}
-
-void ExternalSurface::printSummary()
-{
-	return;
-}
-
-void ExternalSurface::getLocalArea(double gridPoint[3],double* area)
-{
-	spdlog::warn( "Cannot compute area in an external surface!");
-	(*area)=0;
-}
-	
-double ExternalSurface::getSurfaceArea()
-{
-	spdlog::warn( "Cannot compute area in an external surface!");
-	return 0.0;
-}
-
-
-double ExternalSurface::getVolume()
-{
-	int NX = delphi->nx;
-	int NY = delphi->ny;
-	int NZ = delphi->nz;
-	int ix,iy,iz;
-	
-	double cubeVol = delphi->side*delphi->side*delphi->side;
-	int count = 0;	
-	int value[6];
-	for (ix=0;ix<NX;ix++)
-		for (iy=0;iy<NY;iy++)
-			for (iz=0;iz<NZ;iz++)
-			{
-				/*
-				value[0] = delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ);
-				value[1] = delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ);
-				value[2] = delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ);
-				value[3] = delphi->EPSMAP(ix-1,iy,iz,0,NX,NY,NZ);
-				value[4] = delphi->EPSMAP(ix,iy-1,iz,1,NX,NY,NZ);
-				value[5] = delphi->EPSMAP(ix,iy,iz-1,2,NX,NY,NZ);
-				*/
-				
-				value[0] = read4DVector<int>(delphi->epsmap,ix,iy,iz,0,NX,NY,NZ,3);
-				value[1] = read4DVector<int>(delphi->epsmap,ix,iy,iz,1,NX,NY,NZ,3);
-				value[2] = read4DVector<int>(delphi->epsmap,ix,iy,iz,2,NX,NY,NZ,3);
-				value[3] = read4DVector<int>(delphi->epsmap,ix-1,iy,iz,0,NX,NY,NZ,3);
-				value[4] = read4DVector<int>(delphi->epsmap,ix,iy-1,iz,1,NX,NY,NZ,3);
-				value[5] = read4DVector<int>(delphi->epsmap,ix,iy,iz-1,2,NX,NY,NZ,3);
-
-				count = 0;
-				for (int j=0;j<6;j++)
-				{
-					if (value[j]!=0)
-						count++;
-				}
-				totalVolume+=cubeVol*(count/6);
-			}
-	return totalVolume;
-}
-
-
-bool ExternalSurface::getSurf(bool fillCav,double vol)
-{
-	spdlog::info("Loading external surface...");
-
-	FILE *fepsx,*fepsy,*fepsz,*fproj,*fstatus;
-	fepsx = fopen("epsmapx.txt","r");
-	fepsy = fopen("epsmapy.txt","r");
-	fepsz = fopen("epsmapz.txt","r");
-	fproj = fopen("projections.txt","r");
-	fstatus = fopen("status.txt","r");
-
-	if (fepsx==NULL || fepsy==NULL || fepsz==NULL || fproj==NULL || fstatus==NULL)
-	{	
-		spdlog::warn( "Cannot open one of the external surface file");
-		return false;
-	}
-
-	int tempint;
-	int NX = delphi->nx;
-	int NY = delphi->ny;
-	int NZ = delphi->nz;
-	int ix,iy,iz;
-	int nbgp;
-	
-	for (ix=0;ix<NX;ix++)
-		for (iy=0;iy<NY;iy++)
-			for (iz=0;iz<NZ;iz++)
-			{
-				int check = fscanf(fepsx,"%d",&tempint);
-				if (check<=0)
-				{
-					spdlog::error( "Error in reading from external surface");
+  for (ix = 0; ix < NX; ix++)
+    for (iy = 0; iy < NY; iy++)
+      for (iz = 0; iz < NZ; iz++) {
+        int check = fscanf(fepsx, "%d", &tempint);
+        if (check <= 0) {
+          logging::log<logging::level::err>(
+              "Error in reading from external surface");
 #ifdef PYTHON
-throw std::exception();
+          throw std::exception();
 #else
-exit(-1);
+          exit(-1);
 #endif
-				}
-				if (tempint)
-					inside = tempint;
-				
-				//delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ)=tempint;
-				write4DVector<int>(delphi->epsmap,tempint,ix,iy,iz,0,NX,NY,NZ,3);
-			}
-	
-	if (ix!=NX)
-	{
-		spdlog::warn( "Error reading epsmapx!");
-		return false;
-	}
-	fclose(fepsx);
-	
-	for (ix=0;ix<NX;ix++)
-		for (iy=0;iy<NY;iy++)
-			for (iz=0;iz<NZ;iz++)
-			{
-				int check = fscanf(fepsy,"%d",&tempint);
-				if (check<=0)
-				{
-					spdlog::error( "Error in reading from external surface");
+        }
+        if (tempint)
+          inside = tempint;
+
+        // delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ)=tempint;
+        write4DVector<int>(delphi->epsmap, tempint, ix, iy, iz, 0, NX, NY, NZ,
+                           3);
+      }
+
+  if (ix != NX) {
+    logging::log<logging::level::warn>("Error reading epsmapx!");
+    return false;
+  }
+  fclose(fepsx);
+
+  for (ix = 0; ix < NX; ix++)
+    for (iy = 0; iy < NY; iy++)
+      for (iz = 0; iz < NZ; iz++) {
+        int check = fscanf(fepsy, "%d", &tempint);
+        if (check <= 0) {
+          logging::log<logging::level::err>(
+              "Error in reading from external surface");
 #ifdef PYTHON
-throw std::exception();
+          throw std::exception();
 #else
-exit(-1);
+          exit(-1);
 #endif
-				}
-				//delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ)=tempint;
-				write4DVector<int>(delphi->epsmap,tempint,ix,iy,iz,1,NX,NY,NZ,3);
-			}
-	
-	if (ix!=NX)
-	{
-		spdlog::warn( "Error reading epsmapy!");
-		return false;
-	}
-	fclose(fepsy);
+        }
+        // delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ)=tempint;
+        write4DVector<int>(delphi->epsmap, tempint, ix, iy, iz, 1, NX, NY, NZ,
+                           3);
+      }
 
+  if (ix != NX) {
+    logging::log<logging::level::warn>("Error reading epsmapy!");
+    return false;
+  }
+  fclose(fepsy);
 
-	for (ix=0;ix<NX;ix++)
-		for (iy=0;iy<NY;iy++)
-			for (iz=0;iz<NZ;iz++)
-			{
-				int check = fscanf(fepsz,"%d",&tempint);
-				if (check<=0)
-				{
-					spdlog::error( "Error in reading from external surface");
+  for (ix = 0; ix < NX; ix++)
+    for (iy = 0; iy < NY; iy++)
+      for (iz = 0; iz < NZ; iz++) {
+        int check = fscanf(fepsz, "%d", &tempint);
+        if (check <= 0) {
+          logging::log<logging::level::err>(
+              "Error in reading from external surface");
 #ifdef PYTHON
-throw std::exception();
+          throw std::exception();
 #else
-exit(-1);
+          exit(-1);
 #endif
-				}
-				//delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ)=tempint;
-				write4DVector<int>(delphi->epsmap,tempint,ix,iy,iz,2,NX,NY,NZ,3);
-			}
-	
-	if (ix!=NX)
-	{
-		spdlog::warn( "Error reading epsmapz!");
-		return false;
-	}
-	fclose(fepsz);
-	
-	int check = fscanf(fproj,"%d",&nbgp);
-	if (check<=0)
-	{
-		spdlog::error( "Error in reading from external surface");
+        }
+        // delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ)=tempint;
+        write4DVector<int>(delphi->epsmap, tempint, ix, iy, iz, 2, NX, NY, NZ,
+                           3);
+      }
+
+  if (ix != NX) {
+    logging::log<logging::level::warn>("Error reading epsmapz!");
+    return false;
+  }
+  fclose(fepsz);
+
+  int check = fscanf(fproj, "%d", &nbgp);
+  if (check <= 0) {
+    logging::log<logging::level::err>("Error in reading from external surface");
 #ifdef PYTHON
-throw std::exception();
+    throw std::exception();
 #else
-exit(-1);
+    exit(-1);
 #endif
-	}
+  }
 
-	if (nbgp<=0)
-	{
-		spdlog::warn( "Null number of bgps!");
-		return false;
-	}
+  if (nbgp <= 0) {
+    logging::log<logging::level::warn>("Null number of bgps!");
+    return false;
+  }
 
-	delphi->nbgp = nbgp;
+  delphi->nbgp = nbgp;
 
-	delphi->scspos	= allocateVector<double>(3*delphi->nbgp);
-	delphi->scsnor	= allocateVector<double>(3*delphi->nbgp);
-	delphi->scsarea = allocateVector<double>(delphi->nbgp);
-	delphi->ibgp	= allocateVector<int>(3*delphi->nbgp);
+  delphi->scspos = allocateVector<double>(3 * delphi->nbgp);
+  delphi->scsnor = allocateVector<double>(3 * delphi->nbgp);
+  delphi->scsarea = allocateVector<double>(delphi->nbgp);
+  delphi->ibgp = allocateVector<int>(3 * delphi->nbgp);
 
-	int ind[3];
-	double bgpdata[6];
-	// load bgp data
-	for (int i=0;i<nbgp;i++)
-	{
-		int check = fscanf(fproj,"%d %d %d %lf %lf %lf %lf %lf %lf",&(ind[0]),&(ind[1]),
-			&(ind[2]),&(bgpdata[0]),&(bgpdata[1]),&(bgpdata[2]),&(bgpdata[3]),
-			&(bgpdata[4]),&(bgpdata[5]));
+  int ind[3];
+  double bgpdata[6];
+  // load bgp data
+  for (int i = 0; i < nbgp; i++) {
+    int check =
+        fscanf(fproj, "%d %d %d %lf %lf %lf %lf %lf %lf", &(ind[0]), &(ind[1]),
+               &(ind[2]), &(bgpdata[0]), &(bgpdata[1]), &(bgpdata[2]),
+               &(bgpdata[3]), &(bgpdata[4]), &(bgpdata[5]));
 
-		if (check<=0)
-		{
-			spdlog::error( "Error in reading from external surface");
+    if (check <= 0) {
+      logging::log<logging::level::err>(
+          "Error in reading from external surface");
 #ifdef PYTHON
-throw std::exception();
+      throw std::exception();
 #else
-exit(-1);
+      exit(-1);
 #endif
-		}
+    }
 
-		ind[0]-=1;
-		ind[1]-=1;
-		ind[2]-=1;
+    ind[0] -= 1;
+    ind[1] -= 1;
+    ind[2] -= 1;
 
-		if (ind[0]<0 || ind[1]<0 || ind[2]<0)
-		{
-			spdlog::warn( "Wrong bgp indexing!");
-			return false;
-		}
+    if (ind[0] < 0 || ind[1] < 0 || ind[2] < 0) {
+      logging::log<logging::level::warn>("Wrong bgp indexing!");
+      return false;
+    }
 
-		delphi->ibgp[3*i]=ind[0];
-		delphi->ibgp[3*i+1]=ind[1];
-		delphi->ibgp[3*i+2]=ind[2];
+    delphi->ibgp[3 * i] = ind[0];
+    delphi->ibgp[3 * i + 1] = ind[1];
+    delphi->ibgp[3 * i + 2] = ind[2];
 
-		delphi->scspos[3*i]=bgpdata[0];
-		delphi->scspos[3*i+1]=bgpdata[1];
-		delphi->scspos[3*i+2]=bgpdata[2];
+    delphi->scspos[3 * i] = bgpdata[0];
+    delphi->scspos[3 * i + 1] = bgpdata[1];
+    delphi->scspos[3 * i + 2] = bgpdata[2];
 
-		delphi->scsnor[3*i]=bgpdata[3];
-		delphi->scsnor[3*i+1]=bgpdata[4];
-		delphi->scsnor[3*i+2]=bgpdata[5];
-	}
-	fclose(fproj);
+    delphi->scsnor[3 * i] = bgpdata[3];
+    delphi->scsnor[3 * i + 1] = bgpdata[4];
+    delphi->scsnor[3 * i + 2] = bgpdata[5];
+  }
+  fclose(fproj);
 
-	// load status
-	for (ix=0;ix<NX;ix++)
-	{
-		for (iy=0;iy<NY;iy++)
-		{
-			for (iz=0;iz<NZ;iz++)
-			{
-				int check = fscanf(fstatus,"%d",&tempint);
-				if (check<=0)
-				{
-					spdlog::error( "Error in reading from external surface");
+  // load status
+  for (ix = 0; ix < NX; ix++) {
+    for (iy = 0; iy < NY; iy++) {
+      for (iz = 0; iz < NZ; iz++) {
+        int check = fscanf(fstatus, "%d", &tempint);
+        if (check <= 0) {
+          logging::log<logging::level::err>(
+              "Error in reading from external surface");
 #ifdef PYTHON
-throw std::exception();
+          throw std::exception();
 #else
-exit(-1);
+          exit(-1);
 #endif
-				}
-				//delphi->status[ix][iy][iz]=((char)tempint);
-				//delphi->STATUSMAP(ix,iy,iz,NX,NY)=((short)tempint);
-				write3DVector<short>(delphi->status,(short)tempint,ix,iy,iz,NX,NY,NZ);
-			}				
-		}
-	}
-	
-	if (ix!=NX)
-	{
-		spdlog::warn( "Error reading status map!");
-		return false;
-	}
+        }
+        // delphi->status[ix][iy][iz]=((char)tempint);
+        // delphi->STATUSMAP(ix,iy,iz,NX,NY)=((short)tempint);
+        write3DVector<short>(delphi->status, (short)tempint, ix, iy, iz, NX, NY,
+                             NZ);
+      }
+    }
+  }
 
-	fclose(fstatus);
-	spdlog::info("Number bgps... {}", delphi->nbgp);		
+  if (ix != NX) {
+    logging::log<logging::level::warn>("Error reading status map!");
+    return false;
+  }
 
-	if (fillCav)
-	{
-		int cav = getCavities();
-		spdlog::info("Detected {} cavitiy[ies]", cav);		
-		fillCavities(vol);
-		spdlog::info("Filtering bgps...");		
-	
-		// remove false bgp from bgp list; this filter is due to conditional filling
-		// of the cavity detector
-		int index = 0;
-		for (int i=0;i<nbgp;i++)
-		{
-			ix=delphi->ibgp[3*i];
-			iy=delphi->ibgp[3*i+1];
-			iz=delphi->ibgp[3*i+2];
+  fclose(fstatus);
+  logging::log<logging::level::info>("Number bgps... {}", delphi->nbgp);
 
-			//int kost = delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ);
-			const int konst = read4DVector<int>(delphi->epsmap,ix,iy,iz,0,NX,NY,NZ,3);
-			if ((ix-1<0) || (iy-1<0) || (iz-1<0))
-				continue;
+  if (fillCav) {
+    int cav = getCavities();
+    logging::log<logging::level::info>("Detected {} cavitiy[ies]", cav);
+    fillCavities(vol);
+    logging::log<logging::level::info>("Filtering bgps...");
 
-			// true bgp is saved
-			/*
-			if (kost != delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ) ||
-				kost != delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ) ||
-				kost != delphi->EPSMAP((ix-1),iy,iz,0,NX,NY,NZ) ||
-				kost != delphi->EPSMAP(ix,(iy-1),iz,1,NX,NY,NZ) ||
-				kost != delphi->EPSMAP(ix,iy,(iz-1),2,NX,NY,NZ) )
-			*/
+    // remove false bgp from bgp list; this filter is due to conditional filling
+    // of the cavity detector
+    int index = 0;
+    for (int i = 0; i < nbgp; i++) {
+      ix = delphi->ibgp[3 * i];
+      iy = delphi->ibgp[3 * i + 1];
+      iz = delphi->ibgp[3 * i + 2];
 
-			if (konst != read4DVector<int>(delphi->epsmap,ix,iy,iz,1,NX,NY,NZ,3) ||
-				konst != read4DVector<int>(delphi->epsmap,ix,iy,iz,2,NX,NY,NZ,3) ||
-				konst != read4DVector<int>(delphi->epsmap,ix-1,iy,iz,0,NX,NY,NZ,3) ||
-				konst != read4DVector<int>(delphi->epsmap,ix,iy-1,iz,1,NX,NY,NZ,3) ||
-				konst != read4DVector<int>(delphi->epsmap,ix,iy,iz-1,2,NX,NY,NZ,3) )
-			{
+      // int kost = delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ);
+      const int konst =
+          read4DVector<int>(delphi->epsmap, ix, iy, iz, 0, NX, NY, NZ, 3);
+      if ((ix - 1 < 0) || (iy - 1 < 0) || (iz - 1 < 0))
+        continue;
 
-				delphi->ibgp[3*index]=delphi->ibgp[3*i];
-				delphi->ibgp[3*index+1]=delphi->ibgp[3*i+1];
-				delphi->ibgp[3*index+2]=delphi->ibgp[3*i+2];
+      // true bgp is saved
+      /*
+      if (kost != delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ) ||
+              kost != delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ) ||
+              kost != delphi->EPSMAP((ix-1),iy,iz,0,NX,NY,NZ) ||
+              kost != delphi->EPSMAP(ix,(iy-1),iz,1,NX,NY,NZ) ||
+              kost != delphi->EPSMAP(ix,iy,(iz-1),2,NX,NY,NZ) )
+      */
 
-				delphi->scspos[3*index]=delphi->scspos[3*i];
-				delphi->scspos[3*index+1]=delphi->scspos[3*i+1];
-				delphi->scspos[3*index+2]=delphi->scspos[3*i+2];
+      if (konst !=
+              read4DVector<int>(delphi->epsmap, ix, iy, iz, 1, NX, NY, NZ, 3) ||
+          konst !=
+              read4DVector<int>(delphi->epsmap, ix, iy, iz, 2, NX, NY, NZ, 3) ||
+          konst != read4DVector<int>(delphi->epsmap, ix - 1, iy, iz, 0, NX, NY,
+                                     NZ, 3) ||
+          konst != read4DVector<int>(delphi->epsmap, ix, iy - 1, iz, 1, NX, NY,
+                                     NZ, 3) ||
+          konst != read4DVector<int>(delphi->epsmap, ix, iy, iz - 1, 2, NX, NY,
+                                     NZ, 3)) {
 
-				delphi->scsnor[3*index]=delphi->scsnor[3*i];
-				delphi->scsnor[3*index+1]=delphi->scsnor[3*i+1];
-				delphi->scsnor[3*index+2]=delphi->scsnor[3*i+2];			
+        delphi->ibgp[3 * index] = delphi->ibgp[3 * i];
+        delphi->ibgp[3 * index + 1] = delphi->ibgp[3 * i + 1];
+        delphi->ibgp[3 * index + 2] = delphi->ibgp[3 * i + 2];
 
-				index++;
+        delphi->scspos[3 * index] = delphi->scspos[3 * i];
+        delphi->scspos[3 * index + 1] = delphi->scspos[3 * i + 1];
+        delphi->scspos[3 * index + 2] = delphi->scspos[3 * i + 2];
 
-				/*printf("\n %d %d %d %d %d %d (%d %d %d)",delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ),
-					delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ),delphi->EPSMAP((ix-1),iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,(iy-1),iz,1,NX,NY,NZ),
-					delphi->EPSMAP(ix,iy,(iz-1),2,NX,NY,NZ),ix,iy,iz);
-				getchar();*/
-			}
-			else
-			{
-				/*
-				printf("\n Discarding bgp..");
-				printf("\n %d %d %d %d %d %d",delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ),
-					delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ),delphi->EPSMAP((ix-1),iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,(iy-1),iz,1,NX,NY,NZ),
-					delphi->EPSMAP(ix,iy,(iz-1),2,NX,NY,NZ));
-				*/
-			}
-		}
-		delphi->ibgp = (int*)realloc(delphi->ibgp,3*sizeof(int)*index);
-		delphi->scspos = (double*)realloc(delphi->scspos,3*sizeof(double)*index);
-		delphi->scsnor = (double*)realloc(delphi->scsnor,3*sizeof(double)*index);
+        delphi->scsnor[3 * index] = delphi->scsnor[3 * i];
+        delphi->scsnor[3 * index + 1] = delphi->scsnor[3 * i + 1];
+        delphi->scsnor[3 * index + 2] = delphi->scsnor[3 * i + 2];
 
-		delphi->nbgp = index;
-		spdlog::info("Number bgps after conditional filling... {}", delphi->nbgp);		
-	}
+        index++;
 
-	/** TODO salt for now not supported, always false*/
-	for (int i=0;i<NX;i++)
-	  for (int j=0;j<NY;j++)
-	    for (int k=0;k<NZ;k++)
-	      //delphi->IDEBMAP(i,j,k,NX,NY)=false;
-		  write3DVector<bool>(delphi->idebmap,false,i,j,k,NX,NY,NZ);
+        /*printf("\n %d %d %d %d %d %d (%d %d
+        %d)",delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ),
+                delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ),delphi->EPSMAP((ix-1),iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,(iy-1),iz,1,NX,NY,NZ),
+                delphi->EPSMAP(ix,iy,(iz-1),2,NX,NY,NZ),ix,iy,iz);
+        getchar();*/
+      } else {
+        /*
+        printf("\n Discarding bgp..");
+        printf("\n %d %d %d %d %d
+        %d",delphi->EPSMAP(ix,iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,iy,iz,1,NX,NY,NZ),
+                delphi->EPSMAP(ix,iy,iz,2,NX,NY,NZ),delphi->EPSMAP((ix-1),iy,iz,0,NX,NY,NZ),delphi->EPSMAP(ix,(iy-1),iz,1,NX,NY,NZ),
+                delphi->EPSMAP(ix,iy,(iz-1),2,NX,NY,NZ));
+        */
+      }
+    }
+    delphi->ibgp = (int *)realloc(delphi->ibgp, 3 * sizeof(int) * index);
+    delphi->scspos =
+        (double *)realloc(delphi->scspos, 3 * sizeof(double) * index);
+    delphi->scsnor =
+        (double *)realloc(delphi->scsnor, 3 * sizeof(double) * index);
 
-	return true;
+    delphi->nbgp = index;
+    logging::log<logging::level::info>(
+        "Number bgps after conditional filling... {}", delphi->nbgp);
+  }
+
+  /** TODO salt for now not supported, always false*/
+  for (int i = 0; i < NX; i++)
+    for (int j = 0; j < NY; j++)
+      for (int k = 0; k < NZ; k++)
+        // delphi->IDEBMAP(i,j,k,NX,NY)=false;
+        write3DVector<bool>(delphi->idebmap, false, i, j, k, NX, NY, NZ);
+
+  return true;
 }
 
-	
-inline void ExternalSurface::getRayIntersection(double pa[3],double pb[3],vector<pair<double,double*> >& intersections,int thdID,bool computeNormals)
-{
-	intersections.clear();
-	spdlog::warn( "Cannot perform ray intersection with an externally loaded surface");
-}					
+inline void ExternalSurface::getRayIntersection(
+    double pa[3], double pb[3], vector<pair<double, double *>> &intersections,
+    int thdID, bool computeNormals) {
+  intersections.clear();
+  logging::log<logging::level::warn>(
+      "Cannot perform ray intersection with an externally loaded surface");
+}
 
-bool ExternalSurface::getProjection(double p[3],double* proj1,double* proj2,
-		double* proj3,double* normal1,double* normal2,double* normal3)
-{
-	spdlog::warn( "Cannot perform projection with an externally loaded surface");
-	return false;
+bool ExternalSurface::getProjection(double p[3], double *proj1, double *proj2,
+                                    double *proj3, double *normal1,
+                                    double *normal2, double *normal3) {
+  logging::log<logging::level::warn>(
+      "Cannot perform projection with an externally loaded surface");
+  return false;
 }

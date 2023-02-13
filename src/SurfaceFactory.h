@@ -5,9 +5,9 @@
 #include <Configuration.h>
 #include <globals.h>
 #include <iostream>
+#include <logging.h>
 #include <map>
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
 
@@ -45,7 +45,7 @@ public:
   SurfaceOP create(ConfigurationOP conf, DelPhiSharedOP ds) {
     string surfName = conf->surfName;
     if (!surfRegister.count(surfName)) {
-      spdlog::error("{} type is not registered!", surfName);
+      logging::log<logging::level::err>("{} type is not registered!", surfName);
       return nullptr;
     }
     return surfRegister[surfName](conf, ds.get());
@@ -57,7 +57,7 @@ public:
     for (it = surfRegister.begin(); it != surfRegister.end(); it++) {
       ss << endl << INFO_STR << "\t" << (*it).first;
     }
-    spdlog::info("{}", ss.str());
+    logging::log<logging::level::info>("{}", ss.str());
   }
 };
 

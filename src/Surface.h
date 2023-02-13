@@ -12,8 +12,8 @@
 #include <ConfigFile.h>
 #include <SurfaceFactory.h>
 #include <globals.h>
+#include <logging.h>
 #include <octree.h>
-#include <spdlog/spdlog.h>
 
 #ifdef ENABLE_CGAL
 //////////////////////// CGAL
@@ -22,10 +22,10 @@
 #include <CGAL/Regular_triangulation_3.h>
 // #include <CGAL/Regular_triangulation_euclidean_traits_3.h>
 // #include <CGAL/Regular_triangulation_filtered_traits_3.h>
-#include <CGAL/Triangulation_cell_base_with_info_3.h>
 #include <CGAL/Regular_triangulation_cell_base_3.h>
-#include <CGAL/Triangulation_vertex_base_with_info_3.h>
+#include <CGAL/Triangulation_cell_base_with_info_3.h>
 #include <CGAL/Triangulation_data_structure_3.h>
+#include <CGAL/Triangulation_vertex_base_with_info_3.h>
 ////////////////////////////////////////////////////////////////////////////////
 
 // vor point container
@@ -323,7 +323,8 @@ protected:
   void floodFill2(int ix, int iy, int iz, int idold, int idnew);
 
   /** parallel version with scaline */
-  void floodFill4(int ix, int iy, int iz, int idold, int idnew, int num_cores = 0);
+  void floodFill4(int ix, int iy, int iz, int idold, int idnew,
+                  int num_cores = 0);
 
   /** inner routine for scanline */
   void floodFill3(pair<pair<int, int>, int> ind, pair<int, int> z_limits,
@@ -374,8 +375,9 @@ protected:
 
   /** build triangles for marching cubes cell*/
   // int getTriangles(double* vertexValues,double** vertexPos,double isolevel,
-  // int** triangles,int ix,int iy,int iz, 	int NX, int NY,int NZ,int* xedge,int*
-  //yedge,int* zedge,int* xedge_down,int* yedge_down);
+  // int** triangles,int ix,int iy,int iz, 	int NX, int NY,int NZ,int*
+  // xedge,int*
+  // yedge,int* zedge,int* xedge_down,int* yedge_down);
   int getTriangles(double *vertexValues, double **vertexPos, double isolevel,
                    int **triangles, int ix, int iy, int iz, int NX, int NY,
                    int NZ);
@@ -528,8 +530,7 @@ public:
   surface is saved in off format*/
   virtual double triangulateSurface(double iso = 0.0,
                                     const char *fileName = "triangulatedSurf",
-                                    bool revert = false,
-                                    int num_cores = 0);
+                                    bool revert = false, int num_cores = 0);
 
   /** save mesh in a prescribed format, revert triangles (change plane sign) if
    * requested*/
@@ -610,7 +611,7 @@ public:
   double getSternLayer() { return sternLayer; }
   void setSternLayer(double l) {
     if (l < 0) {
-      spdlog::warn("Cannot set a negative Stern Layer");
+      logging::log<logging::level::warn>("Cannot set a negative Stern Layer");
       return;
     } else
       sternLayer = l;

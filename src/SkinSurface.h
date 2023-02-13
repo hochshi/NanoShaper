@@ -8,11 +8,11 @@
 #ifndef SkinSurface_h
 #define SkinSurface_h
 
-#include "SurfaceFactory.h"
-#include "globals.h"
 #include <Surface.h>
+#include <SurfaceFactory.h>
+#include <globals.h>
+#include <logging.h>
 #include <memory>
-#include <spdlog/spdlog.h>
 
 // #define DEBUG_SKIN
 
@@ -289,9 +289,10 @@ public:
     if (ss <= (1.0 - e) && ss >= (0.0 + e)) {
       s = ss;
     } else {
-      spdlog::warn("Cannot set {}. s parameter is in (0+e,1-e], where e is "
-                   "{}.Setting {}",
-                   ss, e, DEFAULT_S);
+      logging::log<logging::level::warn>(
+          "Cannot set {}. s parameter is in (0+e,1-e], where e is "
+          "{}.Setting {}",
+          ss, e, DEFAULT_S);
       s = DEFAULT_S;
     }
   }

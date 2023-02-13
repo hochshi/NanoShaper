@@ -1,9 +1,9 @@
 // #ifdef DELPHI_BIND
 #include <DelphiShared.h>
 #include <SurfaceFactory.h>
+#include <logging.h>
 #include <main_functions.h>
 #include <memory>
-#include <spdlog/spdlog.h>
 
 /** This is the DelPhi Fortran-C binding. Returns the number of bgp */
 // check visual, borland c++, xlc, watcom, for windows
@@ -49,7 +49,7 @@ extern "C"
   try {
     cf2 = new ConfigFile("custom.prm");
   } catch (...) {
-    spdlog::error("Cannot read custom.prm");
+    logging::log<logging::level::err>("Cannot read custom.prm");
     exit(-1);
   }
   string mode = cf2->read<string>("Surface", "ses");
@@ -62,7 +62,7 @@ extern "C"
   conf->surfName = mode;
 
   if (conf->operativeMode == "normal") {
-    spdlog::info("Binding with DelPhi..");
+    logging::log<logging::level::info>("Binding with DelPhi..");
 
     // Set up delphi environment
     // DelPhiShared *dg = new DelPhiShared();
@@ -77,14 +77,15 @@ extern "C"
     // here only means populate epsilon map
     dg->buildEpsmap(true);
 
-    spdlog::info("DelPhi grid is {}", igrid);
+    logging::log<logging::level::info>("DelPhi grid is {}", igrid);
 
     SurfaceOP surf = SurfaceFactory::getInstance().create(conf, dg);
     surf->setProjBGP(true);
     surf->setInsideCode(inside);
 
     if (exrad > 0) {
-      spdlog::info("Setting Stern Layer -> {} Angstrom", exrad);
+      logging::log<logging::level::info>("Setting Stern Layer -> {} Angstrom",
+                                         exrad);
       surf->setSternLayer(exrad);
     }
 
@@ -94,12 +95,12 @@ extern "C"
     // avoid to destroy things that now belong to DelPhi
     dg->finalizeBinding(ibnum);
 
-    spdlog::info("Cleaning memory...");
+    logging::log<logging::level::info>("Cleaning memory...");
 
     // delete surf;
     // delete dg;
 
-    spdlog::info("ok!");
+    logging::log<logging::level::info>("ok!");
     return;
   }
 
@@ -110,11 +111,13 @@ extern "C"
 
     pocketMode(true, conf, conf);
 
-    spdlog::info("Brute force exiting to avoid DelPhi solver");
-    spdlog::info("Closing {}", PROGNAME);
+    logging::log<logging::level::info>(
+        "Brute force exiting to avoid DelPhi solver");
+    logging::log<logging::level::info>("Closing {}", PROGNAME);
     exit(-1);
   } else {
-    spdlog::info("Unknown operative mode: {}", conf->operativeMode);
+    logging::log<logging::level::info>("Unknown operative mode: {}",
+                                       conf->operativeMode);
     exit(-1);
   }
 

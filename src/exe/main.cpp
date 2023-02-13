@@ -1,9 +1,9 @@
 
-#include <SurfaceFactory.h>
 #include <DelphiShared.h>
+#include <SurfaceFactory.h>
+#include <logging.h>
 #include <main_functions.h>
 #include <memory>
-#include <spdlog/spdlog.h>
 
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
@@ -149,7 +149,8 @@ int main(int argc, char *argv[]) {
     strcpy(confFile, argv[1]);
 
   if (numargs > 1)
-    spdlog::warn("Ignoring additional non required parameters");
+    logging::log<logging::level::warn>(
+        "Ignoring additional non required parameters");
 
   // check configuration consistency, init error stream, get configuration
   ConfigFileOP cf = load(string(confFile));
@@ -171,17 +172,17 @@ int main(int argc, char *argv[]) {
     if (surf != nullptr) {
       normalMode(surf, dg, conf);
     }
-    spdlog::info("Cleaning memory...");
+    logging::log<logging::level::info>("Cleaning memory...");
 
     // delete surf;
     // delete dg;
-    spdlog::info("ok!");
+    logging::log<logging::level::info>("ok!");
   }
   // detect pockets
   else if (!conf->operativeMode.compare("pockets")) {
     pocketMode(false, conf, conf);
   } else {
-    spdlog::info("Unknown operative mode");
+    logging::log<logging::level::info>("Unknown operative mode");
     return -1;
   }
 
@@ -196,4 +197,3 @@ int main(int argc, char *argv[]) {
 }
 
 #endif
-
