@@ -249,7 +249,7 @@ int DelPhiShared::loadAtoms(string fn) {
 #endif
         }
         d.push_back(d_);
-        ai.emplace_back(string(name), string(resName), resid, string(chain));
+        ai.emplace_back(string(name), resid, string(resName), string(chain));
       }
       max_rad = MAX(r_, max_rad);
       x.push_back(x_);
@@ -353,7 +353,7 @@ int DelPhiShared::loadAtoms(int na, double *pos, double *rad, double *charge,
                     resName.end());
       resid = atoi(str.substr(11, 4).c_str());
       chain = str.substr(10, 1);
-      ai.emplace_back(name, resName, resid, chain);
+      ai.emplace_back(name, resid, resName, chain);
     }
     x.push_back(pos[i * 3]);
     y.push_back(pos[i * 3 + 1]);

@@ -6,9 +6,9 @@ include_directories(./tnt)
 include_directories(./sturm)
 include_directories(./octree)
 
-file(GLOB SOURCE_FILES
-  "./src/*.h"
-  "./src/*.cpp")
+file(GLOB SOURCE_FILES # RELATIVE ${CMAKE_SOURCE_DIR}
+  "*.h"
+  "*.cpp")
 
 ################################################################################
 # EXE

@@ -5267,6 +5267,7 @@ void Surface::tri2Balls()
 void Surface::smoothSurface(const char* fn,bool revert)
 {
 	#define MAX_NEIGHBOURS 20
+  logging::log<logging::level::info>("Inside smoothing surface...");
 
 	vector<double*> tempVertices;
 	vector<double*> tempNormals;
@@ -5465,6 +5466,7 @@ void Surface::smoothSurface(const char* fn,bool revert)
 			normalsList[i][2]=tempNormals[i][2];
 		}	
 
+  logging::log<logging::level::info>("Inside smoothing surface - Finished Calc...");
 	//delete all
 	for (int i=0;i<nv;i++)
 		deleteVector<double>(tempVertices[i]);
@@ -5478,6 +5480,7 @@ void Surface::smoothSurface(const char* fn,bool revert)
 
 	int format = deduceFormat();		
 	bool f = saveMesh(format,revert,fn,vertList,triList,normalsList);
+  logging::log<logging::level::info>("Inside smoothing surface - Save mesh...");
 	if (!f)
 		logging::log<logging::level::err>("Problems in saving the mesh!");
 
