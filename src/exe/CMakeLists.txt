@@ -9,14 +9,4 @@ add_executable(NanoShaper
   ../ConfigFile/ConfigFile.cpp
   ../ConfigFile/ConfigFile.h 
   ../octree/octree.h 
-  )    
-if(ENABLE_SPDLOG)
-  target_link_libraries(NanoShaper
-    PRIVATE spdlog::spdlog_header_only
   )
-endif()
-if(ENABLE_NLOHMANN_JSON)
-  target_link_libraries(NanoShaper
-    PRIVATE nlohmann_json::nlohmann_json
-  )
-endif()

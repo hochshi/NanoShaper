@@ -34,6 +34,9 @@ option(ENABLE_SPDLOG "SPDLog" OFF)
 
 if(ENABLE_SPDLOG)
   add_definitions(-DSPDLOG_ENABLED)
+  link_libraries(
+    PRIVATE spdlog::spdlog_header_only
+  )
   if(ENABLE_GIT_SUBMODULES)
     add_subdirectory(lib/spdlog)
   endif()
@@ -47,6 +50,9 @@ option(ENABLE_NLOHMANN_JSON "NLOHMANN_JSON" OFF)
 if(ENABLE_NLOHMANN_JSON)
   set(JSON_BuildTests OFF CACHE INTERNAL "")
   add_definitions(-DNLOHMANN_JSON_ENABLED)
+  link_libraries(
+    PRIVATE nlohmann_json::nlohmann_json
+  )
   if(ENABLE_GIT_SUBMODULES)
     add_subdirectory(lib/json)
   endif()
