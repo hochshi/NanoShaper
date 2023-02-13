@@ -475,6 +475,13 @@ public:
     resName = p.resName;
     chain = p.chain;
   }
+
+  void operator=( const AtomInfo &p ) {
+    name = p.name;
+    resNum = p.resNum;
+    resName = p.resName;
+    chain = p.chain;
+  }
 };
 
 /**@brief Timer: timer class. If chrono is defined use high accuracy timer*/
@@ -523,6 +530,14 @@ public:
 
   Atom() : Point() {
     radius = 0;
+    charge = 0;
+    dielectric = 0;
+  }
+
+  Atom(const double x, const double y, const double z, const double r)
+      : Point(x, y, z) {
+    radius = r;
+    radius2 = r * r;
     charge = 0;
     dielectric = 0;
   }

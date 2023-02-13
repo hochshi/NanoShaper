@@ -1,5 +1,7 @@
 
 #include <DelphiShared.h>
+#include <boost/math/special_functions/sign.hpp>
+#include <tools.h>
 
 void DelPhiShared::init() {
   epsmap = NULL;
@@ -39,9 +41,9 @@ void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
   if (!flag) {
     spdlog::error("Missing or corrupt atoms file. Initialization failed");
 #ifdef PYTHON
-throw std::exception();
+    throw std::exception();
 #else
-exit(-1);
+    exit(-1);
 #endif
   }
 
@@ -49,9 +51,9 @@ exit(-1);
   if (!flag) {
     spdlog::error("Initialization failed");
 #ifdef PYTHON
-throw std::exception();
+    throw std::exception();
 #else
-exit(-1);
+    exit(-1);
 #endif
   }
   spdlog::info("Initialization completed");
@@ -184,7 +186,7 @@ void DelPhiShared::finalizeBinding(int *ibnum) {
   (*ibnum) = nbgp;
 }
 
-bool DelPhiShared::loadAtoms(string fn) {
+int DelPhiShared::loadAtoms(string fn) {
   // load atoms file
   ifstream fin;
   fin.open(fn.c_str(), ios::in);
@@ -199,85 +201,65 @@ bool DelPhiShared::loadAtoms(string fn) {
 
   if (fin.fail()) {
     spdlog::warn("Cannot read file {}", fn);
-    return false;
+    return 0;
   }
 
-  vector<Atom *> list;
-  Atom *atm;
+  vector<double> x;
+  vector<double> y;
+  vector<double> z;
+  vector<double> r;
+  vector<double> q;
+  vector<int> d;
+  vector<AtomInfo> ai;
+
+  double x_;
+  double y_;
+  double z_;
+  double r_;
+  double q_;
+  int d_;
+  char name[10], resName[10], chain[2];
+  int resid;
 
   while (!fin.eof()) {
     fin.getline(buffer, BUFLEN);
     if (strlen(buffer) > 1) {
-      atm = new Atom();
-
+      d_ = -1;
       if (!multi_diel && !isAvailableAtomInfo) {
-        sscanf(buffer, "%lf %lf %lf %lf", &(atm->pos[0]), &(atm->pos[1]),
-               &(atm->pos[2]), &(atm->radius));
-        atm->radius2 = (atm->radius) * (atm->radius);
+        sscanf(buffer, "%lf %lf %lf %lf", &x_, &y_, &z_, &r_);
       } else if (multi_diel) {
-        int d = -1;
-        sscanf(buffer, "%lf %lf %lf %lf %d", &(atm->pos[0]), &(atm->pos[1]),
-               &(atm->pos[2]), &(atm->radius), &d);
-        atm->radius2 = (atm->radius) * (atm->radius);
-        if (d == -1) {
-          spdlog::error( "Cannot get the dielectric value of the atom number {}; please add it after radius entry to the xyzr input file", list.size());
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
-        } else
-          atm->dielectric = d;
+        sscanf(buffer, "%lf %lf %lf %lf %d", &x_, &y_, &z_, &r_, &d_);
       } else if (isAvailableAtomInfo) {
-        int d = -1;
-        char name[10], resName[10], chain[2];
-        int resid;
-        sscanf(buffer, "%lf %lf %lf %lf %d %s %s %d %s", &(atm->pos[0]),
-               &(atm->pos[1]), &(atm->pos[2]), &(atm->radius), &d, name,
-               resName, &resid, chain);
-        atm->radius2 = (atm->radius) * (atm->radius);
-        if (d == -1) {
-          spdlog::error( "Cannot get the dielectric value of the atom number {}; please add it after radius entry to the xyzr input file", list.size());
-#ifdef PYTHON
-throw std::exception();
-#else
-exit(-1);
-#endif
-        } else
-          atm->dielectric = d;
-
-        atm->ai.setName(string(name));
-        atm->ai.setResName(string(resName));
-        atm->ai.setResNum(resid);
-        atm->ai.setChain(string(chain));
+        sscanf(buffer, "%lf %lf %lf %lf %d %s %s %d %s", &x_, &y_, &z_, &r_,
+               &d_, name, resName, &resid, chain);
       }
-      max_rad = MAX(atm->radius, max_rad);
-      // debug
-      // printf("\n %lf %lf %lf
-      // %lf",atm->pos[0],atm->pos[1],atm->pos[2],atm->radius);
-      list.push_back(atm);
-    } else {
-      // skip empty line
+
+      if (isAvailableAtomInfo || multi_diel) {
+        if (-1 == d_) {
+          spdlog::error(
+              "Cannot get the dielectric value of the atom number {}; please "
+              "add it after radius entry to the xyzr input file",
+              x.size());
+#ifdef PYTHON
+          throw std::exception();
+#else
+          exit(-1);
+#endif
+        }
+        d.push_back(d_);
+        ai.emplace_back(string(name), string(resName), resid, string(chain));
+      }
+      max_rad = MAX(r_, max_rad);
+      x.push_back(x_);
+      y.push_back(x_);
+      z.push_back(x_);
+      r.push_back(x_);
     }
   }
   fin.close();
 
-  // freeze list
-  vector<Atom *>::iterator it = list.begin();
-  if (atoms != NULL) {
-    for (int i = 0; i < numAtoms; i++)
-      delete atoms[i];
-    delete[] atoms;
-  }
-
-  atoms = new Atom *[list.size()];
-
-  for (int i = 0; it != list.end(); it++, i++)
-    atoms[i] = (*it);
-
-  numAtoms = (int)list.size();
+  numAtoms = (int)x.size();
   spdlog::info("Read {} atoms", numAtoms);
-  list.clear();
 
   if (numAtoms < 4) {
     spdlog::error("NanoShaper needs at least 4 atoms to work.");
@@ -286,9 +268,9 @@ exit(-1);
         REMARK);
     spdlog::info("{} at the same centers of the real atoms", REMARK);
 #ifdef PYTHON
-throw std::exception();
+    throw std::exception();
 #else
-exit(-1);
+    exit(-1);
 #endif
   }
 
@@ -296,44 +278,55 @@ exit(-1);
     spdlog::error("All null radii? If you are using place holders atoms please "
                   "set at least one radius > 0");
 #ifdef PYTHON
-throw std::exception();
+    throw std::exception();
 #else
-exit(-1);
+    exit(-1);
 #endif
   }
 
-  return true;
+  return loadAtoms(numAtoms, x.data(), y.data(), z.data(), r.data(), q.data(),
+                   d.data(), ai.data());
 }
 
-bool DelPhiShared::loadAtoms(int na, double *x, double *r, double *q, int *d,
-                             char *atinf) {
+int DelPhiShared::loadAtoms(int na, double *pos, double *rad, double *charge,
+                            int *dielec, char *atinf) {
   spdlog::info("Read {} atoms", na);
-  if (atoms != NULL) {
-    for (int i = 0; i < numAtoms; i++)
-      delete atoms[i];
-    delete[] atoms;
-  }
 
-  if (r == NULL || x == NULL) {
+  if (rad == NULL || pos == NULL) {
     spdlog::warn("Atoms info not available!");
-    return false;
+    return 0;
   }
 
-  atoms = new Atom *[na];
-  numAtoms = na;
-  int lastChar = 0;
-  for (int i = 0; i < na; i++) {
-    double qq;
-    int dd;
-    if (q == NULL)
-      qq = 0;
-    else
-      qq = q[i];
+  vector<double> x;
+  vector<double> y;
+  vector<double> z;
+  vector<double> r;
+  vector<double> q;
+  vector<int> d;
+  vector<AtomInfo> ai;
 
-    if (d == NULL)
-      dd = 0;
+  double x_;
+  double y_;
+  double z_;
+  double r_;
+  double q_;
+  int d_;
+  string name, resName, chain;
+  int resid;
+  int lastChar = 0;
+
+  for (int i = 0; i < na; i++) {
+    // double qq;
+    // int dd;
+    if (charge == NULL)
+      q_ = 0;
     else
-      dd = d[i];
+      q_ = q[i];
+
+    if (dielec == NULL)
+      d_ = 0;
+    else
+      d_ = d[i];
 
     // parse atinf variable and store if available
     if (atinf != NULL) {
@@ -343,25 +336,69 @@ bool DelPhiShared::loadAtoms(int na, double *x, double *r, double *q, int *d,
         buff[kk] = atinf[lastChar++];
       buff[15] = '\0';
       string str(buff);
-      string name = str.substr(0, 5);
+      name = str.substr(0, 5);
       // remove white spaces
       name.erase(remove_if(name.begin(), name.end(),
                            static_cast<int (*)(int)>(isspace)),
                  name.end());
-      string resName = str.substr(6, 3);
+      resName = str.substr(6, 3);
       // remove white spaces
       resName.erase(remove_if(resName.begin(), resName.end(),
                               static_cast<int (*)(int)>(isspace)),
                     resName.end());
-      atoms[i] =
-          new Atom(x[i * 3], x[i * 3 + 1], x[i * 3 + 2], r[i], qq, dd, name,
-                   resName, atoi(str.substr(11, 4).c_str()), str.substr(10, 1));
-      // atoms[i]->print();
-    } else
-      atoms[i] = new Atom(x[i * 3], x[i * 3 + 1], x[i * 3 + 2], r[i], qq, dd);
+      resid = atoi(str.substr(11, 4).c_str());
+      chain = str.substr(10, 1);
+      ai.emplace_back(name, resName, resid, chain);
+    }
+    x.push_back(pos[i*3]);
+    y.push_back(pos[i*3 + 1]);
+    z.push_back(pos[i*3 + 2]);
+    r.push_back(r[i]);
+    q.push_back(q_);
+    d.push_back(d_);
   }
 
-  return true;
+  return loadAtoms(numAtoms, x.data(), y.data(), z.data(), r.data(), q.data(),
+                   d.data(), ai.data());
+}
+
+int DelPhiShared::loadAtoms(int na, const std::vector<double> &x,
+                            const std::vector<double> &y,
+                            const std::vector<double> &z,
+                            const std::vector<double> &r,
+                            const std::vector<double> &q,
+                            const std::vector<int> &d,
+                            const std::vector<AtomInfo> &ai) {
+  return loadAtoms(na, x.data(), y.data(), z.data(), r.data(), q.data(),
+                   d.data(), ai.data());
+}
+
+int DelPhiShared::loadAtoms(int na, const double *x, const double *y,
+                            const double *z, const double *r, const double *q,
+                            const int *d, const AtomInfo *ai) {
+
+  if (atoms != NULL) {
+    for (int i = 0; i < numAtoms; i++)
+      delete atoms[i];
+    delete[] atoms;
+  }
+
+  atoms = new Atom *[na];
+  for (int i = 0; i < na; i++) {
+    atoms[i] = new Atom(x[i], y[i], z[i], r[i]);
+    if (NULL != q) {
+      atoms[i]->charge = q[i];
+    }
+    if (NULL != d) {
+      atoms[i]->dielectric = d[i];
+    }
+    if (NULL != ai) {
+      atoms[i]->ai = ai[i];
+    }
+  }
+  numAtoms = na;
+
+  return numAtoms;
 }
 
 bool DelPhiShared::buildGrid(double scale, double perfill) {
@@ -401,7 +438,8 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
   oldmid[1] = (cmax[1] + cmin[1]) / 2.;
   oldmid[2] = (cmax[2] + cmin[2]) / 2.;
 
-  spdlog::info("Geometric baricenter ->  {} {} {}", oldmid[0], oldmid[1], oldmid[2]);
+  spdlog::info("Geometric baricenter ->  {} {} {}", oldmid[0], oldmid[1],
+               oldmid[2]);
 
   double v[6];
   v[0] = fabs(cmax[0] - oldmid[0]);
@@ -505,9 +543,9 @@ bool DelPhiShared::buildGrid(double scale, double perfill) {
     if (status == NULL) {
       spdlog::error("Not enough memory to allocate status map");
 #ifdef PYTHON
-throw std::exception();
+      throw std::exception();
 #else
-exit(-1);
+      exit(-1);
 #endif
     }
 
@@ -892,9 +930,9 @@ int DelPhiShared::cavitiesToAtoms(double rad) {
     if (count == 0) {
       spdlog::error("Zero support atoms to save");
 #ifdef PYTHON
-throw std::exception();
+      throw std::exception();
 #else
-exit(-1);
+      exit(-1);
 #endif
     }
 
