@@ -1,11 +1,14 @@
 // ConfigFile.cpp
 
 #include <ConfigFile.h>
+#include <main_functions.h>
 #include <istream>
-#include <nlohmann/json.hpp>
 #include <stdexcept>
 #include <string>
-#include "main_functions.h"
+
+#ifdef JSON_ENABLED
+#include <nlohmann/json.hpp>
+#endif
 
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
@@ -72,10 +75,16 @@ std::ostream& operator<<(std::ostream& os, const ConfigFile& cf) {
 }
 
 std::istream& jsonParser(std::istream& is, ConfigFile& cf) {
+#ifdef JSON_ENABLED
   nlohmann::json data = nlohmann::json::parse(is);
   auto contents = data.get<std::map<std::string, std::string>>();
   cf.setContents(contents);
   return is;
+#else
+  throw std::logic_error(
+      "JSON parsing is not available. To enable recompile with "
+      "ENABLE_JSON=ON.");
+#endif
 }
 
 // std::istream& operator>>( std::istream& is, ConfigFile& cf )

@@ -45,11 +45,11 @@ endif()
 ################################################################################
 # NLOHMANN_JSON
 ################################################################################
-option(ENABLE_NLOHMANN_JSON "NLOHMANN_JSON" OFF)
+option(ENABLE_JSON "JSON" OFF)
 
-if(ENABLE_NLOHMANN_JSON)
+if(ENABLE_JSON)
   set(JSON_BuildTests OFF CACHE INTERNAL "")
-  add_definitions(-DNLOHMANN_JSON_ENABLED)
+  add_definitions(-DJSON_ENABLED)
   link_libraries(
     nlohmann_json::nlohmann_json
   )

@@ -1,7 +1,10 @@
 #ifndef Configuration_h
 #define Configuration_h
 
+#ifdef JSON_ENABLED
 #include <nlohmann/json.hpp>
+#endif // JSON_ENABLED
+
 #include <string>
 
 extern "C" {
@@ -95,6 +98,7 @@ struct Configuration {
 };
 };
 
+#ifdef JSON_ENABLED
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Configuration, cavVol, numMol, scale, perfill, molFile, sysName, multi_diel,
     fillCavities, buildEpsmaps, buildStatus, tri, accTri, smoothing, tri2balls,
@@ -107,10 +111,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     maxSkinPatches, maxSkinDim2D, maxSkinPatches2D, useFastProjection,
     savePovRay, checkDuplicatedVertices, wellShaped, probeRadius, lb, vaFlag,
     computeNormals, saveMSMS, sternLayer, Max_Atoms_Multi_Grid, surfName)
-
-#ifdef NANOSHAPER_LIB
-using ConfigurationOP = Configuration*;
-#else
-using ConfigurationOP = std::shared_ptr<Configuration>;
 #endif
+
+using ConfigurationOP = std::shared_ptr<Configuration>;
 #endif
