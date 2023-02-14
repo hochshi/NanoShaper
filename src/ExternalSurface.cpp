@@ -4,6 +4,7 @@
 #include <logging.h>
 #include <stdexcept>
 
+namespace nanoshaper {
 void ExternalSurface::init() {
   surfType = GENERIC_SURFACE;
 }
@@ -384,3 +385,4 @@ bool ExternalSurface::getProjection(double p[3], double* proj1, double* proj2,
       "Cannot perform projection with an externally loaded surface");
   return false;
 }
+}  // namespace nanoshaper

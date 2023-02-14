@@ -20,6 +20,7 @@
 
 #include <algorithm>
 
+namespace octree {
 /**
  * \warning This class isn't thread-safe! In particular, we should use atomic
  * operations when incrementing or decrementing the reference count. See Boost's
@@ -84,4 +85,5 @@ T& SharedData<T>::operator[](int i) const {
   return data_[i];
 }
 
+}  // namespace octree
 #endif

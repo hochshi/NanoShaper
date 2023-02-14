@@ -3,6 +3,7 @@
 #include <logging.h>
 #include <stdexcept>
 
+namespace nanoshaper {
 // denstructor should always call a clear function
 // this makes the code clearer and it allows to reset an object
 // without really destroying it
@@ -249,3 +250,4 @@ bool ExampleSurface::load(char* fileName) {
   // you should load the surface in your prefered format
   return true;
 }
+}  // namespace nanoshaper

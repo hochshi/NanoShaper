@@ -6,13 +6,14 @@
 #include <memory>
 #include <vector>
 
+#include <tools.h>
+
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
 #endif
 
-#include <tools.h>
-
+namespace nanoshaper {
 #define DEFAULT_PERFIL 80
 #define DEFAULT_SCALE 2.0
 
@@ -201,4 +202,5 @@ class DelPhiShared {
 
 using DelPhiSharedOP = std::shared_ptr<DelPhiShared>;
 
+}  // namespace nanoshaper
 #endif

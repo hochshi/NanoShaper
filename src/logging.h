@@ -15,6 +15,7 @@
 // template <typename... Args> using format_string_t = std::string_view;
 #endif  // SPDLOG_ENABLED
 
+namespace nanoshaper {
 namespace logging {
 
 #ifdef SPDLOG_ENABLED
@@ -40,4 +41,5 @@ inline void log(std::string fmt, Args&&... args) {
 }
 
 }  // namespace logging
+}  // namespace nanoshaper
 #endif  // logging_h

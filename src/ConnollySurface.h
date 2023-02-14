@@ -15,6 +15,33 @@
 #include <logging.h>
 #include <memory>
 
+#ifdef ENABLE_CGAL
+//////////////////////// CGAL
+//////////////////////////////////////////////////////
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Regular_triangulation_3.h>
+// #include <CGAL/Regular_triangulation_filtered_traits_3.h>
+#include <CGAL/Fixed_alpha_shape_3.h>
+#include <CGAL/Fixed_alpha_shape_cell_base_3.h>
+#include <CGAL/Fixed_alpha_shape_vertex_base_3.h>
+#include <CGAL/Line_3.h>
+#include <CGAL/Plane_3.h>
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/Ray_3.h>
+#include <CGAL/Regular_triangulation_cell_base_3.h>
+#include <CGAL/Triangulation_cell_base_with_info_3.h>
+#include <CGAL/Triangulation_data_structure_3.h>
+#include <CGAL/Triangulation_vertex_base_with_info_3.h>
+#include <CGAL/Vector_3.h>
+#include <CGAL/convex_hull_3.h>
+#include <CGAL/intersections.h>
+#include <cassert>
+#include <fstream>
+#include <vector>
+////////////////////////////////////////////////////////////////////////////////
+#endif
+
+namespace nanoshaper {
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
@@ -104,31 +131,6 @@ class PointCell : public ConnollyCell {
 #define SELF_MAP(i, j, k, l, NX, NY, NZ) \
   gridProbesMap[(l) + (MAX_PROBES - 1) * ((k) + (NZ) * ((j) + (NY) * (i)))]
 
-#ifdef ENABLE_CGAL
-//////////////////////// CGAL
-//////////////////////////////////////////////////////
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Regular_triangulation_3.h>
-// #include <CGAL/Regular_triangulation_filtered_traits_3.h>
-#include <CGAL/Fixed_alpha_shape_3.h>
-#include <CGAL/Fixed_alpha_shape_cell_base_3.h>
-#include <CGAL/Fixed_alpha_shape_vertex_base_3.h>
-#include <CGAL/Line_3.h>
-#include <CGAL/Plane_3.h>
-#include <CGAL/Polyhedron_3.h>
-#include <CGAL/Ray_3.h>
-#include <CGAL/Regular_triangulation_cell_base_3.h>
-#include <CGAL/Triangulation_cell_base_with_info_3.h>
-#include <CGAL/Triangulation_data_structure_3.h>
-#include <CGAL/Triangulation_vertex_base_with_info_3.h>
-#include <CGAL/Vector_3.h>
-#include <CGAL/convex_hull_3.h>
-#include <CGAL/intersections.h>
-#include <cassert>
-#include <fstream>
-#include <vector>
-////////////////////////////////////////////////////////////////////////////////
-#endif
 
 // here singular/regular is in the alpha shape nomenclature
 
@@ -407,4 +409,5 @@ static class ConnollySurfaceRegister {
 
 // static SurfaceRecorder<ConnollySurface> sesRecorder("ses");
 
+}  // namespace nanoshaper
 #endif

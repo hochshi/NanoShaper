@@ -30,6 +30,10 @@
 #include <ply/ply.h>
 // Swap endian-ness for four-byte elements
 
+namespace ply {
+
+using namespace nanoshaper;
+
 inline void endian_swap_long(unsigned char* p) {
   unsigned char b0, b1, b2, b3;
 
@@ -303,3 +307,4 @@ int ply_readAnotherFIndex(FILE* in, int format, int* x) {
 
   return 1;
 }
+}  // namespace ply

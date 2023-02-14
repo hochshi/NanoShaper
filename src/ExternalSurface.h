@@ -13,6 +13,7 @@
 #include <memory>
 #include "globals.h"
 
+namespace nanoshaper {
 /** @brief This class is wrapper and loads an external surface using the files
 epsmapx.txt, epsmapy.txt, epsmapz.txt, status.txt and projections.txt that is
 the list of the boundary grid points indexes,values and normals
@@ -82,4 +83,5 @@ static class ExternalSurfaceRegister {
   }
 } ExternalSurfaceRegisterObject;
 
+}  // namespace nanoshaper
 #endif

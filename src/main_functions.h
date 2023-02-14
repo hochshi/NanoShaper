@@ -13,6 +13,7 @@
 #include <globals.h>
 #include <memory>
 
+namespace nanoshaper {
 ConfigFileOP load(std::string argv, string delimiter = "=",
                   string comment = "#", string sentry = "EndConfigFile",
                   std::string format = "plain");
@@ -24,4 +25,5 @@ void cite();
 void normalMode(SurfaceOP surf, DelPhiSharedOP dg, ConfigurationOP conf);
 void pocketMode(bool hasAtomInfo, ConfigurationOP cf, ConfigurationOP conf);
 
+}  // namespace nanoshaper
 #endif

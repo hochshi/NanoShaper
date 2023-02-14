@@ -24,15 +24,10 @@
 #endif
 
 #ifdef DBGMEM_CRT
-#define _CRTDBG_MAP_ALLOC
-#define _CRTDBG_MAP_ALLOC_NEW
 #pragma message(" MESSAGE Microsoft Memory Leaks Detector is Enabled!")
 #include <crtdbg.h>
 #include <stdlib.h>
 #endif
-
-#define VERSION "0.7.5"
-#define PROGNAME "NanoShaper"
 
 //////////////////// include section ///////////////
 // #include <ConfigFile.h>
@@ -51,6 +46,25 @@
 #include <set>
 #include <vector>
 ///////////////////////////////////////////////////
+#ifdef ENABLE_BOOST_THREADS
+#include <boost/thread/condition_variable.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+#endif
+
+#ifdef ENABLE_BOOST_CHRONO
+#include <boost/chrono.hpp>
+#endif
+
+namespace nanoshaper {
+
+#ifdef DBGMEM_CRT
+#define _CRTDBG_MAP_ALLOC
+#define _CRTDBG_MAP_ALLOC_NEW
+#endif
+
+#define VERSION "0.7.5"
+#define PROGNAME "NanoShaper"
 
 using namespace std;
 
@@ -80,16 +94,6 @@ using namespace std;
 // #define ENABLE_CGAL
 
 //////////////////////////////////////////////////////////////////
-
-#ifdef ENABLE_BOOST_THREADS
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
-#endif
-
-#ifdef ENABLE_BOOST_CHRONO
-#include <boost/chrono.hpp>
-#endif
 
 #ifndef INFINITY
 #define INFINITY 1e100
@@ -305,4 +309,5 @@ is available*/
   }
 ////////////////////////////////////////////////////////
 
+}  // namespace nanoshaper
 #endif

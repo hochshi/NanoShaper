@@ -12,6 +12,7 @@
 #include <globals.h>
 #include <logging.h>
 
+namespace nanoshaper {
 // 1 Angstrom default radius
 #define DEFAULT_RADIUS 1.0
 
@@ -118,4 +119,5 @@ static class ExampleSurfaceRegister{
 
 static SurfaceRecorder<ExampleSurface> exampleRecorder("example");
 
+}  // namespace nanoshaper
 #endif

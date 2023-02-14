@@ -3,6 +3,7 @@
 #include <logging.h>
 #include <stdexcept>
 
+namespace nanoshaper {
 void BlobbySurface::init() {
   B = DEFAULT_BLOBBYNESS;
   cutoff = DEFAULT_CUTOFF;
@@ -186,3 +187,4 @@ void BlobbySurface::printSummary() {
   logging::log<logging::level::info>("Blobbyness value {}", getBlobbyness());
   logging::log<logging::level::info>("Cut-off distance {}[A]", cutoff);
 }
+}  // namespace nanoshaper

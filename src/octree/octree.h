@@ -26,6 +26,7 @@
 #include <istream>
 #include <ostream>
 
+namespace octree {
 template <typename T, int AS = 1>
 class Octree {
  public:
@@ -172,4 +173,5 @@ class Octree {
 
 #include <octree.tcc>
 
+}
 #endif

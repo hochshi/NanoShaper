@@ -2,6 +2,8 @@
 #include <logging.h>
 #include <tools.h>
 
+namespace nanoshaper {
+
 /**@brief ascending on first double of pair<double,double*> comparator*/
 bool compKeepIndex(pair<double, double*> a, pair<double, double*> b) {
   return a.first < b.first;
@@ -181,7 +183,7 @@ void getRealRootsSturm(const double* const polyy, const int degree,
   int nchanges, np, atmin, atmax, nroots, i;
   double min, max;
 
-  poly sseq[MAX_POLY_DEGREE + 1];
+  strum::poly sseq[MAX_POLY_DEGREE + 1];
 
   for (int i = 0; i < degree + 1; i++)
     sseq[0].coef[i] = polyy[i];
@@ -426,3 +428,4 @@ void projectToSphere(const double* const y, const double* const center,
   ADD_MUL(proj, center, proj, dist)
   DIST(dist, proj, y)
 }
+}  // namespace nanoshaper

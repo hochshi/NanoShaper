@@ -16,6 +16,8 @@
 
 namespace py = pybind11;
 
+using namespace nanoshaper;
+
 PYBIND11_MODULE(NanoShaper, m) {
   m.doc() = "";
   py::bind_map<std::map<std::string, std::string>>(m, "MapStringString");
@@ -39,6 +41,7 @@ PYBIND11_MODULE(NanoShaper, m) {
       py::arg("conf"), py::arg("ds"));
   m.def("printAvailableSurfaces",
         []() { SurfaceFactory::getInstance().print(); });
+
   py::class_<Configuration, std::shared_ptr<Configuration>>(m, "Configuration")
       .def(py::init())
       .def_readwrite("cavVol", &Configuration::cavVol)
@@ -125,6 +128,7 @@ PYBIND11_MODULE(NanoShaper, m) {
 
       .def("stopDebug", &Configuration::stopDebug)
       .def("restartDebug", &Configuration::restartDebug);
+
   py::class_<ConfigFile, std::shared_ptr<ConfigFile>>(m, "ConfigFile")
       .def(py::init<const std::string&, const std::string&, const std::string&,
                     const std::string&, std::string&>(),
@@ -135,10 +139,14 @@ PYBIND11_MODULE(NanoShaper, m) {
                     &ConfigFile::setContents)
       .def("getString", &ConfigFile::readString, py::arg("key"))
       .def("getDouble", &ConfigFile::readFloat, py::arg("key"));
+
   py::class_<DelPhiShared, std::shared_ptr<DelPhiShared>>(m, "DelphiShared")
       .def(py::init<const double&, const double&, const std::string&,
                     const bool&, const bool&, const bool&, const bool&>(),
            py::arg("scale"), py::arg("perfill"), py::arg("fn"),
+           py::arg("eps_flag"), py::arg("stat_flag"), py::arg("multi"),
+           py::arg("atinfo") = false)
+      .def(py::init<const bool&, const bool&, const bool&, const bool&>(),
            py::arg("eps_flag"), py::arg("stat_flag"), py::arg("multi"),
            py::arg("atinfo") = false);
   py::class_<Surface, std::shared_ptr<Surface>>(m, "Surface");

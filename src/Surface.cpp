@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <tuple>
 
+namespace nanoshaper {
+
 void Surface::init() {
   delphi = NULL;
   panel = 0;
@@ -4298,12 +4300,11 @@ double Surface::triangulateSurface(double isolevel, const char* fileName,
   // int format = deduceFormat();
   // bool f = saveMesh(format, revert, fileName, vertList, triList, normalsList);
   // if (!f) {
-    // logging::log<logging::level::err>("Errors in saving the mesh!");
+  // logging::log<logging::level::err>("Errors in saving the mesh!");
   // }
 
   if (vertexAtomsMapFlag)
     disposeAtomsMap();
-
 
   return totalSurfaceArea;
 }
@@ -4570,11 +4571,11 @@ bool Surface::saveMesh(int format, bool revert, const char* fileName,
 }
 
 bool Surface::saveMesh(const char* fileName, bool revert, int format) {
-  
+
   if (format == DEDUCE) {
     format = deduceFormat();
   }
-  return saveMesh(format, revert, fileName, vertList, triList, normalsList);  
+  return saveMesh(format, revert, fileName, vertList, triList, normalsList);
 }
 
 bool Surface::difference(Surface* surf) {
@@ -6981,3 +6982,4 @@ double Surface::saveTriSubSet(char* triSubset, vector<bool>& results,
 
   return area;
 }
+}  // namespace nanoshaper

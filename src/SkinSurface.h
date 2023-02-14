@@ -14,8 +14,30 @@
 #include <logging.h>
 #include <memory>
 
+#ifdef ENABLE_CGAL
+//////////////////////// CGAL
+//////////////////////////////////////////////////////
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Regular_triangulation_3.h>
+// #include <CGAL/Regular_triangulation_euclidean_traits_3.h>
+// #include <CGAL/Regular_triangulation_filtered_traits_3.h>
+#include <CGAL/Regular_triangulation_cell_base_3.h>
+#include <CGAL/Triangulation_cell_base_with_info_3.h>
+#include <CGAL/Triangulation_data_structure_3.h>
+#include <CGAL/Triangulation_vertex_base_with_info_3.h>
+#include <cassert>
+#include <fstream>
+#include <vector>
+
+// use to translate in Pov-Ray
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/convex_hull_3.h>
+
+////////////////////////////////////////////////////////////////////////////////
+#endif
 // #define DEBUG_SKIN
 
+namespace nanoshaper {
 #define DEFAULT_S 0.45  // default shrink factor
 
 /** mixed cell data structure*/
@@ -98,28 +120,6 @@ class Del3Cell : public MixedCell {
 #define GRIDMIXEDCELLMAP(i, j, k, l, NX, NY, NZ) \
   gridMixedCellMap[(l) +                         \
                    (MAX_MIXEDCELLS - 1) * ((k) + (NZ) * ((j) + (NY) * (i)))]
-
-#ifdef ENABLE_CGAL
-//////////////////////// CGAL
-//////////////////////////////////////////////////////
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Regular_triangulation_3.h>
-// #include <CGAL/Regular_triangulation_euclidean_traits_3.h>
-// #include <CGAL/Regular_triangulation_filtered_traits_3.h>
-#include <CGAL/Regular_triangulation_cell_base_3.h>
-#include <CGAL/Triangulation_cell_base_with_info_3.h>
-#include <CGAL/Triangulation_data_structure_3.h>
-#include <CGAL/Triangulation_vertex_base_with_info_3.h>
-#include <cassert>
-#include <fstream>
-#include <vector>
-
-// use to translate in Pov-Ray
-#include <CGAL/Polyhedron_3.h>
-#include <CGAL/convex_hull_3.h>
-
-////////////////////////////////////////////////////////////////////////////////
-#endif
 
 #define DELAUNAY_POINT_CELL 0
 #define DELAUNAY_EDGE_CELL 1
@@ -355,4 +355,5 @@ static class SkinSurfaceRegister {
 
 // static SurfaceRecorder<SkinSurface> skinRecorder("skin");
 
+}  // namespace nanoshaper
 #endif

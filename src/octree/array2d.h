@@ -20,6 +20,7 @@
 
 #include <array.h>
 
+namespace octree {
 template <typename T>
 class _Array2D : public Array<T, 2> {
  public:
@@ -93,4 +94,5 @@ _Array2D<T> _Array2D<T>::subarray(int iBegin, int jBegin, int iEnd, int jEnd) {
   return Array<T, 2>::subarray(begin, end);
 }
 
+}  // namespace octree
 #endif

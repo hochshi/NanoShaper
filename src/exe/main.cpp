@@ -4,7 +4,7 @@
 #include <logging.h>
 #include <main_functions.h>
 #include <memory>
-#include "Surface.h"
+#include <Surface.h>
 
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
@@ -135,6 +135,8 @@
         @date 25-07-2014
         @version 0.7.5
         */
+using namespace nanoshaper;
+
 int main(int argc, char* argv[]) {
 #ifdef DBGMEM_CRT
   //		 _crtBreakAlloc = 16222;

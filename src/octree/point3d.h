@@ -20,6 +20,7 @@
 
 #include <tinyvector.h>
 
+namespace octree {
 template <typename T>
 class Point3D : public TinyVector<T, 3> {
  public:
@@ -41,4 +42,5 @@ class Point3D : public TinyVector<T, 3> {
   T& z() { return (*this)(2); }
 };
 
+}  // namespace octree
 #endif

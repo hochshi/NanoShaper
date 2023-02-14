@@ -18,6 +18,7 @@
 #ifndef NUMTRAITS_H
 #define NUMTRAITS_H
 
+namespace octree {
 template <typename T1, typename T2>
 class BinaryNumericTraits {
  public:
@@ -36,4 +37,5 @@ class BinaryNumericTraits<double, int> {
   typedef double OpResult;
 };
 
+}  // namespace octree
 #endif

@@ -13,13 +13,15 @@
 #include "SurfaceFactory.h"
 #include "globals.h"
 
+#include <ply/ply.h>
+// #include <./ply/ply.h>
+
+namespace nanoshaper {
+
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
 #endif
-
-#include <ply/ply.h>
-// #include <./ply/ply.h>
 
 /** tollerance for triangle intersection test and gaussian elimination 1e-5*/
 #define EPS 1e-5
@@ -197,4 +199,5 @@ static class MeshSurfaceRegister {
 
 //static SurfaceRecorder<MeshSurface> meshRecorder("mesh");
 
+}
 #endif

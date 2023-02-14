@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 
+namespace nanoshaper {
 class Surface;
 using SurfaceOP = std::shared_ptr<Surface>;
 class DelPhiShared;
@@ -76,4 +77,5 @@ class SurfaceRecorder {
   }
 };
 
+}  // namespace nanoshaper
 #endif

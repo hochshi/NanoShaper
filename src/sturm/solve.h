@@ -6,6 +6,8 @@
  *
  *	some useful constants and types.
  */
+
+namespace strum {
 #define MAX_ORDER 12
 /* maximum order for a polynomial */
 
@@ -39,4 +41,5 @@ double evalpoly(int ord, double* coef, double x);
 void sbisect(int np, poly* sseq, double min, double max, int atmin, int atmax,
              double* roots);
 
+}  // namespace strum
 #endif

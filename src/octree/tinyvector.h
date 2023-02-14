@@ -20,6 +20,7 @@
 
 #include <numtraits.h>
 
+namespace octree {
 template <typename T, int N>
 class TinyVector {
  public:
@@ -193,4 +194,5 @@ T norm(const TinyVector<T, N>& v) {
   return sqrt(sum(v * v));
 }
 
+}  // namespace octree
 #endif

@@ -56,14 +56,14 @@
 #include <sstream>
 #include <string>
 
-#ifdef PYTHON
+#ifdef PYTHON_ENABLED
 #include <pybind11/stl_bind.h>
-
 PYBIND11_MAKE_OPAQUE(std::map<std::string, std::string>);
 #endif
 
 using std::string;
 
+namespace nanoshaper {
 class ConfigFile {
  public:
   // Data
@@ -249,6 +249,7 @@ void ConfigFile::add(string key, const T& value) {
 
 using ConfigFileOP = std::shared_ptr<ConfigFile>;
 
+}  // namespace nanoshaper
 #endif  // CONFIGFILE_H
 
 // Release notes:

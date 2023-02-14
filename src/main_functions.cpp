@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 
+namespace nanoshaper {
 // init streams, check configuration file for errors and read variables
 ConfigFileOP load(std::string confFile, string delimiter, string comment,
                   string sentry, std::string format) {
@@ -733,3 +734,4 @@ exit(-1);
   // delete dg2;
   logging::log<logging::level::info>("ok!");
 }
+}  // namespace nanoshaper

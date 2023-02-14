@@ -3,6 +3,7 @@
 #include <logging.h>
 #include <stdexcept>
 
+namespace nanoshaper {
 void SkinSurface::clear() {
   if (gridMixedCellMap != NULL)
     deleteVector<int>(gridMixedCellMap);
@@ -3224,3 +3225,4 @@ void SkinSurface::projectToQuadric(double* y, double* Q, int type, double* proj,
   double t;
   NORMALIZE(normal, t);
 }
+}  // namespace nanoshaper

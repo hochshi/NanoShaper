@@ -3,11 +3,11 @@
 
 #ifdef JSON_ENABLED
 #include <nlohmann/json.hpp>
-#endif // JSON_ENABLED
+#endif  // JSON_ENABLED
 
 #include <string>
 
-extern "C" {
+namespace nanoshaper {
 struct Configuration {
  public:
   void stopDebug() { debugStatus = false; }
@@ -96,7 +96,6 @@ struct Configuration {
   std::string surfName;
   // string surfName = "ses";
 };
-};
 
 #ifdef JSON_ENABLED
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -114,4 +113,5 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 #endif
 
 using ConfigurationOP = std::shared_ptr<Configuration>;
+}  // namespace nanoshaper
 #endif

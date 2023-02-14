@@ -15,6 +15,8 @@
 
 using std::string;
 
+namespace nanoshaper {
+
 ConfigFile::ConfigFile(string filename, string delimiter, string comment,
                        string sentry, string format)
     : myDelimiter(delimiter), myComment(comment), mySentry(sentry) {
@@ -161,3 +163,4 @@ std::istream& fileParser(std::istream& is, ConfigFile& cf) {
   cf.setContents(contents);
   return is;
 }
+}  // namespace nanoshaper

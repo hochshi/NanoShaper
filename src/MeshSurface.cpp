@@ -4,6 +4,10 @@
 #include <logging.h>
 #include <stdexcept>
 
+namespace nanoshaper {
+
+using namespace ply;
+
 void MeshSurface::clear() {
   if (faceMatrix != NULL)
     deleteMatrix2D<int>(numTriangles, faceMatrix);
@@ -1568,3 +1572,4 @@ bool MeshSurface::getProjection(double p[3], double* proj1, double* proj2,
   // MeshSurface::getProjection!");
   return ff;
 }
+}  // namespace nanoshaper

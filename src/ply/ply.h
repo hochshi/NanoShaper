@@ -25,6 +25,7 @@
 *                                                                           *
 ****************************************************************************/
 
+namespace ply {
 #define PLY_FORMAT_ASCII 0
 #define PLY_FORMAT_BIN_L 1
 #define PLY_FORMAT_BIN_B 2
@@ -46,3 +47,4 @@ int ply_readVCoords(FILE* in, int format, int ph, int oh, float* x, float* y,
 int ply_readFIndices(FILE* in, int format, int ph, int* nv, int* x, int* y,
                      int* z);
 int ply_readAnotherFIndex(FILE* in, int format, int* x);
+}  // namespace ply

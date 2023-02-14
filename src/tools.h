@@ -9,16 +9,16 @@
 #define tools_h
 
 #include <globals.h>
+#include <jama_eig.h>
 #include <logging.h>
+#include <sturm/solve.h>
+#include <string>
 
+namespace nanoshaper {
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
 #endif
-
-#include <jama_eig.h>
-#include <sturm/solve.h>
-#include <string>
 
 using namespace TNT;
 using namespace JAMA;
@@ -975,4 +975,5 @@ void getNormalToSphere(const double* const y, const double* const center,
 void projectToSphere(const double* const y, const double* const center,
                      const double radius, double* const proj, double& dist);
 
+}  // namespace nanoshaper
 #endif

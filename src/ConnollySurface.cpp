@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <tuple>
 
+namespace nanoshaper {
 void ConnollySurface::init() {
   gridConnollyCellMap = NULL;
   gridConnollyCellMap2D = NULL;
@@ -3239,3 +3240,4 @@ void ConnollySurface::getCoi(double* torus_center, double rcoi,
   }
   // fclose(fp);
 }
+}  // namespace nanoshaper

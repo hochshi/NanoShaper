@@ -16,6 +16,7 @@
 #include <globals.h>
 #include <memory>
 
+namespace nanoshaper {
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
@@ -81,4 +82,5 @@ static class BlobbySurfaceRegister {
 
 // static SurfaceRecorder<BlobbySurface> blobbyRecorder("blobby");
 
+}  // namespace nanoshaper
 #endif

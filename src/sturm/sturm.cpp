@@ -10,6 +10,9 @@
 #include <solve.h>
 #include <stdio.h>
 
+namespace strum {
+
+using namespace nanoshaper;
 /*
  * modp
  *
@@ -269,3 +272,4 @@ void sbisect(int np, poly* sseq, double min, double max, int atmin, int atmax,
       roots[n1 - atmax] = mid;
   }
 }
+}  // namespace strum

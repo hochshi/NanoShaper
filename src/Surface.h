@@ -10,10 +10,12 @@
 #define Surface_h
 
 #include <ConfigFile.h>
+#include <DelphiShared.h>
 #include <SurfaceFactory.h>
 #include <globals.h>
 #include <logging.h>
 #include <octree.h>
+#include <tools.h>
 
 #ifdef ENABLE_CGAL
 //////////////////////// CGAL
@@ -27,7 +29,13 @@
 #include <CGAL/Triangulation_data_structure_3.h>
 #include <CGAL/Triangulation_vertex_base_with_info_3.h>
 ////////////////////////////////////////////////////////////////////////////////
+#endif
 
+namespace nanoshaper {
+
+using namespace octree;
+
+#ifdef ENABLE_CGAL
 // vor point container
 class VorPoint {
  public:
@@ -36,7 +44,7 @@ class VorPoint {
 
   VorPoint() { visited = false; }
 };
-#endif
+#endif  // ENABLE_CGAL
 
 /** grid coordinates + vector (usually a point or a normal vector)*/
 class coordVec {
@@ -81,9 +89,6 @@ class packet {
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
 #endif
-
-#include <DelphiShared.h>
-#include <tools.h>
 
 // ids for rays directions
 #define X_DIR 0
@@ -550,7 +555,8 @@ class Surface {
                         vector<double*>& vertList, vector<int*>& triList,
                         vector<double*>& normalsList);
 
-  virtual bool saveMesh(const char* filename, bool revert = false, int format = FileFormat::DEDUCE);
+  virtual bool saveMesh(const char* filename, bool revert = false,
+                        int format = FileFormat::DEDUCE);
 
   /** smooth a given mesh and overwrites the given file name.
   The input/output mesh is in .off format*/
@@ -683,4 +689,5 @@ class Surface {
 
 using SurfaceOP = std::shared_ptr<Surface>;
 
+}  // namespace nanoshaper
 #endif

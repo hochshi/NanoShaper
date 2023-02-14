@@ -9,6 +9,7 @@
 #include <solve.h>
 #include <stdio.h>
 
+namespace strum {
 /*
  * evalpoly
  *
@@ -103,3 +104,4 @@ int modrf(int ord, double* coef, double a, double b, double* val) {
 
   return (0);
 }
+}  // namespace strum

@@ -4,6 +4,7 @@
 #include <tools.h>
 #include <stdexcept>
 
+namespace nanoshaper {
 void DelPhiShared::init() {
   epsmap = NULL;
   buildEpsMap = false;
@@ -1123,3 +1124,4 @@ void DelPhiShared::saveCavities(bool onlySaveNonFilled) {
     fclose(fp3);
   }
 }
+}  // namespace nanoshaper

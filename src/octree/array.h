@@ -21,6 +21,7 @@
 #include <shareddata.h>
 #include <tinyvector.h>
 
+namespace octree {
 template <typename T, int N>
 class Array {
  public:
@@ -96,4 +97,5 @@ Array<T, N> Array<T, N>::subarray(const TinyVector<int, N>& begin,
   return sub;
 }
 
+}  // namespace octree
 #endif

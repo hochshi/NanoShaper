@@ -8,7 +8,7 @@ if(ENABLE_PYBIND11_LIB)
 endif()
 
 if(ENABLE_PYBIND11_LIB AND Python_FOUND AND pybind11_FOUND)
-  add_definitions(-DPYTHON)
+  add_definitions(-DPYTHON_ENABLED)
   message(STATUS "Using python ${Python_EXECUTABLE} ${Python_INCLUDE_DIRS} ${Python_LIBRARY_DIRS} ${Python_LIBRARIES} ${pybind11_INCLUDE_DIRS} ${pybind11_LIBRARIES}")
   
   link_directories(${Python_LIBRARY_DIRS})
