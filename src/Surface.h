@@ -16,6 +16,7 @@
 #include <logging.h>
 #include <octree.h>
 #include <tools.h>
+#include <vector>
 
 #ifdef ENABLE_CGAL
 //////////////////////// CGAL
@@ -297,6 +298,7 @@ class Surface {
 
   ////////////////////////////// triangulation data structures
   ///////////////////////////////////
+  //TODO: EXPOSE triList, vertList and normalsList
   /** vector of vertex indices for the traingulation obtained by
    * triangulateSurface function*/
   vector<int*> triList;
@@ -320,6 +322,7 @@ class Surface {
    * grid slice*/
   int* gridLoad;
   int totalLoad;
+  // TODO: expose vertexAtomsMap
   int* vertexAtomsMap;
 
   int MAX_ATOMS_MULTI_GRID;
@@ -678,6 +681,13 @@ class Surface {
   virtual void setInsideCode(int i) { inside = i; }
 
   virtual int getInsideCode() { return inside; }
+
+  template <typename T>
+  std::vector<std::array<T, 3>> getList(const std::vector<T*> list);
+  std::vector<std::array<int, 3>> gettriList();
+  std::vector<std::array<double, 3>> getvertList();
+  std::vector<std::array<double, 3>> getnormalsList();
+  std::vector<int> getvertexAromsMap();
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

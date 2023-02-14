@@ -11,12 +11,40 @@
 #include <globals.h>
 #include <logging.h>
 #include <main_functions.h>
+#include <pybind11/detail/common.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <tools.h>
 #include <memory>
 
 namespace py = pybind11;
 
 using namespace nanoshaper;
+
+namespace pybind_wrappers {
+struct InputDataPy : InputData {
+  py::list get_ai();
+  void set_ai(const py::list& ai_py);
+  py::list aiPy;
+};
+
+py::list InputDataPy::get_ai() {
+  py::list ai_py;
+  for (const auto& x : this->ai) {
+    ai_py.append(x);
+  }
+
+  return ai_py;
+}
+
+void InputDataPy::set_ai(const py::list& ai_py) {
+  this->ai.clear();
+  for (int i = 0; i < py::len(ai_py); ++i) {
+    this->ai.emplace_back(ai_py[i].cast<AtomInfo>());
+  }
+}
+
+}  // namespace pybind_wrappers
 
 PYBIND11_MODULE(NanoShaper, m) {
   m.doc() = "";
@@ -148,6 +176,44 @@ PYBIND11_MODULE(NanoShaper, m) {
            py::arg("atinfo") = false)
       .def(py::init<const bool&, const bool&, const bool&, const bool&>(),
            py::arg("eps_flag"), py::arg("stat_flag"), py::arg("multi"),
-           py::arg("atinfo") = false);
-  py::class_<Surface, std::shared_ptr<Surface>>(m, "Surface");
+           py::arg("atinfo") = false)
+      .def("init",
+           py::overload_cast<double, double, std::string>(&DelPhiShared::init),
+           py::arg("scale"), py::arg("perfill"), py::arg("fn"))
+      .def("init",
+           py::overload_cast<double, double, const InputData&>(
+               &DelPhiShared::init),
+           py::arg("scale"), py::arg("perfill"), py::arg("in"));
+
+  py::class_<Surface, std::shared_ptr<Surface>>(m, "Surface")
+    .def_property_readonly("triList", &Surface::gettriList)
+    .def_property_readonly("vertList", &Surface::getvertList)
+    .def_property_readonly("normalsList", &Surface::getnormalsList)
+    .def_property_readonly("vertexAtomsMap", &Surface::getvertexAromsMap)
+    .def("getNumTriangles", &Surface::getNumTriangles)
+    .def("getNumVertices", &Surface::getNumVertices);
+
+  py::class_<AtomInfo, std::shared_ptr<AtomInfo>>(m, "AtomInfo")
+      .def(py::init<>())
+      .def(py::init<const std::string&, const int&, const std::string&,
+                    const std::string&>(),
+           py::arg("name"), py::arg("resNum"), py::arg("resName"),
+           py::arg("chain"))
+      .def_property("name", &AtomInfo::getName, &AtomInfo::setName)
+      .def_property("resNum", &AtomInfo::getResName, &AtomInfo::setResNum)
+      .def_property("resName", &AtomInfo::getResName, &AtomInfo::setResName)
+      .def_property("chain", &AtomInfo::getChain, &AtomInfo::setChain);
+
+  py::class_<pybind_wrappers::InputDataPy,
+             std::shared_ptr<pybind_wrappers::InputDataPy>>(m, "InputData")
+      .def(py::init<>())
+      .def_readwrite("na", &pybind_wrappers::InputDataPy::na)
+      .def_readwrite("x", &pybind_wrappers::InputDataPy::x)
+      .def_readwrite("y", &pybind_wrappers::InputDataPy::y)
+      .def_readwrite("z", &pybind_wrappers::InputDataPy::z)
+      .def_readwrite("r", &pybind_wrappers::InputDataPy::r)
+      .def_readwrite("q", &pybind_wrappers::InputDataPy::q)
+      .def_readwrite("d", &pybind_wrappers::InputDataPy::d)
+      .def_property("ai", &pybind_wrappers::InputDataPy::get_ai,
+                    &pybind_wrappers::InputDataPy::set_ai);
 }

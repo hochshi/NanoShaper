@@ -7,8 +7,10 @@
 
 #include <Surface.h>
 #include <logging.h>
+#include <array>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 
 namespace nanoshaper {
 
@@ -6982,4 +6984,38 @@ double Surface::saveTriSubSet(char* triSubset, vector<bool>& results,
 
   return area;
 }
+
+template <typename T>
+std::vector<std::array<T, 3>> Surface::getList(const std::vector<T*> list) {
+  std::vector<std::array<T, 3>> retVal;
+  for (int i = 0; i < list.size(); i++) {
+    // retVal.emplace_back(list[i][0], list[i][1], list[i][2]);
+    retVal.push_back({list[i][0], list[i][1], list[i][2]});
+  }
+  return retVal;
+}
+
+std::vector<std::array<int, 3>> Surface::gettriList() {
+  return getList(triList);
+}
+
+std::vector<std::array<double, 3>> Surface::getvertList() {
+  return getList(vertList);
+}
+
+std::vector<std::array<double, 3>> Surface::getnormalsList() {
+  return getList(normalsList);
+}
+
+std::vector<int> Surface::getvertexAromsMap() {
+  std::vector<int> retVal;
+  if (NULL == vertexAtomsMap) {
+    return retVal;
+  }
+  for (int i = 0; i < vertList.size(); i++) {
+    retVal.emplace_back(vertexAtomsMap[i]);
+  }
+  return retVal;
+}
+
 }  // namespace nanoshaper
