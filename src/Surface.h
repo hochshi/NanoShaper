@@ -121,12 +121,23 @@ extern int num_cores;
 #define HYBRID_SURFACE 4
 
 // file format
-#define OFF 0
-#define OFF_A 1
-#define OFF_N 2
-#define OFF_N_A 3
-#define MSMS_NO_A 4
-#define MSMS 5
+enum FileFormat : int {
+  DEDUCE = -1,
+  OFF = 0,
+  OFF_A = 1,
+  OFF_N = 2,
+  OFF_N_A = 3,
+  MSMS_NO_A = 4,
+  MSMS = 5,
+  N_FORMATS
+};
+// #define DEDUCE -1
+// #define OFF 0
+// #define OFF_A 1
+// #define OFF_N 2
+// #define OFF_N_A 3
+// #define MSMS_NO_A 4
+// #define MSMS 5
 
 // now using inline templates
 // #define GRID_MULTI_MAP(i,j,k,l,NX,NY,NZ)
@@ -538,6 +549,8 @@ class Surface {
   virtual bool saveMesh(int format, bool revert, const char* fileName,
                         vector<double*>& vertList, vector<int*>& triList,
                         vector<double*>& normalsList);
+
+  virtual bool saveMesh(const char* filename, bool revert = false, int format = FileFormat::DEDUCE);
 
   /** smooth a given mesh and overwrites the given file name.
   The input/output mesh is in .off format*/

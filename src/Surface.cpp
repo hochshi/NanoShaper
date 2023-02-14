@@ -4295,15 +4295,15 @@ double Surface::triangulateSurface(double isolevel, const char* fileName,
     approximateNormals(appNormals, false);
   }
 
-  int format = deduceFormat();
-  bool f = saveMesh(format, revert, fileName, vertList, triList, normalsList);
+  // int format = deduceFormat();
+  // bool f = saveMesh(format, revert, fileName, vertList, triList, normalsList);
+  // if (!f) {
+    // logging::log<logging::level::err>("Errors in saving the mesh!");
+  // }
 
   if (vertexAtomsMapFlag)
     disposeAtomsMap();
 
-  if (!f) {
-    logging::log<logging::level::err>("Errors in saving the mesh!");
-  }
 
   return totalSurfaceArea;
 }
@@ -4567,6 +4567,14 @@ bool Surface::saveMesh(int format, bool revert, const char* fileName,
     fclose(fp2);
   }
   return true;
+}
+
+bool Surface::saveMesh(const char* fileName, bool revert, int format) {
+  
+  if (format == DEDUCE) {
+    format = deduceFormat();
+  }
+  return saveMesh(format, revert, fileName, vertList, triList, normalsList);  
 }
 
 bool Surface::difference(Surface* surf) {
@@ -5006,7 +5014,6 @@ void Surface::tri2Balls() {
 
 void Surface::smoothSurface(const char* fn, bool revert) {
 #define MAX_NEIGHBOURS 20
-  logging::log<logging::level::info>("Inside smoothing surface...");
 
   vector<double*> tempVertices;
   vector<double*> tempNormals;
@@ -5186,11 +5193,10 @@ void Surface::smoothSurface(const char* fn, bool revert) {
   for (int i = 0; i < MAX_NEIGHBOURS; i++)
     deleteVector<int>(vertdeg[i]);
 
-  int format = deduceFormat();
-  bool f = saveMesh(format, revert, fn, vertList, triList, normalsList);
-  logging::log<logging::level::info>("Inside smoothing surface - Save mesh...");
-  if (!f)
-    logging::log<logging::level::err>("Problems in saving the mesh!");
+  // int format = deduceFormat();
+  // bool f = saveMesh(format, revert, fn, vertList, triList, normalsList);
+  // if (!f)
+  //   logging::log<logging::level::err>("Problems in saving the mesh!");
 
   return;
 }

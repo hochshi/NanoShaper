@@ -4,6 +4,7 @@
 #include <logging.h>
 #include <main_functions.h>
 #include <memory>
+#include "Surface.h"
 
 #ifdef DBGMEM_CRT
 #define _CRTDBG_MAP_ALLOC
@@ -174,6 +175,8 @@ int main(int argc, char* argv[]) {
       SurfaceOP surf = SurfaceFactory::getInstance().create(conf, dg);
       if (surf != nullptr) {
         normalMode(surf, dg, conf);
+        surf->saveMesh("triangulatedSurf");
+
       }
       logging::log<logging::level::info>("Cleaning memory...");
 
