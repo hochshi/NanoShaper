@@ -186,12 +186,12 @@ PYBIND11_MODULE(NanoShaper, m) {
            py::arg("scale"), py::arg("perfill"), py::arg("in"));
 
   py::class_<Surface, std::shared_ptr<Surface>>(m, "Surface")
-    .def_property_readonly("triList", &Surface::gettriList)
-    .def_property_readonly("vertList", &Surface::getvertList)
-    .def_property_readonly("normalsList", &Surface::getnormalsList)
-    .def_property_readonly("vertexAtomsMap", &Surface::getvertexAromsMap)
-    .def("getNumTriangles", &Surface::getNumTriangles)
-    .def("getNumVertices", &Surface::getNumVertices);
+      .def_property_readonly("triList", &Surface::gettriList)
+      .def_property_readonly("vertList", &Surface::getvertList)
+      .def_property_readonly("normalsList", &Surface::getnormalsList)
+      .def_property_readonly("vertexAtomsMap", &Surface::getvertexAromsMap)
+      .def("getNumTriangles", &Surface::getNumTriangles)
+      .def("getNumVertices", &Surface::getNumVertices);
 
   py::class_<AtomInfo, std::shared_ptr<AtomInfo>>(m, "AtomInfo")
       .def(py::init<>())
