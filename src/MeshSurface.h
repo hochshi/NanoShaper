@@ -199,5 +199,5 @@ static class MeshSurfaceRegister {
 
 //static SurfaceRecorder<MeshSurface> meshRecorder("mesh");
 
-}
+}  // namespace nanoshaper
 #endif

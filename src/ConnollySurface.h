@@ -131,7 +131,6 @@ class PointCell : public ConnollyCell {
 #define SELF_MAP(i, j, k, l, NX, NY, NZ) \
   gridProbesMap[(l) + (MAX_PROBES - 1) * ((k) + (NZ) * ((j) + (NY) * (i)))]
 
-
 // here singular/regular is in the alpha shape nomenclature
 
 #define POINT_CELL 0

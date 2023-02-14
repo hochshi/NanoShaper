@@ -173,5 +173,5 @@ class Octree {
 
 #include <octree.tcc>
 
-}
+}  // namespace octree
 #endif
