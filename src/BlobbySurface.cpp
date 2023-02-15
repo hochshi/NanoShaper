@@ -2,6 +2,7 @@
 #include <globals.h>
 #include <logging.h>
 #include <stdexcept>
+#include "DelphiShared.h"
 
 namespace nanoshaper {
 void BlobbySurface::init() {
@@ -79,14 +80,14 @@ bool BlobbySurface::build() {
       for (int k = 0; k < delphi->nx; k++)
         scalarField[i][j][k] = 0.0;
 
-  Atom** atoms = delphi->atoms;
+  DelPhiShared::AtomsArr* atoms = &(delphi->atoms);
   printf("\n");
   int na = delphi->numAtoms;
   // fill surface class structures
   for (int i = 0; i < na; i++) {
     printf("\r%sBlobby %.2f%%        ", INFO_STR, ((float)i + 1) / na * 100.0);
-    double* pos = atoms[i]->pos;
-    double r = atoms[i]->radius;
+    double* pos = (*atoms)[i]->pos;
+    double r = (*atoms)[i]->radius;
     double r2 = r * r;
     // get ref grid point
     int ix = (int)rintp((pos[0] - delphi->xmin) / delphi->side);

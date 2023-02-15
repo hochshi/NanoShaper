@@ -2,6 +2,7 @@
 #include <DelphiShared.h>
 #include <logging.h>
 #include <tools.h>
+#include <memory>
 #include <stdexcept>
 
 namespace nanoshaper {
@@ -144,13 +145,14 @@ void DelPhiShared::DelPhiBinding(double xmin, double ymin, double zmin,
   ny = igrid;
   nz = igrid;
 
-  if (atoms != NULL) {
-    for (int i = 0; i < numAtoms; i++)
-      delete atoms[i];
-    delete[] atoms;
-  }
+  // if (atoms != NULL) {
+  //   for (int i = 0; i < numAtoms; i++)
+  //     delete atoms[i];
+  //   delete[] atoms;
+  // }
 
-  atoms = NULL;
+  // atoms = NULL;
+  atoms.reset();
 
   // assuming all maps are already allocated before binding
   this->epsmap = local_i_epsmap;
@@ -402,14 +404,17 @@ int DelPhiShared::loadAtoms(int na, const double* x, const double* y,
                             const int* d, const AtomInfo* ai) {
 
   if (atoms != NULL) {
-    for (int i = 0; i < numAtoms; i++)
-      delete atoms[i];
-    delete[] atoms;
+    atoms.reset();
+    //   for (int i = 0; i < numAtoms; i++)
+    //     delete atoms[i];
+    //   delete[] atoms;
   }
 
-  atoms = new Atom*[na];
+  // atoms = new Atom*[na];
+  atoms = make_unique<std::unique_ptr<Atom>[]>(na);
   for (int i = 0; i < na; i++) {
-    atoms[i] = new Atom(x[i], y[i], z[i], r[i]);
+    // atoms[i] = new Atom(x[i], y[i], z[i], r[i]);
+    atoms[i] = std::make_unique<Atom>(x[i], y[i], z[i], r[i]);
     if (NULL != q) {
       atoms[i]->charge = q[i];
     }
@@ -730,9 +735,10 @@ void DelPhiShared::clear() {
     deleteVector<bool>(idebmap);
 
   if (atoms != NULL) {
-    for (int i = 0; i < numAtoms; i++)
-      delete atoms[i];
-    delete[] atoms;
+    // for (int i = 0; i < numAtoms; i++)
+    //   delete atoms[i];
+    // delete[] atoms;
+    atoms.reset();
   }
 
   // free memory
@@ -992,22 +998,22 @@ void DelPhiShared::saveCavities2(bool onlySaveNonFilled, string sysName) {
           // printf("\nIndex %d",i);
           fflush(stdout);
           int ii = (*setIt);
-          Atom* at = atoms[ii];
-          AtomInfo& ai = at->ai;
+          auto at = *atoms[ii];
+          AtomInfo& ai = at.ai;
           if ((ai.getName()).size() == 4)
             fprintf(fp,
                     "ATOM  %5d %-4s %3s %s%4d    %8.3f%8.3f%8.3f               "
                     "  %6d POC\n",
                     ii + 1, ai.getName().c_str(), ai.getResName().c_str(),
-                    ai.getChain().c_str(), ai.getResNum(), at->pos[0],
-                    at->pos[1], at->pos[2], savedIndex);
+                    ai.getChain().c_str(), ai.getResNum(), at.pos[0], at.pos[1],
+                    at.pos[2], savedIndex);
           else
             fprintf(fp,
                     "ATOM  %5d  %-3s %3s %s%4d    %8.3f%8.3f%8.3f              "
                     "   %6d POC\n",
                     ii + 1, ai.getName().c_str(), ai.getResName().c_str(),
-                    ai.getChain().c_str(), ai.getResNum(), at->pos[0],
-                    at->pos[1], at->pos[2], savedIndex);
+                    ai.getChain().c_str(), ai.getResNum(), at.pos[0], at.pos[1],
+                    at.pos[2], savedIndex);
         }
         savedIndex++;
       }

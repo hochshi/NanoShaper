@@ -48,6 +48,8 @@ struct InputData {
  */
 class DelPhiShared {
  public:
+  using AtomsArr = std::unique_ptr<std::unique_ptr<Atom>[]>;
+
   ///////////////////////////////////// methods
   /////////////////////////////////////////////////////////
   /** default constructor*/
@@ -184,7 +186,9 @@ class DelPhiShared {
   double xmin, xmax, ymin, ymax, zmin, zmax;
   double baricenter[3];
   // atoms vector. Pointer to atom objects
-  Atom** atoms;
+  // Atom** atoms;
+  // std::unique_ptr<std::unique_ptr<Atom>[]> atoms;
+  AtomsArr atoms;
   // num atoms
   int numAtoms;
   char file[BUFLEN];
