@@ -5,6 +5,7 @@
 #include <globals.h>
 #include <memory>
 #include <vector>
+#include <Configuration.h>
 
 #include <tools.h>
 
@@ -58,7 +59,9 @@ class DelPhiShared {
   /** default init*/
   void init();
 
-  DelPhiShared(bool map, bool status, bool multi, bool atinfo);
+  DelPhiShared(const Configuration& conf);
+
+  DelPhiShared(bool map, bool status, bool multi, bool atinfo = false);
   /** constructor. map indicates epsmap and idebmap, status is status map and
    * multi mean multidielectric*/
   DelPhiShared(double scale, double perfill, string fn, bool map, bool status,

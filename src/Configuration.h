@@ -20,6 +20,7 @@ struct Configuration {
   // grid (DelPhi) params
   double scale;
   double perfill;
+  bool isAvailableAtomInfo = false;
   // mol file name
   std::string molFile;
   // sys name

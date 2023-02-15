@@ -78,6 +78,7 @@ PYBIND11_MODULE(NanoShaper, m) {
       // grid (DelPhi) params
       .def_readwrite("scale", &Configuration::scale)
       .def_readwrite("perfill", &Configuration::perfill)
+      .def_readwrite("isAvailableAtomInfo", &Configuration::isAvailableAtomInfo)
       // mol file name
       .def_readwrite("molFile", &Configuration::molFile)
       // sys name
@@ -177,6 +178,7 @@ PYBIND11_MODULE(NanoShaper, m) {
       .def(py::init<const bool&, const bool&, const bool&, const bool&>(),
            py::arg("eps_flag"), py::arg("stat_flag"), py::arg("multi"),
            py::arg("atinfo") = false)
+      .def(py::init<const Configuration&>(), py::arg("conf"))
       .def("init",
            py::overload_cast<double, double, std::string>(&DelPhiShared::init),
            py::arg("scale"), py::arg("perfill"), py::arg("fn"))

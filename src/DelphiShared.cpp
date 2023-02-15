@@ -4,6 +4,7 @@
 #include <tools.h>
 #include <memory>
 #include <stdexcept>
+#include "Configuration.h"
 
 namespace nanoshaper {
 void DelPhiShared::init() {
@@ -37,6 +38,16 @@ DelPhiShared::DelPhiShared(bool map, bool status, bool multi, bool atinfo)
       buildStatus(status),
       multi_diel(multi),
       isAvailableAtomInfo(atinfo) {}
+
+DelPhiShared::DelPhiShared(const Configuration& conf)
+    : buildEpsMap(conf.buildEpsmaps),
+      buildStatus(conf.buildStatus),
+      multi_diel(conf.multi_diel),
+      isAvailableAtomInfo(conf.isAvailableAtomInfo) {
+  if (!conf.molFile.empty()) {
+    init(conf.scale, conf.perfill, conf.molFile);
+  }
+}
 
 void DelPhiShared::init(double scale, double perfill, string fn, bool eps_flag,
                         bool stat_flag, bool multi, bool atinfo) {
