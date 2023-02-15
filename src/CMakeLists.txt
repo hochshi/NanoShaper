@@ -24,7 +24,12 @@ endif()
 ################################################################################
 option(ENABLE_LIB_DELPHI "LIB_DELPHI" OFF)
 
-if(ENABLE_LIB_DELPHI)
+################################################################################
+# BUILD_LIB
+################################################################################
+option(ENABLE_LIB "BUILD_LIB" OFF)
+
+if(ENABLE_LIB_DELPHI OR ENABLE_LIB )
   add_subdirectory(libraries)
 endif()
 

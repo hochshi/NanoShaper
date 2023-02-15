@@ -46,8 +46,6 @@ endif()
 ################################################################################
 # SWIG_LIB
 ################################################################################
-option(ENABLE_SWIG_LIB "SWIG_LIB" OFF)
-
 if(ENABLE_SWIG_LIB)
   find_package(SWIG REQUIRED)
   find_package(PythonLibs REQUIRED)
