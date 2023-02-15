@@ -2,10 +2,10 @@
 #ifndef DelphiShared_h
 #define DelphiShared_h
 
+#include <Configuration.h>
 #include <globals.h>
 #include <memory>
 #include <vector>
-#include <Configuration.h>
 
 #include <tools.h>
 
