@@ -476,11 +476,11 @@ bool Surface::getSurf(bool fillCav, double vol, int num_cores) {
     // assuming squared grid for this stat
     if (accurateTriangulation && !isAvailableScalarField)
       logging::log<logging::level::info>(
-          "Approximated {} rays ({} {})", numint,
+          "Approximated {} rays ({})", numint,
           numint / (6 * (float)delphi->nx * delphi->ny) * 100);
     else
       logging::log<logging::level::info>(
-          "Approximated {} rays ({} {})", numint,
+          "Approximated {} rays ({})", numint,
           numint / (3 * (float)delphi->nx * delphi->ny) * 100);
   }
 
@@ -5183,8 +5183,6 @@ void Surface::smoothSurface(const char* fn, bool revert) {
       normalsList[i][2] = tempNormals[i][2];
     }
 
-  logging::log<logging::level::info>(
-      "Inside smoothing surface - Finished Calc...");
   //delete all
   for (int i = 0; i < nv; i++)
     deleteVector<double>(tempVertices[i]);
