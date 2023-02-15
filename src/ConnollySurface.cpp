@@ -346,7 +346,7 @@ bool ConnollySurface::buildConnollyCGAL() {
     r = delphi->atoms[i]->radius;
     r += probe_radius;
 
-    l.push_front(std::make_tuple(Weighted_point(Point(x, y, z), (r * r)), i));
+    l.push_front(std::make_pair(Weighted_point(Point(x, y, z), (r * r)), i));
 
     r -= probe_radius;
     max_x = max(max_x, x + r);

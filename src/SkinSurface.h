@@ -157,7 +157,8 @@ class SkinSurface : public Surface {
   typedef K::FT Weight;
   typedef K::Point_3 Point;
   typedef K::Weighted_point_3 Weighted_point;
-  typedef std::tuple<Weighted_point, int> Indexed_weighted_point;
+  // typedef std::tuple<Weighted_point, int> Indexed_weighted_point;
+  typedef std::pair<Weighted_point, int> Indexed_weighted_point;
   typedef CGAL::Regular_triangulation_vertex_base_3<K> Vb0;
   typedef CGAL::Triangulation_vertex_base_with_info_3<int, K, Vb0> Vb;
   typedef CGAL::Regular_triangulation_cell_base_3<K> Cb0;
