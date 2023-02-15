@@ -35,6 +35,11 @@ if(ENABLE_PYBIND11_LIB AND Python_FOUND AND pybind11_FOUND)
     PRIVATE pybind11::headers
   )
   pybind11_extension(NanoShaper)
+
+  set_target_properties(NanoShaper
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+  )
   
 endif()
 

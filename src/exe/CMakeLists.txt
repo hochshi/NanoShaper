@@ -10,3 +10,8 @@ add_executable(NanoShaper
   ../ConfigFile/ConfigFile.h 
   ../octree/octree.h 
   )
+
+set_target_properties(NanoShaper
+  PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
