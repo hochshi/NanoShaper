@@ -245,4 +245,5 @@ build_lib/
 build_python/
 
 #Local files
+compile_commands.json
 # CMakeLists.txt
