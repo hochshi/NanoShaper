@@ -1,7 +1,18 @@
 # Cmake config for NanoShaper
-project(NanoShaper LANGUAGES CXX C)
 cmake_minimum_required(VERSION 3.6)
+project(NanoShaper LANGUAGES CXX C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+cmake_policy(SET CMP0042 NEW) # MacOS RPATH on by default
+cmake_policy(SET CMP0048 NEW) # project() command manages the VERSION variables
+cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted
+cmake_policy(SET CMP0077 NEW) # option() honors normal variables (i.e. does nothing if a normal variable with the same name exists)
+cmake_policy(SET CMP0083 NEW) # Pass flags needed for position-independent executables
+cmake_policy(SET CMP0091 NEW) # MSVC runtime library flags are selected by an abstraction (i.e. CMAKE_MSVC_RUNTIME_LIBRARY)
+set(CMAKE_MACOSX_RPATH 1)
+
+include(FetchContent)
+include(ExternalProject)
 
 ################################################################################
 # Build type
@@ -18,28 +29,20 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif ()
 
 ################################################################################
-# Git submodules
-################################################################################
-option(ENABLE_GIT_SUBMODULES "init and update git submodules" OFF)
-
-if(ENABLE_GIT_SUBMODULES)
-  include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists_git.txt)
-endif()
-
-
-################################################################################
 # SPDLog
 ################################################################################
 option(ENABLE_SPDLOG "SPDLog" OFF)
 
 if(ENABLE_SPDLOG)
+  FetchContent_Declare( spdlog
+      GIT_REPOSITORY https://github.com/gabime/spdlog.git
+      GIT_TAG 27cb4c76708608465c413f6d0e6b8d99a4d84302 # v1.14.1
+  )
+  FetchContent_MakeAvailable( spdlog )
   add_definitions(-DSPDLOG_ENABLED)
   link_libraries(
     spdlog::spdlog_header_only
   )
-  if(ENABLE_GIT_SUBMODULES)
-    add_subdirectory(lib/spdlog)
-  endif()
 endif()
 
 ################################################################################
@@ -48,19 +51,45 @@ endif()
 option(ENABLE_JSON "JSON" OFF)
 
 if(ENABLE_JSON)
+  FetchContent_Declare( json
+      GIT_REPOSITORY https://github.com/nlohmann/json.git
+      GIT_TAG bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d # v3.11.2
+  )
+  FetchContent_MakeAvailable( json )
   set(JSON_BuildTests OFF CACHE INTERNAL "")
   add_definitions(-DJSON_ENABLED)
   link_libraries(
     nlohmann_json::nlohmann_json
   )
-  if(ENABLE_GIT_SUBMODULES)
-    add_subdirectory(lib/json)
-  endif()
 endif()
 
-# if (${UNIX}) 
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mtune=native") 
-# endif (${UNIX}) 
+################################################################################
+# TinyPLY
+################################################################################
+option(ENABLE_PLY "PLY" OFF)
+
+if(ENABLE_PLY)
+
+  FetchContent_Declare( tinyply
+      GIT_REPOSITORY https://github.com/ddiakopoulos/tinyply.git
+      GIT_TAG 40aa4a0ae9e9c203e11893f78b8bcaf8a50e65f0 # 2.3.4
+  )
+
+  FetchContent_GetProperties(tinyply)
+  if(NOT tinyply_POPULATED)
+    FetchContent_Populate(tinyply)
+    add_library(tinyply STATIC
+      ${tinyply_SOURCE_DIR}/source/tinyply.cpp
+      ${tinyply_SOURCE_DIR}/source/tinyply.h
+    )
+  include_directories(${tinyply_SOURCE_DIR}/source)
+  endif()
+  
+  add_definitions(-DPLY_ENABLED)
+  link_libraries(
+    tinyply
+  )
+endif()
 
 ################################################################################
 # BOOST

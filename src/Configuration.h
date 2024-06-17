@@ -92,6 +92,7 @@ struct Configuration {
   bool vaFlag = false;
   bool computeNormals = false;
   bool saveMSMS = false;
+  bool savePLY = false;
   double sternLayer = -1.;
   int Max_Atoms_Multi_Grid = 100;
   std::string surfName;
@@ -110,7 +111,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     maxMeshDim2D, maxMeshPatches2D, NumMSMSfiles, skin_s, maxSkinDim,
     maxSkinPatches, maxSkinDim2D, maxSkinPatches2D, useFastProjection,
     savePovRay, checkDuplicatedVertices, wellShaped, probeRadius, lb, vaFlag,
-    computeNormals, saveMSMS, sternLayer, Max_Atoms_Multi_Grid, surfName)
+    computeNormals, saveMSMS, savePLY, sternLayer, Max_Atoms_Multi_Grid, surfName)
 #endif
 
 using ConfigurationOP = std::shared_ptr<Configuration>;

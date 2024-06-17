@@ -193,6 +193,7 @@ ConfigurationOP parse(ConfigFileOP cf) {
   conf->vaFlag = cf->read<bool>("Vertex_Atom_Info", false);
   conf->computeNormals = cf->read<bool>("Compute_Vertex_Normals", false);
   conf->saveMSMS = cf->read<bool>("Save_Mesh_MSMS_Format", false);
+  conf->savePLY = cf->read<bool>("Save_Mesh_PLY_Format", false);
   conf->sternLayer = cf->read<double>("Stern_layer", -1.);
   conf->Max_Atoms_Multi_Grid = cf->read<int>("Max_Atoms_Multi_Grid", 100);
   conf->surfName = cf->read<string>("Surface");
