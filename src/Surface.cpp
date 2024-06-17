@@ -8,9 +8,16 @@
 #include <Surface.h>
 #include <logging.h>
 #include <array>
+#include <cstdint>
+#include <ostream>
 #include <stdexcept>
+#include <streambuf>
 #include <tuple>
 #include <vector>
+
+#ifdef PLY_ENABLED
+#include <tinyply.h>
+#endif // PLY_ENABLED
 
 namespace nanoshaper {
 
@@ -53,6 +60,7 @@ void Surface::init() {
   vertexAtomsMapFlag = false;
   computeNormals = false;
   saveMSMS = false;
+  savePLY = false;
   providesAnalyticalNormals = false;
   activeCubes = NULL;
   MAX_ATOMS_MULTI_GRID = 100;
@@ -68,6 +76,7 @@ void Surface::init(ConfigurationOP cf) {
   bool vaFlag = cf->vaFlag;
   bool computeNormals = cf->computeNormals;
   bool saveMSMS = cf->saveMSMS;
+  bool savePLY = cf->savePLY;
   double sternLayer = cf->sternLayer;
   MAX_ATOMS_MULTI_GRID = cf->Max_Atoms_Multi_Grid;
 
@@ -80,6 +89,7 @@ void Surface::init(ConfigurationOP cf) {
   setVertexAtomsMap(vaFlag);
   setComputeNormals(computeNormals);
   setSaveMSMS(saveMSMS);
+  setSavePLY(savePLY);
 
   // if >0 enable stern layer, else disabled by default
   if (sternLayer > 0)
@@ -4405,12 +4415,77 @@ void Surface::approximateNormals(vector<int>& appNormals, bool doOnlyList) {
 
   deleteMatrix2D<double>(nt, planes);
 }
+
+bool Surface::savePLYMesh(int format, bool revert, const char* fileName,
+                       vector<double*>& vertList, vector<int*>& triList,
+                       vector<double*>& normalsList) {
+  int numVertexes = (int)vertList.size();
+  int numTriangles = (int)triList.size();
+  char fullName[100];
+
+  snprintf(fullName, sizeof(fullName), "%s.ply", fileName);
+
+  std::filebuf fb;
+  fb.open(fullName, std::ios::out | std::ios::binary);
+  std::ostream outstream(&fb);
+  if (outstream.fail()) {
+    logging::log<logging::level::warn>("Cannot write file {}", fileName);
+    return false;
+  }
+
+  struct double3 { double x, y, z; };
+  struct int3 { int32_t x, y, z; };
+
+  std::vector<double3> vertStructVec;
+  for (double* ptr : vertList) {
+    vertStructVec.push_back(*reinterpret_cast<double3*>(ptr));
+  }
+  std::vector<int3> triStructVec;
+  for (int* ptr : triList) {
+    triStructVec.push_back(*reinterpret_cast<int3*>(ptr));
+  }
+
+  tinyply::PlyFile mesh_ply;
+  mesh_ply.add_properties_to_element("vertex", {"x", "y", "z"} ,
+                                      tinyply::Type::FLOAT64, numVertexes,
+                                      reinterpret_cast<uint8_t *>(vertStructVec.data()),
+                                      tinyply::Type::INVALID, 0);
+  mesh_ply.add_properties_to_element("face", { "vertex_indices" },
+                                      tinyply::Type::INT32, numTriangles,
+                                      reinterpret_cast<uint8_t *>(triStructVec.data()),
+                                      tinyply::Type::UINT8, 3);
+  if (normalsList.size() != 0) {
+    std::vector<double3> normalsStructVec;
+    for (double* ptr : vertList) {
+      normalsStructVec.push_back(*reinterpret_cast<double3*>(ptr));
+    }
+    mesh_ply.add_properties_to_element("vertex", { "nx", "ny", "nz" },
+                                         tinyply::Type::FLOAT64, numVertexes,
+                                         reinterpret_cast<uint8_t*>(normalsStructVec.data()),
+                                         tinyply::Type::INVALID, 0);
+  }
+
+
+  char comment[100];
+  time_t pt;
+  time(&pt);
+  std::snprintf(comment, sizeof(comment), "# File created by %s version %s date %s", PROGNAME, VERSION, ctime(&pt));
+  mesh_ply.get_comments().push_back(comment);
+
+  mesh_ply.write(outstream, true);
+  return true;
+}
+
 bool Surface::saveMesh(int format, bool revert, const char* fileName,
                        vector<double*>& vertList, vector<int*>& triList,
                        vector<double*>& normalsList) {
   int numVertexes = (int)vertList.size();
   int numTriangles = (int)triList.size();
   char fullName[100];
+
+  if (format == PLY) {
+    return savePLYMesh(format, revert, fileName, vertList, triList, normalsList);
+  }
 
   if (format == OFF || format == OFF_A || format == OFF_N ||
       format == OFF_N_A) {
@@ -5204,22 +5279,26 @@ void Surface::smoothSurface(const char* fn, bool revert) {
 
 int Surface::deduceFormat() {
   int format = -1;
-  if (!saveMSMS) {
-    if (vertexAtomsMapFlag && computeNormals)
-      format = OFF_N_A;
-    else {
-      if (vertexAtomsMapFlag)
-        format = OFF_A;
-      else if (computeNormals)
-        format = OFF_N;
-      else
-        format = OFF;
-    }
-  } else {
+  if (savePLY) {
+    format = PLY;
+    return format;
+  }
+  if (saveMSMS) {
     if (vertexAtomsMapFlag)
       format = MSMS;
     else
       format = MSMS_NO_A;
+    return format;
+  }
+  if (vertexAtomsMapFlag && computeNormals)
+    format = OFF_N_A;
+  else {
+    if (vertexAtomsMapFlag)
+      format = OFF_A;
+    else if (computeNormals)
+      format = OFF_N;
+    else
+      format = OFF;
   }
   return format;
 }

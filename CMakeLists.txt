@@ -82,6 +82,7 @@ if(ENABLE_PLY)
       ${tinyply_SOURCE_DIR}/source/tinyply.cpp
       ${tinyply_SOURCE_DIR}/source/tinyply.h
     )
+  include_directories(${tinyply_SOURCE_DIR}/source)
   endif()
   
   add_definitions(-DPLY_ENABLED)

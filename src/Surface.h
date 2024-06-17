@@ -135,6 +135,7 @@ enum FileFormat : int {
   OFF_N_A = 3,
   MSMS_NO_A = 4,
   MSMS = 5,
+  PLY = 6,
   N_FORMATS
 };
 // #define DEDUCE -1
@@ -254,6 +255,7 @@ class Surface {
   bool useLoadBalancing;
   bool vertexAtomsMapFlag;
   bool saveMSMS;
+  bool savePLY;
   //////////////////////////////////////////////////////////////////////////////////////
 
   // current panel under analysis
@@ -562,6 +564,10 @@ class Surface {
   virtual bool saveMesh(const char* filename, bool revert = false,
                         int format = FileFormat::DEDUCE);
 
+  virtual bool savePLYMesh(int format, bool revert, const char* fileName,
+                        vector<double*>& vertList, vector<int*>& triList,
+                        vector<double*>& normalsList);
+
   /** smooth a given mesh and overwrites the given file name.
   The input/output mesh is in .off format*/
   virtual void smoothSurface(const char* fn = "triangulatedSurf",
@@ -644,6 +650,10 @@ class Surface {
   void setSaveMSMS(bool m) { saveMSMS = m; }
 
   bool getSaveMSMS() { return saveMSMS; }
+
+  void setSavePLY(bool m) { savePLY = m; }
+
+  bool getSavePLY() { return savePLY; }
 
   void setTriangulationFlag(bool flag) { accurateTriangulation = flag; }
   bool getTriangulationFlag() { return accurateTriangulation; }
