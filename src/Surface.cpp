@@ -4465,13 +4465,6 @@ bool Surface::savePLYMesh(int format, bool revert, const char* fileName,
                                          tinyply::Type::INVALID, 0);
   }
 
-
-  char comment[100];
-  time_t pt;
-  time(&pt);
-  std::snprintf(comment, sizeof(comment), "# File created by %s version %s date %s", PROGNAME, VERSION, ctime(&pt));
-  mesh_ply.get_comments().push_back(comment);
-
   mesh_ply.write(outstream, true);
   return true;
 }
