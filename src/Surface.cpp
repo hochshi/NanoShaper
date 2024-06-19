@@ -4436,6 +4436,7 @@ bool Surface::savePLYMesh(int format, bool revert, const char* fileName,
   struct double3 { double x, y, z; };
   struct int3 { int x, y, z; };
 
+
   std::vector<double3> vertStructVec;
   for (double* ptr : vertList) {
     vertStructVec.push_back(*reinterpret_cast<double3*>(ptr));
@@ -4456,6 +4457,7 @@ bool Surface::savePLYMesh(int format, bool revert, const char* fileName,
                                       tinyply::Type::UINT8, 3);
   if (normalsList.size() != 0) {
     std::vector<double3> normalsStructVec;
+
     for (double* ptr : normalsList) {
       normalsStructVec.push_back(*reinterpret_cast<double3*>(ptr));
     }
