@@ -1,360 +1,160 @@
-import subprocess
+import subprocess,os
 import platform
 import os
 import shutil
+import sys
+my_env = os.environ.copy()
+# Universal NanoShaper installer for so and stand-alone 
+# version 1.5
 
-# Universal NanoShaper installer for lib, stand-alone and python module
-# version 0.7
+print ("--------------------------------------") 
+print ("Welcome to NanoShaper Setup")
+print ("--------------------------------------")
+print ("This script will setup NanoShaper executable/so module for Linux.")
+print ("At the end you can check the build results in make_ns.txt.")
+print ("")
+print ("For any help contact sergio.decherchi@iit.it")
+print ("")
+print ("Pre-requisites are: gmp, mpfr, boost Threads/FileSystem/Chrono")
+print ("together with a working Internet connection.")
+print("If gmp/mpfr/boost are not in standard locations you can set")
+print("the following env variables (before running this script) to provide custom locations:")
+print("MPFR_LIBRARIES path to mpfr .so (excluding file name)")
+print("MPFR_INCLUDE_DIR for mpfr include dir")
+print("BOOST_LIBRARYDIR path to boost .so files")
+print("BOOST_INCLUDEDIR for boost include dir")
+print("GMP_LIBRARIES path for gmp .so file (excluding file name)")
+print("GMP_INCLUDE_DIR for gmp include dir")
 
-print "--------------------------------------"
-print "Welcome to NanoShaper Setup"
-print "--------------------------------------"
-print "This script will setup NanoShaper executable/lib/python module for Linux/Mac."
-print "For Windows pre-compiled binaries are available."
-print "At the end you can check the build results in make_ns.txt."
-print ""
-print "For any help contact sergio.decherchi@iit.it"
-print ""
-print "If you additionally have root privileges this script can install for you also the missing packages"
-print "and if NanoShaper is compiled as a library/python module this will be installed. "
-print "To get the full automation of the installation process please get root privileges."
-print ""
-print "wget/curl are needed in Linux/Mac respectively"
-print "together with a working Internet connection if packages are installed."
-print "--------------------------------------"
-print ""
+print ("")
 
-root = False
-str = raw_input('Do you have root privileges? [y/n] ').lower()
-
-#cgalFile = 'CGAL-3.9.tar.gz'
-#cgalDir = 'CGAL-3.9'
-#cgalN = '/29125/'
-
-cgalFile = 'CGAL-4.2-beta1.tar.gz'
-cgalDir = 'CGAL-4.2-beta1'
-cgalN = '/32183/'
-
-if (str=='y'):
-  root = True
-else:
-  print ""
-  print "Without root priviliges you cannot install packets and the compiled libraries"
-  print "The needed packets are: boost, gmp, mpfr and cmake."
-  print ""
-  str = raw_input('Press any key to continue...')
-  print ""
+################### cmake, tbb, cgal versions ##################
+cgalVersion = '5.6.2'
+cgalFile = 'cgal-'+cgalVersion+'.tar.gz'
+# relative path to NS root
+cgalDir = 'cgal-'+cgalVersion
+cmakeVersion = "3.22.0-rc2" 
+cmake_name = "cmake-%s-linux-x86_64"%cmakeVersion
+tbb_ver_short = '2021.4.0'
+tbb_ver = 'oneapi-tbb-%s'%(tbb_ver_short)
+#################################################################
 
 compMode = 0
-str = raw_input('Do you want to compile as a DelPhi-Module, as Stand-Alone or as Python module? [lib/exe/py] ').lower()
-
-if (str=='lib'):
-  print 'Lib mode selected'
-  compMode = 1
-elif (str=='py'):
-  print 'Python mode selected'
-  compMode = 2
-elif (str=='exe'):
-  print 'Stand alone mode selected'
-  compMode = 0
+str = 'exe'
+if sys.version_info[0] < 3:
+  str = raw_input('Do you want to compile NanoShaper as a shared object or as a stand-alone executable? [so/exe]').lower()
 else:
-  print "Option not recognised, assuming stand-alone executable"
+  str = input('Do you want to compile NanoShaper as a shared object or as a stand-alone executable? [so/exe]').lower()
+
+if (str=='exe'):
+  print ("Stand alone mode selected")
+  compMode = 0
+elif (str=='so'):
+  print ("Shared object mode selected")
+  compMode = 2
+else:
+  print ("Option not recognised, assuming stand-alone executable")
 
 pwd = os.getcwd()
-#print "Trying to guess OS ..."
+cmake_path = pwd + '/' + cmake_name
+tbb_path = pwd + '/%s'%(tbb_ver)
 
-# mac flag
-mac = 0
-# win flag
-win = 0
-# snowleopard and leopard force 32 bit compilation (that OS is a bit confused about being 32 or 64 bits...)
-mode32 = 0
-# enable chrono switch
-enable_chrono = False
+#CMAKE (at least 3.1 for tbb and at least 3.14 for cgal)
+if(os.path.isdir(cmake_path)==False):
+  subprocess.call('wget https://github.com/Kitware/CMake/releases/download/v%s/%s.tar.gz'%(cmakeVersion,cmake_name),shell=True) 
+  subprocess.call('tar -vxzf %s.tar.gz'%cmake_name,shell=True)
+  print ("")
 
-plat = platform.system()
-plat = plat.split('-')
-plat = plat[0]
-plat = plat.lower()
+#TBB 
+if(os.path.isdir(tbb_ver)==False):
+  subprocess.call('wget https://github.com/oneapi-src/oneTBB/releases/download/v%s/%s-lin.tgz'%(tbb_ver_short,tbb_ver),shell=True)    
+  subprocess.call('tar -xvf %s-lin.tgz'%(tbb_ver),shell=True)    
 
-if (plat == 'darwin' and root==True):
-	mac = 1
-	print "Detected Mac, installing required packages (boost, gmp, mpfr)"
-	print "This script assumes that you have fink software manager installed (it ships with Xcode)\n"
-	str = raw_input('Do you want to continue? [y/n] ').lower()
-	if (str == 'y'):
-		pass
-	else:
-		quit()
-	
-	v = platform.mac_ver()[0].split('.')
-	
-	if (v[0]=='10' and v[1]=='6'):
-		print "Detected Snowleopard. For compatibility reasons the build is forced to 32 bits"
-		str = raw_input('Do you want to install packets? [y/n] ').lower()
-		if (str == 'y'):
-			subprocess.call('fink -y install boost1.46.1.cmake',shell=True)
-			subprocess.call('fink -y install gmp5',shell=True)
-			subprocess.call('fink -y install libmpfr4',shell=True)
-			
-		mode32 = 1
-	
-	elif (v[0]=='10' and (v[1]=='7' or v[1]=='8')):
-		print "Please perform packets installation by hand before proceeding"
-		str = raw_input('Do you want to continue? [y/n] ').lower()
-		if (str == 'y'):
-			pass
-		else:
-			quit()
-	
-	elif (v[0]=='10' and v[1]<='5'):
-		print "Detected Leopard or previous OS. For compatibility reasons the build is forced to 32 bits"
-		print "Please perform packets installation by hand before proceeding"
-		mode32 = 1
-		str = raw_input('Do you want to continue? [y/n] ').lower()
-		if (str == 'y'):
-			pass
-		else:
-			quit()
-	
-elif (plat == 'windows'):
-	print ''
-	print '-----------------------------------------'
-	print 'Windows binaries are availale on \\bin'
-	print 'To compile on Windows please follow user guide instructions; these are summarized here'
-	print '1) Download and compile boost libraries. Set BOOST_DIR to your boost root'
-	print '2) Download CGAL. Patch the two include files in CGALPatch dir. Compile CGAL. Set CGAL_DIR to your CGAL root '
-	print '3) Cmake of NanoShaper'
-	print '4) Open Visual Studio project and compile'
-	print '-----------------------------------------'
-	quit()
-	
-elif (root==True):
-	distro = platform.linux_distribution()[0]
-	distro = distro.lower()
-	print "Detected Linux os"
-
-	if (('suse' in distro) or ('opensuse' in distro)):
-		print "Detected SUSE Linux distribution, installing required packages: boost, gmp, mpfr, cmake"
-		print ""
-		str = raw_input('Do you want to install packets? [y/n] ').lower()
-		if (str=='y'):
-			subprocess.call('yast -i boost boost-devel gmp gmp-devel mpfr mpfr-devel cmake',shell=True)
-	
-	elif (('ubuntu' in distro) or ('debian' in distro)):
-		print "Detected Debian based Linux distribution, installing required packages: boost, gmp, mpfr, cmake, g++" 
-		str = raw_input('Do you want to install packets? [y/n] ').lower()
-		if (str=='y'):
-			subprocess.call('apt-get -y install g++',shell=True)
-			subprocess.call('apt-get -y install libboost-thread-dev',shell=True)
-			#subprocess.call('apt-get -y install libboost-chrono-dev',shell=True)
-			subprocess.call('apt-get -y install libmpfr-dev',shell=True)
-			subprocess.call('apt-get -y install cmake',shell=True)
-	
-	elif (('red' in distro) or ('hat' in distro) or ('redhat' in distro) or ('centos' in distro) or ('fedora' in distro)):
-		print "Detected RedHat based Linux distribution, installing required packages: boost, gmp, mpfr, cmake"
-		str = raw_input('Do you want to install packets? [y/n] ').lower()
-		if (str=='y'):
-			subprocess.call('yum install boost',shell=True)
-			subprocess.call('yum install boost-devel',shell=True)
-			subprocess.call('yum install gmp',shell=True)
-			subprocess.call('yum install gmp-devel',shell=True)
-			subprocess.call('yum install mpfr',shell=True)
-			subprocess.call('yum install mpfr-devel',shell=True)
-			subprocess.call('yum install cmake',shell=True)
-
-	else:
-		print "I am not able to retrieve a known distro."
-		print "You have to install packets manually; these are:"
-		print "boost, gmp, mpfr, cmake. If you find boost-devel, gmp-devel etc.."
-		print "please also install them to make header files available."
-		print ""
-		str = raw_input('Do you want to continue? [y/n] ').lower()
-		if (str == 'y'):
-			pass
-		else:
-			quit()
-
-# if cgal not found download and compile
-if(os.path.isdir('./'+cgalDir)==False):
-  print ""
-  print "Downloading and extracting CGAL..."
-  print ""
-
-  if (mac==1):
-    subprocess.call('curl -C - -O https://gforge.inria.fr/frs/download.php'+cgalN+cgalFile,shell=True)
-  else:
-    subprocess.call('wget https://gforge.inria.fr/frs/download.php'+cgalN+cgalFile,shell=True)
-
+#CGAL
+if(os.path.isdir(cgalDir)==False):
+  subprocess.call('wget https://github.com/CGAL/cgal/archive/v'+cgalVersion+'.tar.gz',shell=True) 
   subprocess.call('sync',shell=True)
-  subprocess.call('tar xvf '+cgalFile,shell=True)
+  subprocess.call('tar -xvf v'+cgalVersion+'.tar.gz',shell=True)
   subprocess.call('sync',shell=True)
+  subprocess.call('rm v'+cgalVersion+'.tar.gz',shell=True)
 
-  # patch the build file: enable chrono and add a index to vertices class
-  print ""
-  print "Patching CGAL..."
-  print ""
-
-  subprocess.call('rm -f ./'+cgalDir+'/include/CGAL/Weighted_point.h',shell=True)
-  subprocess.call('sync',shell=True)
-  subprocess.call('cp ./CGALPatch/Weighted_point.h ./'+cgalDir+'/include/CGAL/',shell=True)
-  subprocess.call('sync',shell=True)
-
-  '''  
-  str = raw_input('\nBoost Chrono library will allow to get very accurate execution timings but may be not available in older distros. \nDo you want to compile with Boost Chrono library support? [y/n] ').lower()
+  print ("")
+  print ("Building CGAL...")
+  print ("")
   
-  flag = False
-  if (str == 'y'):
-    if (os.path.isfile('./'+cgalDir+'/cmake/modules/CGAL_SetupBoost.cmake.old')):
-      print "CGAL already patched, reverting to original file and repatching"
-      shutil.copy2('./'+cgalDir+'/cmake/modules/CGAL_SetupBoost.cmake.old','./'+cgalDir+'/cmake/modules/CGAL_SetupBoost.cmake')
-      subprocess.call('sync',shell=True)
+build_cgal = "cd ./%s \n mkdir build \n cd build \n rm -f CMakeCache.txt \n sync \n"%(cgalDir) 
 
-    shutil.copy2('./'+cgalDir+'/cmake/modules/CGAL_SetupBoost.cmake','./'+cgalDir+'/cmake/modules/CGAL_SetupBoost.cmake.old')
-    subprocess.call('sync',shell=True)  
+temp = cmake_path+'/bin/cmake .. -DBUILD_SHARED_LIBS=ON  -DWITH_examples=false  -DWITH_CGAL_Qt5=false  -DWITH_CGAL_ImageIO=false -DCMAKE_BUILD_TYPE="Release" '
+
+build_cgal2 = ""
+
+# add custom env variables if present in the environment
+if ("MPFR_LIBRARIES" in my_env):
+	build_cgal2 = build_cgal2+ " -DMPFR_LIBRARIES=$MPFR_LIBRARIES/libmpfr.so"
+if ("MPFR_INCLUDE_DIR" in my_env):
+	build_cgal2 = build_cgal2+ " -DMPFR_INCLUDE_DIR=$MPFR_INCLUDE_DIR"
+if ("BOOST_INCLUDEDIR" in my_env):
+	build_cgal2 = build_cgal2+ " -DBoost_INCLUDE_DIR=$BOOST_INCLUDEDIR"
+if ("BOOST_LIBRARYDIR" in my_env):
+	build_cgal2 = build_cgal2+ " -DBOOST_LIBRARYDIR=$BOOST_LIBRARYDIR"
+if ("GMP_LIBRARIES" in my_env):
+	build_cgal2 = build_cgal2+ " -DGMP_LIBRARIES=$GMP_LIBRARIES/libgmp.so"
+if ("GMP_INCLUDE_DIR" in my_env):
+	build_cgal2 = build_cgal2+ " -DGMP_INCLUDE_DIR=$GMP_INCLUDE_DIR"
   
-    boostDepOld  = open ('./'+cgalDir+'/cmake/modules/CGAL_SetupBoost.cmake.old','r')
-    boostDepNew  = open ('./'+cgalDir+'/cmake/modules/CGAL_SetupBoost.cmake','w')
-  
-    while(1):
-    
-      line = boostDepOld.readline()
+build_cgal = build_cgal+temp+build_cgal2+"\n sync \n cd .. \n cd .."
+ 
+print("Cmake command cgal")
+print(build_cgal)
+subprocess.call(build_cgal,env=my_env,shell=True)
 
-      if (not line):
-        boostDepOld.close()
-        boostDepNew.close()
-        break
-    
-      v = line.split()
-    
-      if (len(v)==0):
-        continue
-    
-      if (  line.startswith('  find_package')):
-        for j in range(len(v)):
-          if (v[j].startswith(')')):
-            found = True
-            enable_chrono = True
-            v[j]=' chrono)\n'
-          boostDepNew.write('%s '%v[j])
-      else:
-        boostDepNew.write(line)
-  else:
-    found = True
-  '''
-  found = True
-  if (found==True):
-    print "\nCGAL correctly patched"
-  else:
-    print "\n Error in CGAL patching. I need to add 'chrono' dependency into CGAL_SetupBoost.cmake but I cannot find the expected strings"
-    quit()
-
-  print ""
-  print "Building CGAL..."
-  print ""
-
-  if (mode32==0):
-   build_cgal = 'cd '+cgalDir+' \n rm -f CMakeCache.txt \n sync \n cmake . -DWITH_examples=false -DWITH_CGAL_Qt4=false -DWITH_CGAL_Qt3=false -DWITH_CGAL_ImageIO=false > cmake_cgal.txt \n sync \n make clean \n make > make_cgal.txt \n sync'
-  else:
-    # forcing 32 bits mode
-    build_cgal = 'cd '+cgalDir+' \n rm -f CMakeCache.txt \n sync \n cmake . -DWITH_examples=false -DWITH_CGAL_Qt4=false -DWITH_CGAL_Qt3=false -DWITH_CGAL_ImageIO=false -DCMAKE_CXX_FLAGS="-arch i386" > cmake_cgal.txt \n sync \n make clean \n make > make_cgal.txt \n sync'
-
-  subprocess.call(build_cgal,shell=True)
-
-print ""
+print ("")
 
 where = ''
 
 if (compMode==0):
-  print "Building NanoShaper Stand-Alone please wait..."
+  print ("Building NanoShaper Stand-Alone please wait...")
   shutil.copy2('CMakeLists_standalone.txt','CMakeLists.txt')
   where = 'build'
-elif (compMode==1):
-  print "Building NanoShaper DelPhi-lib please wait..."
-  shutil.copy2('CMakeLists_lib.txt','CMakeLists.txt')
-  where = 'build_lib'
-else:
-  print "Building NanoShaper Python Module please wait..."
-  shutil.copy2('CMakeLists_python.txt','CMakeLists.txt')
-  where = 'build_python'
-
-print ""
-
-  
-if (mode32==0):    
-	build_ns = 'cd '+where+' \n rm -fr * \n cmake .. -DCGAL_DIR=%s/'%(pwd)+cgalDir+' > cmake_ns.txt \n make clean \n make > make_ns.txt'
-else:
-	# forcing 32 bits mode
-	build_ns = 'cd '+where+' \n rm -fr * \n cmake .. -DCGAL_DIR=%s/'%(pwd)+cgalDir+' -DCMAKE_CXX_FLAGS="-arch i386" > cmake_ns.txt \n make clean \n make > make_ns.txt'
-
-subprocess.call(build_ns,shell=True)
-
-if (compMode==0):  
-  
-  print 'Copying NanoShaper executable in NanoShaper root'
-  shutil.copy2('./build/NanoShaper','./')
-  
-elif (compMode==1 and mac!=1):
-
-  if (root==True):  
-    print 'Installing NanoShaper library in /usr/lib or /usr/lib64'
-    install_ns = 'cd build_lib \n chmod 777 ./libDelphiSurface.so \n rm -fr /usr/lib64/libDelphiSurface.so \n rm -fr /usr/lib/libDelphiSurface.so \n cp libDelphiSurface.so /usr/lib64 \n cp libDelphiSurface.so /usr/lib \n '
-    subprocess.call(install_ns,shell=True)
-  else:
-    print 'For using the lib with DelPhi please assure that the lib is reachable by the OS'
-    print 'Once you have root privileges you can copy it on /usr/lib or /usr/lib64 folder.'
-    print 'If you have not root privileges you can update your LD_LIBRARY_PATH to the path where the lib is located'
-  
-elif (compMode==1 and mac==1):
-  
-  if (root==True):  
-    print 'Installing NanoShaper library in /usr/local/lib'
-    install_ns = 'cd build_lib \n chmod 777 ./libDelphiSurface.dylib \n rm -fr /usr/local/lib/libDelphiSurface.dylib \n cp libDelphiSurface.dylib /usr/local/lib \n'
-    subprocess.call(install_ns,shell=True)
-  else:
-    print 'For using the lib with DelPhi please assure that the lib is reachable by the OS'
-    print 'Once you have root privileges you can copy it on /usr/lib or /usr/local/lib folder.'
-    print 'If you have not root privileges you can update your LD_LIBRARY_PATH to the path where the lib is located'
-   
-
 elif (compMode==2):
+  print ("Building NanoShaper shared object please wait...")
+  shutil.copy2('CMakeLists_so.txt','CMakeLists.txt')
+  where = 'build_so'
+        
+subprocess.call('mkdir {}\n'.format(where),shell=True) 
+print ("")
+
+build_ns = """export NS_ROOT=$PWD
+cd %s
+rm -fr * """%(where)
+build_ns = build_ns+ '\nexport TBB_DIR='+tbb_path+'/lib/cmake/tbb \n %s/bin/cmake .. -G Ninja -DCGAL_DIR=$NS_ROOT/%s -DCMAKE_BUILD_TYPE="Release" '%(cmake_path,cgalDir)
+
+# add custom env variables if present in the environment
+if ("MPFR_LIBRARIES" in my_env):
+	build_ns = build_ns+ " -DMPFR_LIBRARIES=$MPFR_LIBRARIES/libmpfr.so"
+if ("MPFR_INCLUDE_DIR" in my_env):
+	build_ns = build_ns+ " -DMPFR_INCLUDE_DIR=$MPFR_INCLUDE_DIR"
+if ("BOOST_INCLUDEDIR" in my_env):
+	build_ns = build_ns+ " -DBOOST_INCLUDEDIR=$BOOST_INCLUDEDIR"
+if ("BOOST_LIBRARYDIR" in my_env):
+	build_ns = build_ns+ " -DBOOST_LIBRARYDIR=$BOOST_LIBRARYDIR"
+if ("GMP_LIBRARIES" in my_env):
+	build_ns = build_ns+ " -DGMP_LIBRARIES=$GMP_LIBRARIES/libgmp.so"
+if ("GMP_INCLUDE_DIR" in my_env):
+	build_ns = build_ns+ " -DGMP_INCLUDE_DIR=$GMP_INCLUDE_DIR"
+
+build_ns = build_ns + "\n make clean \n make -j 8"
+
+print("Cmake command")
+print(build_ns)
+
+subprocess.call(build_ns,shell=True,env=my_env)
   
-  if (root==True):  
-    subprocess.call('cd build_python \n mkdir NanoShaper',shell=True)
-    subprocess.call('cd build_python \n cp _NanoShaper.so ./NanoShaper',shell=True)
-    subprocess.call('cd build_python \n cp ../setupInstallation.py ./',shell=True)
-    subprocess.call('cd build_python \n python setupInstallation.py install > log.txt',shell=True)
-    ff = open('./build_python/log.txt','r')
-    strs = ff.read().split()
-    the_path = ''
-    index = 0
-    for ss in strs:
-      if (ss=='Writing'):
-        ss = strs[index+1]
-        strs = ss.split('/')
-        for ss in strs:
-          if (ss.startswith('NanoShaper')==True):
-            break 
-          else:
-            the_path = the_path+ss+'/'
-        break
-      index = index + 1
+if (compMode==1):
 
-    print "Installation was done in ",the_path
-    shutil.copy2('./build_python/_NanoShaper.so',the_path)
-  else:
-    print ""
-    print "Without root privileges I cannot perform installation"
-    print "Once you get root privileges you can rerun this script or perform installation following these steps:"
-    print "1) Go to \\build_python and mkdir NanoShaper"
-    print "2) cp _NanoShaper.so ./NanoShaper"
-    print "3) cp ../setupInstallation.py ./"
-    print "4) python setupInstallation.py install > log.txt"
-    print '5) On the log.txt file identify the path that appears after the "Writing" string'
-    print '6) Copy _NanoShaper.so into one level before that path. For instance:'
-    print '   If in the log you get "/usr/dist-packages/NanoShaper-0.5.egg" then copy into "/usr/dist-packages/"'
-    print "   Now you can import NanoShaper in python as per any other package"
-    print ""
-
-print ''
-print ''
+  print ("For using the lib with DelPhi please assure that the lib is reachable by the OS")
+  print ("Once you have root privileges you can copy it on /usr/lib or /usr/lib64 folder.")
+  print ("If you have not root privileges you can update your LD_LIBRARY_PATH to the path where the lib is located")
+  
+print ("")
+print ("")

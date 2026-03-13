@@ -1,0 +1,157 @@
+###############################################################################
+###################### NanoShaper 1.5 Configuration file  #####################
+###############################################################################
+
+# Operative_Mode = pockets
+
+Compute_Vertex_Normals = true
+Save_Mesh_MSMS_Format = false
+Load_Balancing = true
+Print_Available_Surfaces = false
+
+# Example_Surface_Parameter = 2.0
+
+# NOTE
+# for big molecules consider reducing to 1.5 for limiting memory usage.
+# if still memory usage is too high, remove accurate triangulation 
+# and enable status map
+
+################################ Grid params ##################################
+
+# Grid scale 
+Grid_scale = 2.0
+
+# Percentage that the surface occupies with respect to the total grid volume 
+# default value is 90.0; in the case of very small molecules (e.g. fullerene) keep more margin 
+# (e.g. lower the value to 50%)
+Grid_perfil = 90.0 
+
+# Input atoms xyzr file name
+XYZR_FileName = 1crn.xyzr
+
+############################## Internal maps ##################################
+
+# Enable/Disable build of epsilon (dielectric) map
+Build_epsilon_maps  = false
+
+# Enable/Disable build of map for cavity detection and for a non analytical
+# triangulation
+Build_status_map = true
+
+########################## Surface Type params ################################
+
+# Possible values: skin,blobby,mesh,ses,example
+Surface = skin
+
+# Apply final surface smoothing
+Smooth_Mesh = false
+
+# Number of total threads
+Number_thread = 16 
+
+# Skin surface parameter [0.05,0.95]
+# the extrema are possibly not numerically stable,
+# the suggested range is [0.15,0.95]
+# default value is 0.45
+Skin_Surface_Parameter = 0.45
+
+# Blobbyness value for the blobby surface [-0.5,-5.0]
+# default value is -2.5
+Blobbyness = -2.5 
+
+# Name of the input surface file used if mesh Surface is enabled or msms.
+# In case of msms remove any extension, .face and .vert file will be 
+# automatically loaded.
+# In case of mesh, .off and .ply files are supported
+Surface_File_Name = triangulatedSurf.vert
+
+# Conventional ray-based ray casting or new patch-based one
+Patch_Based_Algorithm = true
+
+# Analytical ray vs torus intersections in SES surfaces
+Analytical_Ray_Vs_Torus_Intersection = true
+
+Force_Serial_Build = false
+
+# This parameter allows to limit the number of read atoms
+# Max_Num_Atoms = -1
+
+# This shrinking parameter, comprised in [0,1] allows to reduce the domain by shrinking it around the centre
+# Domain_Shrinkage = 1.0
+
+######################## Surface Processing params ############################
+
+# Enable or disable cavity detection together with the volume conditional
+# filling of voids and cavities
+Cavity_Detection_Filling = false
+
+# It is the value of the minimal volume of a cavity to get filled if 
+# cavity detection is enabled. 
+# The default value is an approximation of the volume of the water molecule 
+# default value is 11.4, this is the approximate volume of a water molecule 
+# in Angstrom
+Conditional_Volume_Filling_Value = 11.4
+
+# If this flag is true, cavities where a sphere of Probe_Radius cannot fit, 
+# are removed.
+# Use this feature when cavity detection is enabled to filter out bad shaped 
+# cavities whose
+# volume is higher than Conditional_Volume_Filling_Value.
+Keep_Water_Shaped_Cavities = false
+
+# The radius of the sphere that represents a water molecule in Angstrom
+# default value is 1.4 Angstrom
+Probe_Radius = 1.4
+
+# Enable accurate triangulation: if accurate triangulation is enable all points 
+# are sampled from the original surface. If disabled the points are not 
+# analytically sampled and an high memory saving can be obtained
+# together with a 3x speed-up on ray casting if both epsmap is disabled
+# MC phase will be slower because vertices are calculated on the fly
+Accurate_Triangulation = true
+
+# Perform triangulation using a single ray-casting process. Vertex data is 
+# inferred.
+Triangulation = true
+
+# Check duplicated vertices when reading
+Check_duplicated_vertices = false
+
+# If true save the status map. Enable this for cavity detection and 
+# visualization of the coloured FD grid
+Save_Status_map = false
+
+# Save Skin/SES in a PovRay file for ray-tracing. 
+# This is a purely graphics representation because the surface is not in
+# a left handed system as it should in Pov-Ray
+Save_PovRay = false
+
+####################### Data Structures ##########################
+
+# Several buffers and grids are optimised in this NS version; this parameter allows to optimise
+# the status map by making it a two-level hierarchical grid but it will be a flat uniform grid
+# in pockets mode to run faster
+Optimize_Grids = true
+
+# Mesh Projection(3D)/Ray Casting (3D) acceleration grid parameters.
+# When Patch_Based_Algorithm = true the conventional ray tracing and *_2d_size are not used.
+# Augument *_size to enhance performance but at the cost of some memory usage increase.
+
+# default 100
+Max_mesh_auxiliary_grid_size = 1000
+# default 100
+Max_mesh_auxiliary_grid_2d_size = 2000
+
+# SES Projection(3D)/Ray Casting (3D) acceleration grid
+# default 100
+Max_ses_patches_auxiliary_grid_size = 1000
+# defualt 40
+Max_ses_patches_auxiliary_grid_2d_size = 2000
+
+# Skin Projection(3D)/Ray Casting (3D) acceleration grid
+# default 100
+Max_skin_patches_auxiliary_grid_size = 1000
+# default 50
+Max_skin_patches_auxiliary_grid_2d_size = 2000
+
+###############################################################################

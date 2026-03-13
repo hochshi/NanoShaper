@@ -1,6 +1,13 @@
 ###############################################################################
-###################### NanoShaper 0.3.1 Configuration file  ###################
+###################### NanoShaper 1.5 Configuration file  ###################
 ###############################################################################
+
+###### new keywords ########
+
+Compute_Vertex_Normals = true
+Save_Mesh_MSMS_Format = false
+Load_Balancing = true
+Print_Available_Surfaces = false
 
 ################################ Grid params ##################################
 
@@ -10,14 +17,15 @@ Grid_scale = 2.0
 # Percentage that the surface occupies with respect to the total grid volume 
 # default value is 90.0; in the case of very small molecules (e.g. fullerene) keep more margin 
 # (e.g. lower the value to 50%)
-Grid_perfil = 90.0 
+Grid_perfil = 80.0 
 
 # Input atoms xyzr file name
-XYZR_FileName = barstar.xyzr
+XYZR_FileName = barstar.xyzr   
 #XYZR_FileName = 1crn.xyzr
 #XYZR_FileName = ArgArg.xyzr
 # if you enable fullerene (or a small molecule) use Grid_perfil = 70.0 or lower
 #XYZR_FileName = fullerene.xyzr 
+
 ############################## Internal maps ##################################
 
 # Enable/Disable build of epsilon (dielectric) map
@@ -25,18 +33,20 @@ Build_epsilon_maps  = false
 
 # Enable/Disable build of map for cavity detection and for a non analytical
 # triangulation
-Build_status_map = false
+Build_status_map = true
+
+Tri2Balls = false
 
 ########################## Surface Type params ################################
 
-# Possible values: skin,blobby,msms,mesh,ses
-Surface = skin
+# Possible values: skin,blobby,mesh (msms is recovered by file extension check),ses
+Surface = ses
 
 # Apply final surface smoothing
 Smooth_Mesh = true
 
 # Number of total threads
-Number_thread = 32 #default value is 32
+Number_thread = 4
 
 # Skin surface parameter [0.05,0.95]
 # the extrema are possibly not numerically stable,
@@ -44,9 +54,29 @@ Number_thread = 32 #default value is 32
 # default value is 0.45
 Skin_Surface_Parameter = 0.45
 
+Envelope_Surface_Parameter = 0.45
+
 # Blobbyness value for the blobby surface [-0.5,-5.0]
 # default value is -2.5
-Blobbyness = -2.5 
+Blobbyness = -2.5
+
+Skip_Mem_CleanUp = false
+
+# Conventional ray-based ray casting or new patch-based one
+Patch_Based_Algorithm = true
+
+# Analytical ray vs torus intersections in SES surfaces
+Analytical_Ray_Vs_Torus_Intersection = true
+
+Force_Serial_Build = false
+
+# This parameter allows to limit the number of read atoms
+# Max_Num_Atoms = -1
+
+# This shrinking parameter, comprised in [0,1] allows to reduce the domain by shrinking it around the centre
+# Domain_Shrinkage = 1.0
+
+Optimize_Grids = true
 
 # Name of the input surface file used if mesh Surface is enabled or msms.
 # In case of msms remove any extension, .face and .vert file will be 
@@ -55,6 +85,7 @@ Blobbyness = -2.5
 Surface_File_Name = triangulatedSurf.off
 
 ######################## Surface Processing params ############################
+
 # Enable or disable cavity detection together with the volume conditional
 # filling of voids and cavities
 Cavity_Detection_Filling = false
@@ -76,6 +107,8 @@ Keep_Water_Shaped_Cavities = false
 # The radius of the sphere that represents a water molecule in Angstrom
 # default value is 1.4 Angstrom
 Probe_Radius = 1.4
+Max_Probes_Self_Intersections = 100
+Self_Intersections_Grid_Coefficient = 1.5
 
 # Enable accurate triangulation: if accurate triangulation is enable all points 
 # are sampled from the original surface. If disabled the points are not 
@@ -102,37 +135,30 @@ Save_PovRay = false
 
 ####################### Acceleration Data Structures ##########################
 
-# Mesh Projection(3D)/Ray Casting (3D) acceleration grid
-# Increase *_size to increase performance and memory usage.
-# Increase *_cell if requested by NanoShaper
+# Several buffers and grids are optimised in this NS version; this parameter allows to optimise
+# the status map by making it a two-level hierarchical grid but it will be a flat uniform grid
+# in pockets mode to run faster
+Optimize_Grids = true
+
+# Mesh Projection(3D)/Ray Casting (3D) acceleration grid parameters.
+# When Patch_Based_Algorithm = true the conventional ray tracing and *_2d_size are not used.
+# Augument *_size to enhance performance but at the cost of some memory usage increase.
 
 # default 100
 Max_mesh_auxiliary_grid_size = 100
-# default 250
-Max_mesh_patches_per_auxiliary_grid_cell = 250;
 # default 100
 Max_mesh_auxiliary_grid_2d_size = 100
-# default 250
-Max_mesh_patches_per_auxiliary_grid_2d_cell = 250 
 
 # SES Projection(3D)/Ray Casting (3D) acceleration grid
 # default 100
 Max_ses_patches_auxiliary_grid_size = 100
-# default 400
-Max_ses_patches_per_auxiliary_grid_cell = 400
 # defualt 40
-Max_ses_patches_auxiliary_grid_2d_size = 50
-# default 400
-Max_ses_patches_per_auxiliary_grid_2d_cell = 400
+Max_ses_patches_auxiliary_grid_2d_size = 40
 
 # Skin Projection(3D)/Ray Casting (3D) acceleration grid
 # default 100
 Max_skin_patches_auxiliary_grid_size = 100
-# default 400
-Max_skin_patches_per_auxiliary_grid_cell = 400
-# default 150
-Max_skin_patches_auxiliary_grid_2d_size = 150
-# default 400
-Max_skin_patches_per_auxiliary_grid_2d_cell = 200
+# default 50
+Max_skin_patches_auxiliary_grid_2d_size = 50
 
 ###############################################################################

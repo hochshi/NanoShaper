@@ -2,80 +2,66 @@
 #ifndef SurfaceFactory_h
 #define SurfaceFactory_h
 
-#include <Configuration.h>
-#include <globals.h>
-#include <logging.h>
-#include <iostream>
 #include <map>
-#include <memory>
-#include <sstream>
 #include <string>
+#include <iostream>
+#include "ConfigFile.h"
+#include "globals.h"
 
-namespace nanoshaper {
 class Surface;
-using SurfaceOP = std::shared_ptr<Surface>;
 class DelPhiShared;
-using DelPhiSharedOP = std::shared_ptr<DelPhiShared>;
 using namespace std;
 
-typedef SurfaceOP (*surface_instantiator)(ConfigurationOP conf,
-                                          DelPhiSharedOP ds);
+typedef Surface* (*surface_instantiator)(ConfigFile *conf, DelPhiShared *ds);
 
-class SurfaceFactory {
+class SurfaceFactory{
+	
+private:
+	map<string,surface_instantiator> surfRegister;
+	map<string,surface_instantiator>::iterator it;
+public:
+	
+	void add(string surfaceName,surface_instantiator si)
+	{
+		surfRegister.insert(pair<string,surface_instantiator>(surfaceName,si));
+	}
+	
+	Surface *create(ConfigFile *conf, DelPhiShared *ds)
+	{
+		string surfName = conf->read<string>("Surface");
+		if (!surfRegister.count(surfName))
+		{
+			cout << endl << surfName << " type is not registered!";
+			return NULL;
+		}		
+		return surfRegister[surfName](conf,ds);
+	}
 
- private:
-  SurfaceFactory() = default;
-  ~SurfaceFactory() = default;
-
-  map<string, surface_instantiator> surfRegister;
-  map<string, surface_instantiator>::iterator it;
-
- public:
-  SurfaceFactory(const SurfaceFactory&) = delete;
-  SurfaceFactory& operator=(const SurfaceFactory&) = delete;
-
-  static SurfaceFactory& getInstance() {
-    static SurfaceFactory instance;
-    return instance;
-  }
-
-  void register_instantiator(string surfaceName, surface_instantiator si) {
-    surfRegister.insert(pair<string, surface_instantiator>(surfaceName, si));
-  }
-
-  SurfaceOP create(ConfigurationOP conf, DelPhiSharedOP ds) {
-    string surfName = conf->surfName;
-    if (!surfRegister.count(surfName)) {
-      logging::log<logging::level::err>("{} type is not registered!", surfName);
-      return nullptr;
-    }
-    return surfRegister[surfName](conf, ds);
-  }
-
-  void print() {
-    std::stringstream ss;
-    ss << endl << INFO_STR << "Available surfaces:";
-    for (it = surfRegister.begin(); it != surfRegister.end(); it++) {
-      ss << endl << INFO_STR << "\t" << (*it).first;
-    }
-    logging::log<logging::level::info>("{}", ss.str());
-  }
+	void print()
+	{
+		cout << endl << INFO << "Available surfaces:";
+		for (it = surfRegister.begin(); it != surfRegister.end(); it++)
+		{
+			cout << endl << INFO << "\t" << (*it).first;
+		}
+	}
 };
 
-// SurfaceFactory& surfaceFactory();
+SurfaceFactory &surfaceFactory();
 
-template <class T>
-class SurfaceRecorder {
+template<class T> class SurfaceRecorder 
+{
 
- public:
-  SurfaceRecorder(string surface) {
-    SurfaceFactory::getInstance().register_instantiator(surface, createSurface);
-  }
+public:
+    SurfaceRecorder(string surface)
+    {
+		surfaceFactory().add(surface,createSurface);
+    }
 
-  static SurfaceOP createSurface(ConfigurationOP conf, DelPhiSharedOP ds) {
-    return std::make_shared<T>(conf, ds);
-  }
+	static Surface *createSurface(ConfigFile *conf, DelPhiShared *ds)
+	{ 
+		return new T(conf,ds);
+	} 
 };
 
-}  // namespace nanoshaper
 #endif

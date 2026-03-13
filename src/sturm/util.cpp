@@ -6,26 +6,27 @@
  * polynomials.
  */
 #include <math.h>
-#include <solve.h>
 #include <stdio.h>
+#include "solve.h"
 
-namespace strum {
 /*
  * evalpoly
  *
  *	evaluate polynomial defined in coef returning its value.
  */
-double evalpoly(int ord, double* coef, double x) {
-  double *fp, f;
+double evalpoly (int ord,double* coef,double x)
+{
+	double	*fp, f;
 
-  fp = &coef[ord];
-  f = *fp;
+	fp = &coef[ord];
+	f = *fp;
 
-  for (fp--; fp >= coef; fp--)
-    f = x * f + *fp;
+	for (fp--; fp >= coef; fp--)
+	f = x * f + *fp;
 
-  return (f);
+	return(f);
 }
+
 
 /*
  * modrf
@@ -35,73 +36,77 @@ double evalpoly(int ord, double* coef, double x) {
  * root is returned in *val. The routine returns zero
  * if it can't converge.
  */
-int modrf(int ord, double* coef, double a, double b, double* val) {
-  int its;
-  double fa, fb, x, fx, lfx;
-  double *fp, *scoef, *ecoef;
+int modrf(int ord,double* coef,double a,double b,double* val)
+{
+	int		its;
+	double	fa, fb, x, fx, lfx;
+	double	*fp, *scoef, *ecoef;
 
-  scoef = coef;
-  ecoef = &coef[ord];
+	scoef = coef;
+	ecoef = &coef[ord];
 
-  fb = fa = *ecoef;
-  for (fp = ecoef - 1; fp >= scoef; fp--) {
-    fa = a * fa + *fp;
-    fb = b * fb + *fp;
-  }
+	fb = fa = *ecoef;
+	for (fp = ecoef - 1; fp >= scoef; fp--) {
+		fa = a * fa + *fp;
+		fb = b * fb + *fp;
+	}
 
-  /*
+	/*
 	 * if there is no sign difference the method won't work
 	 */
-  if (fa * fb > 0.0)
-    return (0);
+	if (fa * fb > 0.0)
+		return(0);
 
-  if (fabs(fa) < RELERROR) {
-    *val = a;
-    return (1);
-  }
+	if (fabs(fa) < RELERROR) {
+		*val = a;
+		return(1);
+	}
 
-  if (fabs(fb) < RELERROR) {
-    *val = b;
-    return (1);
-  }
+	if (fabs(fb) < RELERROR) {
+		*val = b;
+		return(1);
+	}
 
-  lfx = fa;
+	lfx = fa;
 
-  for (its = 0; its < MAXIT; its++) {
 
-    x = (fb * a - fa * b) / (fb - fa);
+	for (its = 0; its < MAXIT; its++) {
 
-    fx = *ecoef;
-    for (fp = ecoef - 1; fp >= scoef; fp--)
-      fx = x * fx + *fp;
+		x = (fb * a - fa * b) / (fb - fa);
 
-    if (fabs(x) > RELERROR) {
-      if (fabs(fx / x) < RELERROR) {
-        *val = x;
-        return (1);
-      }
-    } else if (fabs(fx) < RELERROR) {
-      *val = x;
-      return (1);
-    }
+		fx = *ecoef;
+		for (fp = ecoef - 1; fp >= scoef; fp--)
+				fx = x * fx + *fp;
 
-    if ((fa * fx) < 0) {
-      b = x;
-      fb = fx;
-      if ((lfx * fx) > 0)
-        fa /= 2;
-    } else {
-      a = x;
-      fa = fx;
-      if ((lfx * fx) > 0)
-        fb /= 2;
-    }
+		if (fabs(x) > RELERROR) {
+				if (fabs(fx / x) < RELERROR) {
+					*val = x;
+					return(1);
+				}
+		} else if (fabs(fx) < RELERROR) {
+				*val = x;
+				return(1);
+		}
 
-    lfx = fx;
-  }
+		if ((fa * fx) < 0) {
+				b = x;
+				fb = fx;
+				if ((lfx * fx) > 0)
+					fa /= 2;
+		} else {
+				a = x;
+				fa = fx;
+				if ((lfx * fx) > 0)
+					fb /= 2;
+		}
 
-  //fprintf(stderr, "modrf overflow %f %f %f\n", a, b, fx);
+		lfx = fx;
+	}
 
-  return (0);
+	//fprintf(stderr, "modrf overflow %f %f %f\n", a, b, fx);
+
+	return(0);
 }
-}  // namespace strum
+	
+
+
